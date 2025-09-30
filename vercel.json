@@ -1,0 +1,48 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "build"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/static/(.*)",
+      "dest": "/static/$1"
+    },
+    {
+      "src": "/favicon.ico",
+      "dest": "/favicon.ico"
+    },
+    {
+      "src": "/manifest.json",
+      "dest": "/manifest.json"
+    },
+    {
+      "src": "/logo192.png",
+      "dest": "/logo192.png"
+    },
+    {
+      "src": "/logo512.png",
+      "dest": "/logo512.png"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
+  "env": {
+    "REACT_APP_FIREBASE_API_KEY": "AIzaSyAnO3ST9-FhnMMsJrOcdetnVMDNdiF4uwc",
+    "REACT_APP_FIREBASE_AUTH_DOMAIN": "realestate-d23eb.firebaseapp.com",
+    "REACT_APP_FIREBASE_PROJECT_ID": "realestate-d23eb",
+    "REACT_APP_FIREBASE_STORAGE_BUCKET": "realestate-d23eb.firebasestorage.app",
+    "REACT_APP_FIREBASE_MESSAGING_SENDER_ID": "910773398",
+    "REACT_APP_FIREBASE_APP_ID": "1:910773398:web:679d012d04a07da03c46b7",
+    "REACT_APP_FIREBASE_MEASUREMENT_ID": "G-XRKGZZK5YK",
+    "REACT_APP_ENVIRONMENT": "production"
+  }
+}
