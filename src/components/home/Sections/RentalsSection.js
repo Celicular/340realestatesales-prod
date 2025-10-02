@@ -1,27 +1,58 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Star, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import villas from "../../../data/Villas";
+import { getRentalProperties } from "../../../firebase/firestore";
 
 const RentalsSection = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [rentalProperties, setRentalProperties] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Map villas data to the format expected by the component
-  const rentalVillas = villas.map((villa, index) => ({
-    id: index + 1,
-    name: villa.name,
-    slug: villa.slug,
-    location: villa.address,
-    price: `$${villa.pricePerNight}`,
-    rating: 4.8, // Default rating since villas.js doesn't have ratings
-    image: villa.images[0], // Use first image from the villa's image array
-    description: villa.details.split('\n')[0], // Use first line of details as description
-    amenities: villa.amenities.slice(0, 8), // Take first 8 amenities
-    guests: villa.accommodation.find(acc => acc.label === "Guests")?.value || "N/A",
-    bedrooms: villa.accommodation.find(acc => acc.label === "Bedrooms")?.value || "N/A",
-    bathrooms: villa.accommodation.find(acc => acc.label === "Bathrooms")?.value || "N/A",
-  }));
+  // Fetch rental properties from backend - exactly like RentalDetails.jsx
+  useEffect(() => {
+    const fetchRentalProperties = async () => {
+      try {
+        setIsLoading(true);
+        const result = await getRentalProperties({ status: 'approved' });
+        if (result.success) {
+          console.log('🔍 Fetched rental properties:', result.data);
+          setRentalProperties(result.data);
+        }
+      } catch (error) {
+        console.error('Error fetching rental properties:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchRentalProperties();
+  }, []);
+
+  // Map backend rental properties data to the format expected by the component
+  const rentalVillas = rentalProperties.map((property, index) => {
+    const mappedProperty = {
+      id: property.id,
+      name: property.propertyInfo?.name || "Rental Property",
+      slug: property.propertyInfo?.slug || `rental-${index}`,
+      location: property.propertyInfo?.address || "Location not specified",
+      price: property.propertyInfo?.pricePerNight ? `$${property.propertyInfo.pricePerNight}` : "Price on request",
+      rating: 4.5, // Default rating since backend doesn't have ratings yet
+      image: property.media?.imageLinks?.[0] || "/placeholder-image.jpg",
+      description: property.description?.split("\n")[0] || "Beautiful rental property",
+      amenities: property.amenities?.slice(0, 8) || [],
+      guests: property.accommodation?.maxGuests || "N/A",
+      bedrooms: property.accommodation?.bedrooms || "N/A",
+      bathrooms: property.accommodation?.bathrooms || "N/A",
+    };
+    
+    console.log(`🏠 Mapped property ${index}:`, {
+      original: property,
+      mapped: mappedProperty
+    });
+    
+    return mappedProperty;
+  });
 
   const nextSlide = () => {
     setCurrentIndex((prevIndex) =>
@@ -35,9 +66,59 @@ const RentalsSection = () => {
     );
   };
 
-  const handleViewDetails = (villaSlug) => {
-    navigate(`/villa-rentals/${villaSlug}`);
+  const handleViewDetails = (propertySlug) => {
+    navigate(`/rental/${propertySlug}`);
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <section id="rentals" className="py-16 lg:py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl lg:text-4xl font-serif font-bold text-gray-900 mb-4">
+              Villa Rentals
+            </h2>
+            <p className="text-lg text-gray-600">
+              Hand-picked selection of quality places
+            </p>
+          </div>
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-tropical-600 mx-auto mb-4"></div>
+              <p className="text-gray-600 text-lg">Loading rental properties...</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+
+  // No properties state
+  if (rentalVillas.length === 0) {
+    return (
+      <section id="rentals" className="py-16 lg:py-24 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl lg:text-4xl font-serif font-bold text-gray-900 mb-4">
+              Villa Rentals
+            </h2>
+            <p className="text-lg text-gray-600">
+              Hand-picked selection of quality places
+            </p>
+          </div>
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <div className="text-gray-400 text-6xl mb-4">🏠</div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">No rental properties available</h3>
+              <p className="text-gray-600">Check back later for new rental properties.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="rentals" className="py-16 lg:py-24 bg-gray-50">
@@ -111,20 +192,30 @@ const RentalsSection = () => {
                         <p className="text-gray-600 leading-relaxed mb-4">
                           {villa.description}
                         </p>
-                        
+
                         {/* Villa Stats */}
                         <div className="grid grid-cols-3 gap-4 mb-4">
                           <div className="text-center">
-                            <div className="text-lg font-semibold text-tropical-600">{villa.guests}</div>
+                            <div className="text-lg font-semibold text-tropical-600">
+                              {villa.guests}
+                            </div>
                             <div className="text-xs text-gray-500">Guests</div>
                           </div>
                           <div className="text-center">
-                            <div className="text-lg font-semibold text-tropical-600">{villa.bedrooms}</div>
-                            <div className="text-xs text-gray-500">Bedrooms</div>
+                            <div className="text-lg font-semibold text-tropical-600">
+                              {villa.bedrooms}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              Bedrooms
+                            </div>
                           </div>
                           <div className="text-center">
-                            <div className="text-lg font-semibold text-tropical-600">{villa.bathrooms}</div>
-                            <div className="text-xs text-gray-500">Bathrooms</div>
+                            <div className="text-lg font-semibold text-tropical-600">
+                              {villa.bathrooms}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              Bathrooms
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -136,7 +227,7 @@ const RentalsSection = () => {
                           </span>
                           <span className="text-gray-600 ml-1">/ weekly</span>
                         </div>
-                        <button 
+                        <button
                           onClick={() => handleViewDetails(villa.slug)}
                           className="px-8 py-3 bg-tropical-600 hover:bg-tropical-700 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                         >
@@ -147,7 +238,10 @@ const RentalsSection = () => {
                       {/* Amenities */}
                       <div className="grid grid-cols-2 gap-4 pt-6 border-t border-gray-200">
                         {villa.amenities.slice(0, 4).map((amenity, index) => (
-                          <div key={index} className="flex items-center space-x-2">
+                          <div
+                            key={index}
+                            className="flex items-center space-x-2"
+                          >
                             <div className="w-2 h-2 bg-tropical-500 rounded-full"></div>
                             <span className="text-sm text-gray-600">
                               {amenity}
@@ -163,7 +257,7 @@ const RentalsSection = () => {
           </div>
 
           {/* Dots Indicator */}
-          <div className="flex justify-center mt-8 space-x-2">
+          <div className="flex justify-center mt-[-154px] space-x-2">
             {rentalVillas.map((_, index) => (
               <button
                 key={index}
