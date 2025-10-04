@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { getBlog, updateBlog } from "../firebase/firestore";
 import hardcodedBlogs from "../data/Blogs";
+import logoImage from "../assets/logo.png";
 
 const BlogDetails = () => {
   const { id } = useParams();
@@ -119,10 +120,19 @@ const BlogDetails = () => {
           const match = line.match(imageRegex);
           if (match) {
             const [, altText, imageSrc] = match;
+            
+            // Hardcode image for the welcome blog
+            let finalImageSrc = imageSrc;
+            if (blog?.id === "340-real-estate-first-blog" && imageSrc === "new.jpg") {
+              finalImageSrc = logoImage;
+            } else {
+              finalImageSrc = imageSrc.startsWith('/') ? imageSrc : `/${imageSrc}`;
+            }
+            
             return (
               <div key={index} className="my-6 flex justify-center">
                 <img
-                  src={imageSrc.startsWith('/') ? imageSrc : `/${imageSrc}`}
+                  src={finalImageSrc}
                   alt={altText}
                   className="max-w-sm w-full h-auto rounded-lg shadow-lg"
                 />
