@@ -112,7 +112,6 @@ const Header = () => {
       ],
     },
 
-    { name: "Search MLS", path: "/mls" },
     { name: "Sales History", path: "/saleshistory" },
 
     {
@@ -143,8 +142,7 @@ const Header = () => {
       link.name.startsWith("About") ||
       link.name.startsWith("Rentals") ||
       link.name === "Testimonials" ||
-      link.name === "For Sale" ||
-      link.name === "Search MLS"
+      link.name === "For Sale"
   );
 
   // Only show these in desktop hamburger
@@ -211,6 +209,7 @@ const Header = () => {
                   {/* Nested dropdown for Commercial */}
                   <div className="absolute left-full top-0 ml-1 w-40 bg-white shadow-lg opacity-0 invisible group-hover/commercial:visible group-hover/commercial:opacity-100 transform transition-all duration-300 z-50">
                     <a
+                      href="#"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="block px-4 py-2 text-sm font-barlow text-blue-800 font-semibold hover:text-blue-600 hover:bg-blue-50"
@@ -236,23 +235,7 @@ const Header = () => {
               </div>
             </div>
 
-            {/* Search MLS Button */}
-            <Link
-              to="/mls"
-              className={`font-barlow text-sm px-2 py-1 rounded-md border transition-all duration-200 hover:transform hover:scale-105 ${
-                isScrolled
-                  ? "text-[#3c6a72] border-[#3c6a72] hover:bg-[#3c6a72] hover:text-white"
-                  : "text-white border-white hover:bg-white hover:text-[#3c6a72]"
-              } ${
-                location.pathname === "/mls"
-                  ? "bg-[#3c6a72] text-white font-bold border-[#3c6a72]"
-                  : ""
-              }`}
-            >
-              Search MLS
-            </Link>
-
-            {/* About Dropdown */}
+        
             <div className="relative group">
               <span
                 className={`cursor-pointer font-barlow text-sm px-2 py-1 transition-all duration-200 ${

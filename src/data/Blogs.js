@@ -42,13 +42,12 @@ import viewproperty from "../../src/assets/articles/viewproperty.jpg";
 import exploreisland from "../../src/assets/articles/exploreisland.jpg";
 
 // Import team and company images
-import teamPhoto from "../assets/teamcrop.jpg";
 import logoImage from "../assets/logo.png";
 
 const blogs = [
   {
     id: "340-real-estate-first-blog",
-    title: "340 Real Estate",
+    title: "Welcome to our new website and blog!",
     subtitle: "Welcome to our new website and blog!",
     description: `Welcome to 340 Real Estate's new website! We are always working to give a better experience to our customers, so we decided to modernize our website while making it much more user-friendly in the process. We've also decided to launch a new blog, so we can keep you informed about the happenings here at 340 Real Estate and around St. John too. We hope you enjoy the new look and services we've created for you.
 
@@ -74,6 +73,8 @@ Tammy has seven sales associates and one broker associate who work alongside her
 
 We are an experienced team who is dedicated to helping you find the perfect property. Whether it's a cozy condo overlooking Cruz Bay, a luxurious home on St. John's famed North Shore, a sprawling piece of land with views of Coral Bay, the British Virgin Islands and beyond, or a commercial space located here in St. John, we will work tirelessly to help you find the ideal property to suit your wants and needs.
 
+![340 Real Estate Team](/new.jpg)
+
 ## A Great Feature for You!
 
 Our new website has a user-friendly, fully searchable database of all St. John properties for sale, including homes, condos, land, and commercial businesses. It also includes a sales archive with more than 5,000 real estate sales dating back to 2009. You can explore historical trends by area, property type and timeframe. We work to provide you with all of the insights necessary to make a smart investment.
@@ -89,9 +90,9 @@ For more information about our services or to search properties, visit our websi
 - Follow us on [Facebook](https://www.facebook.com/340realestate/) and [Instagram](https://www.instagram.com/340realestatestjohn/)
 
 We look forward to helping you find your perfect piece of paradise in St. John!`,
-    coverImage: teamPhoto,
+    coverImage: "/new.jpg",
     author: "340 Real Estate Team",
-    publishedAt: "2025-10-04",
+    publishedAt: "2024-01-15",
     category: "Company News"
   },
   {

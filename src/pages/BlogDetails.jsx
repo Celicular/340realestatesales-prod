@@ -112,34 +112,53 @@ const BlogDetails = () => {
           </li>
         );
       } else if (line.includes("[") && line.includes("](")) {
-        // Handle markdown links
-        const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
-        const parts = line.split(linkRegex);
-        return (
-          <p key={index} className="text-gray-700 text-base mb-3">
-            {parts.map((part, partIndex) => {
-              if (partIndex % 3 === 1) {
-                // This is link text
-                return (
-                  <a
-                    key={partIndex}
-                    href={parts[partIndex + 1]}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-800 underline"
-                  >
-                    {part}
-                  </a>
-                );
-              } else if (partIndex % 3 === 2) {
-                // This is the URL, skip it as it's already used
-                return null;
-              }
-              // Regular text
-              return part;
-            })}
-          </p>
-        );
+        // Handle markdown links and images
+        if (line.startsWith("![")) {
+          // Handle markdown images: ![alt text](image-url)
+          const imageRegex = /!\[([^\]]*)\]\(([^)]+)\)/;
+          const match = line.match(imageRegex);
+          if (match) {
+            const [, altText, imageSrc] = match;
+            return (
+              <div key={index} className="my-6 flex justify-center">
+                <img
+                  src={imageSrc.startsWith('/') ? imageSrc : `/${imageSrc}`}
+                  alt={altText}
+                  className="max-w-full h-auto rounded-lg shadow-lg"
+                />
+              </div>
+            );
+          }
+        } else {
+          // Handle markdown links
+          const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+          const parts = line.split(linkRegex);
+          return (
+            <p key={index} className="text-gray-700 text-base mb-3">
+              {parts.map((part, partIndex) => {
+                if (partIndex % 3 === 1) {
+                  // This is link text
+                  return (
+                    <a
+                      key={partIndex}
+                      href={parts[partIndex + 1]}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 underline"
+                    >
+                      {part}
+                    </a>
+                  );
+                } else if (partIndex % 3 === 2) {
+                  // This is the URL, skip it as it's already used
+                  return null;
+                }
+                // Regular text
+                return part;
+              })}
+            </p>
+          );
+        }
       } else if (line.trim() === "") {
         return <br key={index} />;
       } else {
