@@ -10,13 +10,12 @@ import RentalsSection from "../components/home/Sections/RentalsSection";
 import GallerySection from "../components/home/Sections/GallerySection";
 import HeroLogos from "../components/home/Sections/HeroLogos";
 import AnniversarySection from "../components/home/Sections/AnniverserySection";
-import MLSSearchSection from "../components/home/Sections/MLSSearchSection";
 
 function Home() {
   return (
     <div className="App relative scroll-smooth">
       <HeroSection />
-      <MLSSearchSection />
+      
       <AboutSection />
       <TeamSection />
       <ContactSection />
