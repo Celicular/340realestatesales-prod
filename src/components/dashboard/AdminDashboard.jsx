@@ -12,17 +12,19 @@ import {
   BarChart3,
   Shield,
   TrendingUp,
-  Activity
+  Activity,
+  FileText
 } from 'lucide-react';
 import AgentApproval from '../admin/AgentApproval';
 import RentalApproval from '../admin/RentalApproval';
 import SaleApproval from '../admin/SaleApproval';
 import SoldApproval from '../admin/SoldApproval';
+import BlogManagement from '../blog/BlogManagement';
 import { logout, getCurrentUser } from '../../utils/auth';
 import { getRentalProperties, getSaleProperties, getSoldProperties } from '../../firebase/firestore';
 
 const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState('agent-approval');
+  const [activeTab, setActiveTab] = useState('blog-management');
   const [stats, setStats] = useState({
     pendingRentals: 0,
     pendingSales: 0,
@@ -78,6 +80,13 @@ const AdminDashboard = () => {
     //   color: 'blue'
     // },
     { 
+      id: 'blog-management', 
+      name: 'Blog Management', 
+      component: BlogManagement,
+      icon: FileText,
+      color: 'indigo'
+    },
+    { 
       id: 'rental-approval', 
       name: 'Rental Approval', 
       component: RentalApproval,
@@ -110,7 +119,8 @@ const AdminDashboard = () => {
       blue: 'bg-blue-50 text-blue-700 border-blue-200',
       green: 'bg-green-50 text-green-700 border-green-200',
       purple: 'bg-purple-50 text-purple-700 border-purple-200',
-      orange: 'bg-orange-50 text-orange-700 border-orange-200'
+      orange: 'bg-orange-50 text-orange-700 border-orange-200',
+      indigo: 'bg-indigo-50 text-indigo-700 border-indigo-200'
     };
     return colors[color] || colors.blue;
   };
@@ -120,7 +130,8 @@ const AdminDashboard = () => {
       blue: 'bg-blue-600 text-white border-blue-600',
       green: 'bg-green-600 text-white border-green-600',
       purple: 'bg-purple-600 text-white border-purple-600',
-      orange: 'bg-orange-600 text-white border-orange-600'
+      orange: 'bg-orange-600 text-white border-orange-600',
+      indigo: 'bg-indigo-600 text-white border-indigo-600'
     };
     return colors[color] || colors.blue;
   };

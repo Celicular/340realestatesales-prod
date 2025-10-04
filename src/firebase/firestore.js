@@ -424,6 +424,43 @@ export const getBlogs = async (limitCount = 10) => {
   }
 };
 
+export const getBlog = async (blogId) => {
+  try {
+    const docRef = doc(db, BLOGS_COLLECTION, blogId);
+    const docSnap = await getDoc(docRef);
+    
+    if (docSnap.exists()) {
+      return { success: true, data: { id: docSnap.id, ...docSnap.data() } };
+    } else {
+      return { success: false, error: 'Blog not found' };
+    }
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+export const updateBlog = async (blogId, updateData) => {
+  try {
+    const docRef = doc(db, BLOGS_COLLECTION, blogId);
+    await updateDoc(docRef, {
+      ...updateData,
+      updatedAt: new Date()
+    });
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+export const deleteBlog = async (blogId) => {
+  try {
+    await deleteDoc(doc(db, BLOGS_COLLECTION, blogId));
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
 // Contact form submissions
 export const submitContact = async (contactData) => {
   try {

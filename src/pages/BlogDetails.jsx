@@ -1,17 +1,74 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { selectAllBlogs } from "../redux/slices/blogslice";
 import { motion } from "framer-motion";
+import { getBlog, updateBlog } from "../firebase/firestore";
 
 const BlogDetails = () => {
   const { id } = useParams();
-  const blog = useSelector(selectAllBlogs).find((b) => String(b.id) === id);
+  const [blog, setBlog] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  if (!blog) {
+  useEffect(() => {
+    const loadBlog = async () => {
+      try {
+        setLoading(true);
+        const result = await getBlog(id);
+        if (result.success) {
+          setBlog(result.data);
+          // Increment view count
+          await updateBlog(id, { views: (result.data.views || 0) + 1 });
+        } else {
+          setError(result.error);
+        }
+      } catch (err) {
+        setError('Failed to fetch blog');
+        console.error('Error fetching blog:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadBlog();
+  }, [id]);
+
+  const formatDate = (dateField) => {
+    if (!dateField) return 'Recent';
+    
+    let date;
+    if (dateField.seconds) {
+      // Firestore timestamp
+      date = new Date(dateField.seconds * 1000);
+    } else if (dateField instanceof Date) {
+      // Regular Date object
+      date = dateField;
+    } else if (typeof dateField === 'string') {
+      // String date
+      date = new Date(dateField);
+    } else {
+      return 'Recent';
+    }
+    
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  };
+
+  if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <p className="text-xl text-red-500">🚫 Blog not found.</p>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <span className="ml-3 text-gray-600">Loading blog...</span>
+      </div>
+    );
+  }
+
+  if (error || !blog) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-xl text-red-500">🚫 {error || 'Blog not found.'}</p>
       </div>
     );
   }
@@ -46,45 +103,104 @@ const BlogDetails = () => {
 
   return (
     <div>
-      {/* Hero Section */}
       <motion.div
         className="h-[80vh] w-full relative"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
       >
-        <img
-          src="https://www.waveestate.in/blogs/wp-content/uploads/2016/01/NRI-Real-Estate.jpg"
-          alt={blog.title}
-          className="absolute inset-0 w-full h-full object-cover"
-        />
+        {blog.coverImage ? (
+          <img
+            src={blog.coverImage}
+            alt={blog.title}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        ) : (
+          <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-600 to-purple-700"></div>
+        )}
         <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center">
-          <h1 className="text-white text-4xl md:text-5xl font-bold text-center px-4">
-            {blog.title}
-          </h1>
+          <div className="text-center px-4">
+            <h1 className="text-white text-4xl md:text-5xl font-bold mb-4">
+              {blog.title}
+            </h1>
+            {blog.subtitle && (
+              <p className="text-gray-200 text-xl md:text-2xl mb-6">
+                {blog.subtitle}
+              </p>
+            )}
+            <div className="flex flex-wrap justify-center items-center gap-4 text-sm text-gray-300">
+              <span>By {blog.author?.name || 'Admin'}</span>
+              <span>•</span>
+              <span>{formatDate(blog.createdAt)}</span>
+              <span>•</span>
+              <span>{blog.views || 0} views</span>
+              {blog.category && (
+                <>
+                  <span>•</span>
+                  <span className="bg-blue-600 px-2 py-1 rounded">{blog.category}</span>
+                </>
+              )}
+            </div>
+          </div>
         </div>
       </motion.div>
 
-      <div className="max-w-4xl mx-auto px-6 py-12 space-y-6">
-        {/* Blog Content Image */}
-        <motion.img
-          src={blog?.coverImage}
-          alt={blog.title}
-          className="w-full h-[300px] object-cover rounded-xl"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.6 }}
-        />
+      <div className="max-w-4xl mx-auto px-6 py-12 space-y-8">
+        {/* Blog Tags */}
+        {blog.tags && blog.tags.length > 0 && (
+          <motion.div
+            className="flex flex-wrap gap-2"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+          >
+            {blog.tags.map((tag, index) => (
+              <span
+                key={index}
+                className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm"
+              >
+                #{tag}
+              </span>
+            ))}
+          </motion.div>
+        )}
 
         {/* Description */}
         <motion.div
-          className="space-y-4"
+          className="prose prose-lg max-w-none"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.6, duration: 0.6 }}
+          transition={{ delay: 0.4, duration: 0.6 }}
         >
-          {renderDescription(blog.description)}
+          <div className="space-y-4 text-gray-700 leading-relaxed">
+            {renderDescription(blog.description)}
+          </div>
         </motion.div>
+
+        {/* Author Info */}
+        {blog.author && (
+          <motion.div
+            className="border-t pt-8 mt-12"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.6 }}
+          >
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
+                <span className="text-white font-semibold">
+                  {blog.author.name?.substring(0, 2).toUpperCase()}
+                </span>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-800">{blog.author.name}</h3>
+                <p className="text-sm text-gray-600">{blog.author.role}</p>
+                {blog.author.email && (
+                  <p className="text-sm text-gray-500">{blog.author.email}</p>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
       </div>
     </div>
   );
