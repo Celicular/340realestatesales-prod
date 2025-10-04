@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { getBlog, updateBlog } from "../firebase/firestore";
 import hardcodedBlogs from "../data/Blogs";
-import logoImage from "../assets/logo.png";
+import newImage from "../assets/new.jpg";
 
 const BlogDetails = () => {
   const { id } = useParams();
@@ -124,7 +124,7 @@ const BlogDetails = () => {
             // Hardcode image for the welcome blog
             let finalImageSrc = imageSrc;
             if (blog?.id === "340-real-estate-first-blog" && imageSrc === "new.jpg") {
-              finalImageSrc = logoImage;
+              finalImageSrc = newImage;
             } else {
               finalImageSrc = imageSrc.startsWith('/') ? imageSrc : `/${imageSrc}`;
             }
