@@ -92,7 +92,7 @@ For more information about our services or to search properties, visit our websi
 We look forward to helping you find your perfect piece of paradise in St. John!`,
     coverImage: "/new.jpg",
     author: "340 Real Estate Team",
-    publishedAt: "2024-01-15",
+    publishedAt: "2025-10-04",
     category: "Company News"
   },
   {
