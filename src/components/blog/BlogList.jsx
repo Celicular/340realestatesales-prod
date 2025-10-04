@@ -174,6 +174,17 @@ const BlogList = () => {
                 <p className="text-gray-600 text-sm line-clamp-3">
                   {blog.description}
                 </p>
+                <div className="pt-2">
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleBlogClick(blog);
+                    }}
+                    className="text-blue-600 hover:text-blue-800 text-sm font-medium hover:underline transition-colors duration-200"
+                  >
+                    Read more →
+                  </button>
+                </div>
                 <div className="flex justify-between items-center pt-2">
                   <span className="text-xs text-gray-500">
                     By {blog.author?.name || blog.author || 'Admin'}
