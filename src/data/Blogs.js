@@ -55,6 +55,8 @@ Now that you're here – thank you so much for visiting – we'd like to introdu
 
 ## Meet Our Broker and Owner
 
+![340 Real Estate Team](new.jpg)
+
 Tammy Donnelly launched 340 Real Estate in 2013. She has more than 25 years of experience selling real estate here on St. John. Tammy is 340 Real Estate's broker and owner.
 
 Tammy has seven sales associates and one broker associate who work alongside her. Together the team has more than 70 years of combined real estate experience.
@@ -73,7 +75,7 @@ Tammy has seven sales associates and one broker associate who work alongside her
 
 We are an experienced team who is dedicated to helping you find the perfect property. Whether it's a cozy condo overlooking Cruz Bay, a luxurious home on St. John's famed North Shore, a sprawling piece of land with views of Coral Bay, the British Virgin Islands and beyond, or a commercial space located here in St. John, we will work tirelessly to help you find the ideal property to suit your wants and needs.
 
-![340 Real Estate Team](/new.jpg)
+
 
 ## A Great Feature for You!
 
@@ -90,7 +92,7 @@ For more information about our services or to search properties, visit our websi
 - Follow us on [Facebook](https://www.facebook.com/340realestate/) and [Instagram](https://www.instagram.com/340realestatestjohn/)
 
 We look forward to helping you find your perfect piece of paradise in St. John!`,
-    coverImage: "/new.jpg",
+    coverImage: realestateintro,
     author: "340 Real Estate Team",
     publishedAt: "2025-10-04",
     category: "Company News"

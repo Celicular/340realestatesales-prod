@@ -124,7 +124,7 @@ const BlogDetails = () => {
                 <img
                   src={imageSrc.startsWith('/') ? imageSrc : `/${imageSrc}`}
                   alt={altText}
-                  className="max-w-full h-auto rounded-lg shadow-lg"
+                  className="max-w-sm w-full h-auto rounded-lg shadow-lg"
                 />
               </div>
             );
