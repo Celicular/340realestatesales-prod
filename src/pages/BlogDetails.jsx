@@ -123,7 +123,7 @@ const BlogDetails = () => {
             
             // Hardcode image for the welcome blog
             let finalImageSrc = imageSrc;
-            if (blog?.id === "Welcome to our new website and blog!" && imageSrc === "new.jpg") {
+            if (blog?.id === "Welcome to our new website and blog!" && imageSrc === "/new.jpg") {
               finalImageSrc = logoImage;
             } else {
               finalImageSrc = imageSrc.startsWith('/') ? imageSrc : `/${imageSrc}`;
