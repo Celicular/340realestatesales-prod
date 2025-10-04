@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { getBlog, updateBlog } from "../firebase/firestore";
+import hardcodedBlogs from "../data/Blogs";
 
 const BlogDetails = () => {
   const { id } = useParams();
@@ -13,10 +14,22 @@ const BlogDetails = () => {
     const loadBlog = async () => {
       try {
         setLoading(true);
+        
+        // First, check if it's a hardcoded blog
+        const hardcodedBlog = hardcodedBlogs.find(blog => blog.id === id);
+        
+        if (hardcodedBlog) {
+          // It's a hardcoded blog
+          setBlog(hardcodedBlog);
+          setLoading(false);
+          return;
+        }
+        
+        // If not found in hardcoded blogs, try fetching from backend
         const result = await getBlog(id);
         if (result.success) {
           setBlog(result.data);
-          // Increment view count
+          // Increment view count for backend blogs only
           await updateBlog(id, { views: (result.data.views || 0) + 1 });
         } else {
           setError(result.error);
@@ -85,12 +98,50 @@ const BlogDetails = () => {
             {line.replace("##", "").trim()}
           </h2>
         );
+      } else if (line.startsWith("**") && line.endsWith("**")) {
+        // Handle bold text
+        return (
+          <p key={index} className="text-gray-700 text-base mb-3 font-bold">
+            {line.replace(/\*\*/g, "").trim()}
+          </p>
+        );
       } else if (line.startsWith("-")) {
         return (
           <li key={index} className="ml-5 list-disc text-gray-600 text-base">
             {line.replace("-", "").trim()}
           </li>
         );
+      } else if (line.includes("[") && line.includes("](")) {
+        // Handle markdown links
+        const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+        const parts = line.split(linkRegex);
+        return (
+          <p key={index} className="text-gray-700 text-base mb-3">
+            {parts.map((part, partIndex) => {
+              if (partIndex % 3 === 1) {
+                // This is link text
+                return (
+                  <a
+                    key={partIndex}
+                    href={parts[partIndex + 1]}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800 underline"
+                  >
+                    {part}
+                  </a>
+                );
+              } else if (partIndex % 3 === 2) {
+                // This is the URL, skip it as it's already used
+                return null;
+              }
+              // Regular text
+              return part;
+            })}
+          </p>
+        );
+      } else if (line.trim() === "") {
+        return <br key={index} />;
       } else {
         return (
           <p key={index} className="text-gray-700 text-base mb-3">
@@ -129,9 +180,9 @@ const BlogDetails = () => {
               </p>
             )}
             <div className="flex flex-wrap justify-center items-center gap-4 text-sm text-gray-300">
-              <span>By {blog.author?.name || 'Admin'}</span>
+              <span>By {blog.author?.name || blog.author || 'Admin'}</span>
               <span>•</span>
-              <span>{formatDate(blog.createdAt)}</span>
+              <span>{formatDate(blog.createdAt || blog.publishedAt)}</span>
               <span>•</span>
               <span>{blog.views || 0} views</span>
               {blog.category && (
@@ -188,12 +239,14 @@ const BlogDetails = () => {
             <div className="flex items-center space-x-4">
               <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
                 <span className="text-white font-semibold">
-                  {blog.author.name?.substring(0, 2).toUpperCase()}
+                  {(blog.author.name || blog.author)?.substring(0, 2).toUpperCase()}
                 </span>
               </div>
               <div>
-                <h3 className="font-semibold text-gray-800">{blog.author.name}</h3>
-                <p className="text-sm text-gray-600">{blog.author.role}</p>
+                <h3 className="font-semibold text-gray-800">{blog.author.name || blog.author}</h3>
+                {blog.author.role && (
+                  <p className="text-sm text-gray-600">{blog.author.role}</p>
+                )}
                 {blog.author.email && (
                   <p className="text-sm text-gray-500">{blog.author.email}</p>
                 )}

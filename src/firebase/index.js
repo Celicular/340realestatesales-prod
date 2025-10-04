@@ -1,4 +1,5 @@
 // Firebase configuration
+import { auth, db, storage } from './config';
 export { default as app } from './config';
 export { auth } from './config';
 export { db } from './config';
@@ -65,9 +66,7 @@ export {
   getFileURL,
   listFiles
 } from './storage';
-
 // Firebase services for direct access
-import { auth, db, storage } from './config';
 export const firebaseServices = {
   auth,
   db,

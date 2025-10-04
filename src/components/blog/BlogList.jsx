@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { getBlogs } from "../../firebase/firestore";
+import hardcodedBlogs from "../../data/Blogs";
 import blog1 from "../../assets/articles/340realestate-intro.jpg";
 import blog2 from "../../assets/articles/Honeymoon-Beach.jpg";
 import blog3 from "../../assets/articles/property-types-stjohn.jpg";
@@ -14,11 +15,14 @@ const heroImages = [
 ];
 
 const BlogList = () => {
-  const [blogs, setBlogs] = useState([]);
+  const [backendBlogs, setBackendBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
+
+  // Combine backend blogs with hardcoded blogs
+  const allBlogs = [...backendBlogs, ...hardcodedBlogs];
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -38,13 +42,17 @@ const BlogList = () => {
       if (result.success) {
         // Filter only published blogs
         const publishedBlogs = result.data.filter(blog => blog.status === 'published');
-        setBlogs(publishedBlogs);
+        setBackendBlogs(publishedBlogs);
       } else {
         setError(result.error);
+        // If backend fails, we still have hardcoded blogs to show
+        setBackendBlogs([]);
       }
     } catch (err) {
       setError('Failed to fetch blogs');
       console.error('Error fetching blogs:', err);
+      // If backend fails, we still have hardcoded blogs to show
+      setBackendBlogs([]);
     } finally {
       setLoading(false);
     }
@@ -68,6 +76,17 @@ const BlogList = () => {
     }
     
     return date.toLocaleDateString();
+  };
+
+  const handleBlogClick = (blog) => {
+    // Check if it's a backend blog (has createdAt) or hardcoded blog (has id string)
+    if (blog.createdAt || blog.firebaseId) {
+      // Backend blog - navigate to dynamic route
+      navigate(`/blog/${blog.id || blog.firebaseId}`);
+    } else {
+      // Hardcoded blog - navigate to static route
+      navigate(`/blog/${blog.id}`);
+    }
   };
 
   return (
@@ -111,18 +130,18 @@ const BlogList = () => {
             Try Again
           </button>
         </div>
-      ) : blogs.length === 0 ? (
+      ) : allBlogs.length === 0 ? (
         <div className="text-center py-20">
           <p className="text-gray-600 text-lg">No blogs found. Check back later!</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 p-6 max-w-7xl mx-auto mt-10">
-          {blogs.map((blog) => (
+          {allBlogs.map((blog) => (
             <motion.div
               key={blog.id}
               className="bg-white shadow-lg rounded-xl overflow-hidden cursor-pointer hover:shadow-xl transition duration-300"
               whileHover={{ scale: 1.02 }}
-              onClick={() => navigate(`/blog/${blog.id}`)}
+              onClick={() => handleBlogClick(blog)}
             >
               {blog.coverImage ? (
                 <img
@@ -141,7 +160,7 @@ const BlogList = () => {
                     {blog.category || 'Real Estate'}
                   </span>
                   <span className="text-xs text-gray-500">
-                    {formatDate(blog.createdAt)}
+                    {formatDate(blog.createdAt || blog.publishedAt)}
                   </span>
                 </div>
                 <h2 className="text-xl font-bold text-gray-800 line-clamp-2">
@@ -157,7 +176,7 @@ const BlogList = () => {
                 </p>
                 <div className="flex justify-between items-center pt-2">
                   <span className="text-xs text-gray-500">
-                    By {blog.author?.name || 'Admin'}
+                    By {blog.author?.name || blog.author || 'Admin'}
                   </span>
                   <div className="flex space-x-3 text-xs text-gray-500">
                     <span>👁 {blog.views || 0}</span>

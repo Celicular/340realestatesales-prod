@@ -133,14 +133,14 @@ const Header = () => {
       link.name === "About St. John" ||
       link.name.startsWith("Rentals") ||
       link.name === "Testimonials" ||
-      link.name === "For Sale"
+      link.name === "For Sale" ||
+      link.name === "Search MLS"
   );
 
   // Only show these in desktop hamburger
   const desktopHamburgerLinks = navLinks.filter(
     (link) =>
       link.name === "Sales History" ||
-      link.name === "Search MLS" ||
       link.name.startsWith("Attraction") ||
       link.name.startsWith("Blogs") ||
       link.name === "Incentives"
@@ -344,6 +344,22 @@ const Header = () => {
               }`}
             >
               Testimonial
+            </Link>
+
+            {/* Search MLS Button */}
+            <Link
+              to="/mls"
+              className={`font-barlow text-sm px-3 py-2 rounded-lg border-2 transition-all duration-200 hover:transform hover:scale-105 ${
+                isScrolled
+                  ? "text-[#3c6a72] border-[#3c6a72] bg-white hover:bg-[#3c6a72] hover:text-white"
+                  : "text-white border-white bg-transparent hover:bg-white hover:text-[#3c6a72]"
+              } ${
+                location.pathname === "/mls"
+                  ? "bg-[#3c6a72] text-white font-bold border-[#3c6a72]"
+                  : ""
+              }`}
+            >
+              Search MLS
             </Link>
 
             {/* Phone Number */}
