@@ -48,7 +48,7 @@ import logoImage from "../assets/logo.png";
 const blogs = [
   {
     id: "340-real-estate-first-blog",
-    title: "340 Real Estate 1st Blog",
+    title: "340 Real Estate",
     subtitle: "Welcome to our new website and blog!",
     description: `Welcome to 340 Real Estate's new website! We are always working to give a better experience to our customers, so we decided to modernize our website while making it much more user-friendly in the process. We've also decided to launch a new blog, so we can keep you informed about the happenings here at 340 Real Estate and around St. John too. We hope you enjoy the new look and services we've created for you.
 
@@ -78,7 +78,7 @@ We are an experienced team who is dedicated to helping you find the perfect prop
 
 Our new website has a user-friendly, fully searchable database of all St. John properties for sale, including homes, condos, land, and commercial businesses. It also includes a sales archive with more than 5,000 real estate sales dating back to 2009. You can explore historical trends by area, property type and timeframe. We work to provide you with all of the insights necessary to make a smart investment.
 
-We are so proud of 340 Real Estate's new website, and we are excited to share all of this valuable information with you. Please check back here often to see what's new here at 340 Real Estate and what's happening around the island. You can find this page easily, simply by bookmarking it at [www.340realestate.com/blog](https://340realestatestjohn.com/blogs).
+We are so proud of 340 Real Estate's new website, and we are excited to share all of this valuable information with you. Please check back here often to see what's new here at 340 Real Estate and what's happening around the island. You can find this page easily, simply by bookmarking it at [www.340realestate.com/blogs](https://340realestatestjohn.com/blogs).
 
 For more information about our services or to search properties, visit our website at [340realestatestjohn.com](https://340realestatestjohn.com) or contact us directly.
 
@@ -91,7 +91,7 @@ For more information about our services or to search properties, visit our websi
 We look forward to helping you find your perfect piece of paradise in St. John!`,
     coverImage: teamPhoto,
     author: "340 Real Estate Team",
-    publishedAt: "2024-01-15",
+    publishedAt: "2025-10-04",
     category: "Company News"
   },
   {

@@ -47,7 +47,19 @@ const Header = () => {
   // All links for mobile menu
   const navLinks = [
     { name: "Home", path: "/" },
-    { name: "About Us", path: "/aboutus" },
+    {
+      name: "About ↴",
+      children: [
+        {
+          name: "About Us",
+          path: "/aboutus",
+        },
+        {
+          name: "About St. John",
+          path: "/about",
+        },
+      ],
+    },
 
     {
       name: "Rentals ↴",
@@ -72,7 +84,6 @@ const Header = () => {
     },
 
     { name: "Testimonials", path: "/testimonial" },
-    { name: "About St. John", path: "/about" },
     // { name: "For Sale", path: "/properties" },
     {
       name: "Property Search ↴",
@@ -101,8 +112,8 @@ const Header = () => {
       ],
     },
 
-    { name: "Sales History", path: "/saleshistory" },
     { name: "Search MLS", path: "/mls" },
+    { name: "Sales History", path: "/saleshistory" },
 
     {
       name: "Attraction ↴",
@@ -129,8 +140,7 @@ const Header = () => {
   const desktopNavLinks = navLinks.filter(
     (link) =>
       link.name === "Home" ||
-      link.name === "About Us" ||
-      link.name === "About St. John" ||
+      link.name.startsWith("About") ||
       link.name.startsWith("Rentals") ||
       link.name === "Testimonials" ||
       link.name === "For Sale" ||
@@ -225,34 +235,54 @@ const Header = () => {
                 </Link>
               </div>
             </div>
+
+            {/* Search MLS Button */}
             <Link
-              to="/about"
-              className={`font-barlow text-sm px-2 py-1 rounded-md transition-all duration-200 ${
+              to="/mls"
+              className={`font-barlow text-sm px-2 py-1 rounded-md border transition-all duration-200 hover:transform hover:scale-105 ${
                 isScrolled
-                  ? "text-[#3c6a72] hover:text-[#285053]"
-                  : "text-white hover:text-blue-200"
+                  ? "text-[#3c6a72] border-[#3c6a72] hover:bg-[#3c6a72] hover:text-white"
+                  : "text-white border-white hover:bg-white hover:text-[#3c6a72]"
               } ${
-                location.pathname === "/about" && isScrolled
-                  ? "font-bold underline"
+                location.pathname === "/mls"
+                  ? "bg-[#3c6a72] text-white font-bold border-[#3c6a72]"
                   : ""
               }`}
             >
-              About St. John
+              Search MLS
             </Link>
-            <Link
-              to="/aboutus"
-              className={`font-barlow text-sm px-2 py-1 rounded-md transition-all duration-200 ${
-                isScrolled
-                  ? "text-[#3c6a72] hover:text-[#285053]"
-                  : "text-white hover:text-blue-200"
-              } ${
-                location.pathname === "/aboutus" && isScrolled
-                  ? "font-bold underline"
-                  : ""
-              }`}
-            >
-              About Us
-            </Link>
+
+            {/* About Dropdown */}
+            <div className="relative group">
+              <span
+                className={`cursor-pointer font-barlow text-sm px-2 py-1 transition-all duration-200 ${
+                  isScrolled
+                    ? "text-[#3c6a72] hover:text-[#285053]"
+                    : "text-white hover:text-blue-200"
+                } group-hover:text-blue-500 ${
+                  (location.pathname === "/about" || location.pathname === "/aboutus") && isScrolled
+                    ? "font-bold underline"
+                    : ""
+                }`}
+              >
+                About ↴
+              </span>
+              {/* Dropdown */}
+              <div className="absolute left-0 mt-2 w-48 bg-white shadow-lg opacity-0 invisible group-hover:visible group-hover:opacity-100 group-hover:translate-y-1 transform transition-all duration-300 z-50">
+                <Link
+                  to="/aboutus"
+                  className="block px-4 py-2 text-md font-barlow text-blue-800 font-semibold hover:text-blue-600 hover:bg-blue-50"
+                >
+                  About Us
+                </Link>
+                <Link
+                  to="/about"
+                  className="block px-4 py-2 text-md font-barlow text-blue-800 font-semibold hover:text-blue-600 hover:bg-blue-50"
+                >
+                  About St. John
+                </Link>
+              </div>
+            </div>
           </nav>
 
           {/* Logo - Centered */}
@@ -344,22 +374,6 @@ const Header = () => {
               }`}
             >
               Testimonial
-            </Link>
-
-            {/* Search MLS Button */}
-            <Link
-              to="/mls"
-              className={`font-barlow text-sm px-3 py-2 rounded-lg border-2 transition-all duration-200 hover:transform hover:scale-105 ${
-                isScrolled
-                  ? "text-[#3c6a72] border-[#3c6a72] bg-white hover:bg-[#3c6a72] hover:text-white"
-                  : "text-white border-white bg-transparent hover:bg-white hover:text-[#3c6a72]"
-              } ${
-                location.pathname === "/mls"
-                  ? "bg-[#3c6a72] text-white font-bold border-[#3c6a72]"
-                  : ""
-              }`}
-            >
-              Search MLS
             </Link>
 
             {/* Phone Number */}
