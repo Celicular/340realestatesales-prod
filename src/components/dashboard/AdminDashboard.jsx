@@ -13,18 +13,20 @@ import {
   Shield,
   TrendingUp,
   Activity,
-  FileText
+  FileText,
+  Calendar
 } from 'lucide-react';
 import AgentApproval from '../admin/AgentApproval';
 import RentalApproval from '../admin/RentalApproval';
 import SaleApproval from '../admin/SaleApproval';
 import SoldApproval from '../admin/SoldApproval';
 import BlogManagement from '../blog/BlogManagement';
+import BookingManagement from '../admin/BookingManagement';
 import { logout, getCurrentUser } from '../../utils/auth';
 import { getRentalProperties, getSaleProperties, getSoldProperties } from '../../firebase/firestore';
 
 const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState('blog-management');
+  const [activeTab, setActiveTab] = useState('booking-requests');
   const [stats, setStats] = useState({
     pendingRentals: 0,
     pendingSales: 0,
@@ -79,6 +81,13 @@ const AdminDashboard = () => {
     //   icon: Users,
     //   color: 'blue'
     // },
+    { 
+      id: 'booking-requests', 
+      name: 'Booking Requests', 
+      component: BookingManagement,
+      icon: Calendar,
+      color: 'blue'
+    },
     { 
       id: 'blog-management', 
       name: 'Blog Management', 

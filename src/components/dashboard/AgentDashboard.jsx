@@ -20,12 +20,13 @@ import PropertySold from '../forms/PropertySold';
 import LandSale from '../forms/LandSale';
 import LandSold from '../forms/LandSold';
 import BlogManagement from '../blog/BlogManagement';
+import BookingRequestsManagement from '../booking/BookingRequestsManagement';
 import { logout, getCurrentUser } from '../../utils/auth';
 import { getRentalProperties, getSaleProperties, getSoldProperties } from '../../firebase/firestore';
 
 const AgentDashboard = () => {
   console.log('🎯 AgentDashboard component loaded');
-  const [activeTab, setActiveTab] = useState('rental');
+  const [activeTab, setActiveTab] = useState('booking-requests');
   const [stats, setStats] = useState({
     myRentals: 0,
     mySales: 0,
@@ -77,6 +78,14 @@ const AgentDashboard = () => {
   };
 
   const tabs = [
+    { 
+      id: 'booking-requests', 
+      name: 'Booking Requests', 
+      component: () => <BookingRequestsManagement userRole="agent" />,
+      icon: Calendar,
+      color: 'blue',
+      description: 'View and manage property bookings'
+    },
     { 
       id: 'blog-management', 
       name: 'Blog Management', 

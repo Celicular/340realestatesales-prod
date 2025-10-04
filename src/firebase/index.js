@@ -32,6 +32,16 @@ export {
   getRentalProperties,
   updateRentalPropertyStatus,
   deleteRentalProperty,
+  // Villa bookings
+  addVillaBookingRequest,
+  getVillaBookingRequests,
+  updateVillaBookingRequestStatus,
+  // Booking requests
+  addBookingRequest,
+  getBookingRequests,
+  updateBookingRequestStatus,
+  getAllBookingRequestsForAgent,
+  getAllBookingRequestsForAdmin,
   // Sale properties
   addSaleProperty,
   getSaleProperties,
