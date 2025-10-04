@@ -123,7 +123,10 @@ const BlogDetails = () => {
             
             // Hardcode image for the welcome blog
             let finalImageSrc = imageSrc;
+            console.log('Blog ID:', blog?.id, 'Image src:', imageSrc); // Debug log
+            
             if (blog?.id === "340-real-estate-first-blog" && imageSrc === "new.jpg") {
+              console.log('Using newImage for welcome blog'); // Debug log
               finalImageSrc = newImage;
             } else {
               finalImageSrc = imageSrc.startsWith('/') ? imageSrc : `/${imageSrc}`;
