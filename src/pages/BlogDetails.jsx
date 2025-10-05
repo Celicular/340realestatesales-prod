@@ -89,11 +89,55 @@ const BlogDetails = () => {
 
   // Description parsing utility
   const renderDescription = (desc) => {
-    return desc.split("\n").map((line, index) => {
-      if (line.startsWith("##")) {
-        return (
+    const lines = desc.split("\n");
+    const elements = [];
+    let i = 0;
+    
+    while (i < lines.length) {
+      const line = lines[i];
+      
+      // Special handling for "Meet Our Broker and Owner" section
+      if (line.trim() === "## Meet Our Broker and Owner") {
+        // Find the content of this section (next few paragraphs until next ## or end)
+        let sectionContent = [];
+        i++; // Skip the heading
+        while (i < lines.length && !lines[i].startsWith("##")) {
+          if (lines[i].trim() !== "") {
+            sectionContent.push(lines[i]);
+          }
+          i++;
+        }
+        
+        // Create special layout with image on left and text on right
+        elements.push(
+          <div key={`broker-section-${elements.length}`} className="my-8">
+            <h2 className="text-2xl font-bold mb-6 text-gray-800">
+              Meet Our Broker and Owner
+            </h2>
+            <div className="flex flex-col md:flex-row gap-6 items-start">
+              <div className="flex-shrink-0">
+                <img
+                  src={newImage}
+                  alt="Tammy Donnelly - Broker and Owner"
+                  className="h-48 w-auto object-contain rounded-lg shadow-lg bg-gray-50"
+                />
+              </div>
+              <div className="flex-1">
+                {sectionContent.map((contentLine, idx) => (
+                  <p key={idx} className="text-gray-700 text-base mb-3">
+                    {contentLine.trim()}
+                  </p>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+        i--; // Adjust because we'll increment at the end of the loop
+      }
+      else if (line.startsWith("##")) {
+        elements.push(
           <h2
-            key={index}
+            key={`heading-${elements.length}`}
             className="text-2xl font-bold mt-6 mb-2 text-gray-800"
           >
             {line.replace("##", "").trim()}
@@ -101,14 +145,14 @@ const BlogDetails = () => {
         );
       } else if (line.startsWith("**") && line.endsWith("**")) {
         // Handle bold text
-        return (
-          <p key={index} className="text-gray-700 text-base mb-3 font-bold">
+        elements.push(
+          <p key={`bold-${elements.length}`} className="text-gray-700 text-base mb-3 font-bold">
             {line.replace(/\*\*/g, "").trim()}
           </p>
         );
       } else if (line.startsWith("-")) {
-        return (
-          <li key={index} className="ml-5 list-disc text-gray-600 text-base">
+        elements.push(
+          <li key={`list-${elements.length}`} className="ml-5 list-disc text-gray-600 text-base">
             {line.replace("-", "").trim()}
           </li>
         );
@@ -132,8 +176,8 @@ const BlogDetails = () => {
               finalImageSrc = imageSrc.startsWith('/') ? imageSrc : `/${imageSrc}`;
             }
             
-            return (
-              <div key={index} className="my-6 flex justify-center">
+            elements.push(
+              <div key={`image-${elements.length}`} className="my-6 flex justify-center">
                 <img
                   src={finalImageSrc}
                   alt={altText}
@@ -146,8 +190,8 @@ const BlogDetails = () => {
           // Handle markdown links
           const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
           const parts = line.split(linkRegex);
-          return (
-            <p key={index} className="text-gray-700 text-base mb-3">
+          elements.push(
+            <p key={`link-${elements.length}`} className="text-gray-700 text-base mb-3">
               {parts.map((part, partIndex) => {
                 if (partIndex % 3 === 1) {
                   // This is link text
@@ -173,15 +217,19 @@ const BlogDetails = () => {
           );
         }
       } else if (line.trim() === "") {
-        return <br key={index} />;
+        elements.push(<br key={`br-${elements.length}`} />);
       } else {
-        return (
-          <p key={index} className="text-gray-700 text-base mb-3">
+        elements.push(
+          <p key={`text-${elements.length}`} className="text-gray-700 text-base mb-3">
             {line.trim()}
           </p>
         );
       }
-    });
+      
+      i++;
+    }
+    
+    return elements;
   };
 
   return (

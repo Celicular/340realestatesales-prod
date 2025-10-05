@@ -73,8 +73,6 @@ Tammy has seven sales associates and one broker associate who work alongside her
 
 We are an experienced team who is dedicated to helping you find the perfect property. Whether it's a cozy condo overlooking Cruz Bay, a luxurious home on St. John's famed North Shore, a sprawling piece of land with views of Coral Bay, the British Virgin Islands and beyond, or a commercial space located here in St. John, we will work tirelessly to help you find the ideal property to suit your wants and needs.
 
-![340 Real Estate Team](new.jpg)
-
 ## A Great Feature for You!
 
 Our new website has a user-friendly, fully searchable database of all St. John properties for sale, including homes, condos, land, and commercial businesses. It also includes a sales archive with more than 5,000 real estate sales dating back to 2009. You can explore historical trends by area, property type and timeframe. We work to provide you with all of the insights necessary to make a smart investment.
