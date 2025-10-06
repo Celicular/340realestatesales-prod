@@ -185,18 +185,18 @@ const BlogDetails = () => {
       return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Hero Layout - Image Left, Content Right */}
-          {sections.find((s) => s.type === "intro") && (
-            <div className="space-y-4">
-              <h2 className="text-3xl lg:text-4xl flex justify-center item-center font-serif font-bold text-[#3c6a72]">
-                Welcome to 340 Real Estate's New Website!
-              </h2>
-              <div className="text-gray-700 flex justify-center item-center">
-                {renderContent(
-                  sections.find((s) => s.type === "intro").content
-                )}
+          {sections
+            .filter((s) => s.type === "intro")
+            .map((section, index) => (
+              <div key={index} className="space-y-4">
+                <h2 className="text-3xl lg:text-4xl flex justify-center items-center font-serif font-bold text-[#3c6a72]">
+                  {section.title || "Welcome to 340 Real Estate's New Website!"}
+                </h2>
+                <div className="text-gray-700 justify-center items-center">
+                  {renderContent(section.content)}
+                </div>
               </div>
-            </div>
-          )}
+            ))}
           <div className="flex flex-col lg:flex-row gap-12 items-start mb-16">
             {/* Large Image */}
 
