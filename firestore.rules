@@ -1,0 +1,66 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Public read access for blogs (anyone can read published blogs)
+    match /blogs/{blogId} {
+      allow read: if true;
+      allow write: if request.auth != null && 
+        (request.auth.token.role == 'admin' || request.auth.token.role == 'agent');
+    }
+    
+    // Properties - public read, authenticated write
+    match /properties/{propertyId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // Rental properties - public read, authenticated write
+    match /rentalProperties/{rentalId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // Sale properties - public read, authenticated write
+    match /saleProperties/{saleId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // Sold properties - public read, authenticated write
+    match /soldProperties/{soldId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // Reviews - public read, authenticated write
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // Team members - public read, admin write
+    match /team_members/{memberId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.role == 'admin';
+    }
+    
+    // Users - authenticated users can read/write their own data, admins can read/write all
+    match /users/{userId} {
+      allow read, write: if request.auth != null && 
+        (request.auth.uid == userId || request.auth.token.role == 'admin');
+    }
+    
+    // Contacts - authenticated write only
+    match /contacts/{contactId} {
+      allow read: if request.auth != null && request.auth.token.role == 'admin';
+      allow write: if true; // Allow anyone to submit contact forms
+    }
+    
+    // Bookings/Rentals - authenticated users only
+    match /rentals/{rentalId} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}

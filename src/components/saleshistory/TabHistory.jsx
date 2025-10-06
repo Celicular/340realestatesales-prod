@@ -33,7 +33,7 @@ const TabHistory = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 py-10">
       {/* Circle Tab Bar */}
-      <div className="flex flex-wrap justify-center gap-20 mb-10">
+      {/* <div className="flex flex-wrap justify-center gap-20 mb-10">
         {tabs.map((tab, index) => (
           <button
             key={index}
@@ -66,7 +66,7 @@ const TabHistory = () => {
             </span>
           </button>
         ))}
-      </div>
+      </div> */}
 
       {/* Tab Content */}
       <div className="bg-white border shadow-md rounded-2xl p-6 animate-fadeIn">

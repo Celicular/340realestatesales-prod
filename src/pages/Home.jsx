@@ -15,6 +15,7 @@ function Home() {
   return (
     <div className="App relative scroll-smooth">
       <HeroSection />
+      
       <AboutSection />
       <TeamSection />
       <ContactSection />
