@@ -47,9 +47,8 @@ import logoImage from "../assets/logo.png";
 const blogs = [
   {
     id: "340-real-estate-first-blog",
-    title: "Welcome to our new website and blog!",
-    subtitle: "Welcome to our new website and blog!",
-    description: `Welcome to 340 Real Estate's new website! We are always working to give a better experience to our customers, so we decided to modernize our website while making it much more user-friendly in the process. We've also decided to launch a new blog, so we can keep you informed about the happenings here at 340 Real Estate and around St. John too. We hope you enjoy the new look and services we've created for you.
+    title: "Welcome to 340 Real Estate's New Website!",
+    description: `Welcome to our new website! We are always working to give a better experience to our customers, so we decided to modernize our website while making it much more user-friendly in the process. We've also decided to launch a new blog, so we can keep you informed about the happenings here at 340 Real Estate and around St. John too. We hope you enjoy the new look and services we've created for you.
 
 Now that you're here – thank you so much for visiting – we'd like to introduce ourselves.
 
@@ -61,15 +60,15 @@ Tammy has seven sales associates and one broker associate who work alongside her
 
 ## The 340 Real Estate Team
 
-**Tammy Donnelly** - Broker/Owner
-**Jennifer Doran** - Sales Associate
-**Tina Petitto** - Sales Associate
-**Rosanne Ramos Lloyd** - Sales Associate
-**Jenn Manes** - Sales Associate
-**Adonis Morton** - Sales Associate
-**Mary Maroney** - Sales Associate
-**John McCann** - Broker Associate
-**Mark Shekleton** - Sales Associate
+Tammy Donnelly - Broker/Owner
+Jennifer Doran - Sales Associate
+Tina Petitto - Sales Associate
+Rosanne Ramos Lloyd - Sales Associate
+Jenn Manes - Sales Associate
+Adonis Morton - Sales Associate
+Mary Maroney - Sales Associate
+John McCann - Broker Associate
+Mark Shekleton - Sales Associate
 
 We are an experienced team who is dedicated to helping you find the perfect property. Whether it's a cozy condo overlooking Cruz Bay, a luxurious home on St. John's famed North Shore, a sprawling piece of land with views of Coral Bay, the British Virgin Islands and beyond, or a commercial space located here in St. John, we will work tirelessly to help you find the ideal property to suit your wants and needs.
 
@@ -77,7 +76,7 @@ We are an experienced team who is dedicated to helping you find the perfect prop
 
 Our new website has a user-friendly, fully searchable database of all St. John properties for sale, including homes, condos, land, and commercial businesses. It also includes a sales archive with more than 5,000 real estate sales dating back to 2009. You can explore historical trends by area, property type and timeframe. We work to provide you with all of the insights necessary to make a smart investment.
 
-We are so proud of 340 Real Estate's new website, and we are excited to share all of this valuable information with you. Please check back here often to see what's new here at 340 Real Estate and what's happening around the island. You can find this page easily, simply by bookmarking it at [www.340realestate.com/blogs](https://340realestatestjohn.com/blogs).
+We are so proud of 340 Real Estate's new website, and we are excited to share all of this valuable information with you. Please check back here often to see what's new here at 340 Real Estate and what's happening around the island. You can find this page easily, simply by bookmarking it at [www.340realestate.com/blogs](https://340realestate.com/blogs).
 
 For more information about our services or to search properties, visit our website at [340realestatestjohn.com](https://340realestatestjohn.com) or contact us directly.
 

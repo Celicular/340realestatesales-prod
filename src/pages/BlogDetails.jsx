@@ -89,6 +89,167 @@ const BlogDetails = () => {
 
   // Description parsing utility
   const renderDescription = (desc) => {
+    // Special layout for the welcome blog
+    if (blog?.id === "340-real-estate-first-blog") {
+      const lines = desc.split("\n");
+      const sections = [];
+      let currentSection = [];
+      let currentSectionType = 'intro';
+      
+      // Parse the content into sections
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (line.startsWith("##")) {
+          // Save previous section
+          if (currentSection.length > 0) {
+            sections.push({ type: currentSectionType, content: currentSection });
+            currentSection = [];
+          }
+          // Start new section
+          if (line.includes("Meet Our Broker and Owner")) {
+            currentSectionType = 'broker';
+          } else if (line.includes("340 Real Estate Team")) {
+            currentSectionType = 'team';
+          } else if (line.includes("Great Feature")) {
+            currentSectionType = 'features';
+          } else {
+            currentSectionType = 'other';
+          }
+          currentSection.push(line);
+        } else {
+          currentSection.push(line);
+        }
+      }
+      // Add final section
+      if (currentSection.length > 0) {
+        sections.push({ type: currentSectionType, content: currentSection });
+      }
+
+      // Helper function to render content with links
+      const renderContent = (content) => {
+        return content.map((line, idx) => {
+          if (line.startsWith("##")) {
+            return null; // Skip headers as we'll handle them separately
+          } else if (line.startsWith("**") && line.endsWith("**")) {
+            return (
+              <p key={idx} className="text-lg font-bold mb-3">
+                {line.replace(/\*\*/g, "").trim()}
+              </p>
+            );
+          } else if (line.includes("[") && line.includes("](")) {
+            // Handle markdown links
+            const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+            const parts = line.split(linkRegex);
+            return (
+              <p key={idx} className="text-lg mb-3 leading-relaxed">
+                {parts.map((part, partIndex) => {
+                  if (partIndex % 3 === 1) {
+                    return (
+                      <a
+                        key={partIndex}
+                        href={parts[partIndex + 1]}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-300 hover:text-blue-100 underline"
+                      >
+                        {part}
+                      </a>
+                    );
+                  } else if (partIndex % 3 === 2) {
+                    return null;
+                  }
+                  return part;
+                })}
+              </p>
+            );
+          } else if (line.trim() === "") {
+            return null;
+          } else {
+            return (
+              <p key={idx} className="text-lg mb-3 leading-relaxed opacity-90">
+                {line.trim()}
+              </p>
+            );
+          }
+        }).filter(Boolean);
+      };
+
+      return (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Hero Layout - Image Left, Content Right */}
+          <div className="flex flex-col lg:flex-row gap-12 items-start mb-16">
+            {/* Large Image */}
+            <div className="lg:w-1/2 flex-shrink-0">
+              <div className="relative">
+                <img
+                  src={newImage}
+                  alt="340 Real Estate Team"
+                  className="w-full h-[600px] object-cover rounded-2xl shadow-2xl"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-2xl"></div>
+              </div>
+            </div>
+            
+            {/* Content */}
+            <div className="lg:w-1/2 space-y-8">
+              {/* Introduction Section */}
+              {sections.find(s => s.type === 'intro') && (
+                <div className="space-y-4">
+                  <h2 className="text-3xl lg:text-4xl font-serif font-bold text-[#3c6a72]">
+                    Welcome to 340 Real Estate's New Website!
+                  </h2>
+                  <div className="text-gray-700">
+                    {renderContent(sections.find(s => s.type === 'intro').content)}
+                  </div>
+                </div>
+              )}
+              
+              {/* Broker Section */}
+              {sections.find(s => s.type === 'broker') && (
+                <div className="bg-gradient-to-r from-[#3c6a72] to-[#3d8b99] rounded-2xl p-8 text-white">
+                  <h3 className="text-2xl font-serif font-bold mb-4">
+                    Meet Our Broker and Owner
+                  </h3>
+                  <div>
+                    {renderContent(sections.find(s => s.type === 'broker').content)}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {/* Team Section */}
+          {sections.find(s => s.type === 'team') && (
+            <div className="mb-16">
+              <h3 className="text-3xl font-serif font-bold text-[#3c6a72] mb-8 text-center">
+                The 340 Real Estate Team
+              </h3>
+              <div className="bg-white rounded-2xl shadow-lg p-8">
+                <div className="text-gray-700">
+                  {renderContent(sections.find(s => s.type === 'team').content)}
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Features and remaining content */}
+          {sections.filter(s => s.type === 'features' || s.type === 'other').map((section, idx) => (
+            <div key={idx} className="bg-gray-50 rounded-2xl p-8 lg:p-12 mb-16">
+              {section.content.find(line => line.startsWith("##")) && (
+                <h3 className="text-3xl font-serif font-bold text-[#3c6a72] mb-6 text-center">
+                  {section.content.find(line => line.startsWith("##")).replace("##", "").trim()}
+                </h3>
+              )}
+              <div className="text-gray-700">
+                {renderContent(section.content)}
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+    
+    // Regular blog rendering for other blogs
     const lines = desc.split("\n");
     const elements = [];
     let i = 0;
