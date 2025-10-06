@@ -15,17 +15,17 @@ const BlogDetails = () => {
     const loadBlog = async () => {
       try {
         setLoading(true);
-        
+
         // First, check if it's a hardcoded blog
-        const hardcodedBlog = hardcodedBlogs.find(blog => blog.id === id);
-        
+        const hardcodedBlog = hardcodedBlogs.find((blog) => blog.id === id);
+
         if (hardcodedBlog) {
           // It's a hardcoded blog
           setBlog(hardcodedBlog);
           setLoading(false);
           return;
         }
-        
+
         // If not found in hardcoded blogs, try fetching from backend
         const result = await getBlog(id);
         if (result.success) {
@@ -36,19 +36,19 @@ const BlogDetails = () => {
           setError(result.error);
         }
       } catch (err) {
-        setError('Failed to fetch blog');
-        console.error('Error fetching blog:', err);
+        setError("Failed to fetch blog");
+        console.error("Error fetching blog:", err);
       } finally {
         setLoading(false);
       }
     };
-    
+
     loadBlog();
   }, [id]);
 
   const formatDate = (dateField) => {
-    if (!dateField) return 'Recent';
-    
+    if (!dateField) return "Recent";
+
     let date;
     if (dateField.seconds) {
       // Firestore timestamp
@@ -56,17 +56,17 @@ const BlogDetails = () => {
     } else if (dateField instanceof Date) {
       // Regular Date object
       date = dateField;
-    } else if (typeof dateField === 'string') {
+    } else if (typeof dateField === "string") {
       // String date
       date = new Date(dateField);
     } else {
-      return 'Recent';
+      return "Recent";
     }
-    
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -82,7 +82,7 @@ const BlogDetails = () => {
   if (error || !blog) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <p className="text-xl text-red-500">🚫 {error || 'Blog not found.'}</p>
+        <p className="text-xl text-red-500">🚫 {error || "Blog not found."}</p>
       </div>
     );
   }
@@ -94,26 +94,29 @@ const BlogDetails = () => {
       const lines = desc.split("\n");
       const sections = [];
       let currentSection = [];
-      let currentSectionType = 'intro';
-      
+      let currentSectionType = "intro";
+
       // Parse the content into sections
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
         if (line.startsWith("##")) {
           // Save previous section
           if (currentSection.length > 0) {
-            sections.push({ type: currentSectionType, content: currentSection });
+            sections.push({
+              type: currentSectionType,
+              content: currentSection,
+            });
             currentSection = [];
           }
           // Start new section
           if (line.includes("Meet Our Broker and Owner")) {
-            currentSectionType = 'broker';
+            currentSectionType = "broker";
           } else if (line.includes("340 Real Estate Team")) {
-            currentSectionType = 'team';
+            currentSectionType = "team";
           } else if (line.includes("Great Feature")) {
-            currentSectionType = 'features';
+            currentSectionType = "features";
           } else {
-            currentSectionType = 'other';
+            currentSectionType = "other";
           }
           currentSection.push(line);
         } else {
@@ -127,73 +130,103 @@ const BlogDetails = () => {
 
       // Helper function to render content with links
       const renderContent = (content) => {
-        return content.map((line, idx) => {
-          if (line.startsWith("##")) {
-            return null; // Skip headers as we'll handle them separately
-          } else if (line.startsWith("**") && line.endsWith("**")) {
-            return (
-              <p key={idx} className="text-lg font-bold mb-3">
-                {line.replace(/\*\*/g, "").trim()}
-              </p>
-            );
-          } else if (line.includes("[") && line.includes("](")) {
-            // Handle markdown links
-            const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
-            const parts = line.split(linkRegex);
-            return (
-              <p key={idx} className="text-lg mb-3 leading-relaxed">
-                {parts.map((part, partIndex) => {
-                  if (partIndex % 3 === 1) {
-                    return (
-                      <a
-                        key={partIndex}
-                        href={parts[partIndex + 1]}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-300 hover:text-blue-100 underline"
-                      >
-                        {part}
-                      </a>
-                    );
-                  } else if (partIndex % 3 === 2) {
-                    return null;
-                  }
-                  return part;
-                })}
-              </p>
-            );
-          } else if (line.trim() === "") {
-            return null;
-          } else {
-            return (
-              <p key={idx} className="text-lg mb-3 leading-relaxed opacity-90">
-                {line.trim()}
-              </p>
-            );
-          }
-        }).filter(Boolean);
+        return content
+          .map((line, idx) => {
+            if (line.startsWith("##")) {
+              return null; // Skip headers as we'll handle them separately
+            } else if (line.startsWith("**") && line.endsWith("**")) {
+              return (
+                <p key={idx} className="text-lg font-bold mb-3">
+                  {line.replace(/\*\*/g, "").trim()}
+                </p>
+              );
+            } else if (line.includes("[") && line.includes("](")) {
+              // Handle markdown links
+              const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+              const parts = line.split(linkRegex);
+              return (
+                <p key={idx} className="text-lg mb-3 leading-relaxed">
+                  {parts.map((part, partIndex) => {
+                    if (partIndex % 3 === 1) {
+                      return (
+                        <a
+                          key={partIndex}
+                          href={parts[partIndex + 1]}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-300 hover:text-blue-100 underline"
+                        >
+                          {part}
+                        </a>
+                      );
+                    } else if (partIndex % 3 === 2) {
+                      return null;
+                    }
+                    return part;
+                  })}
+                </p>
+              );
+            } else if (line.trim() === "") {
+              return null;
+            } else {
+              return (
+                <p
+                  key={idx}
+                  className="text-lg mb-3 leading-relaxed opacity-90"
+                >
+                  {line.trim()}
+                </p>
+              );
+            }
+          })
+          .filter(Boolean);
       };
 
       return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Hero Layout - Image Left, Content Right */}
+          {sections.find((s) => s.type === "intro") && (
+            <div className="space-y-4">
+              <h2 className="text-3xl lg:text-4xl flex justify-center item-center font-serif font-bold text-[#3c6a72]">
+                Welcome to 340 Real Estate's New Website!
+              </h2>
+              <div className="text-gray-700 flex justify-center item-center">
+                {renderContent(
+                  sections.find((s) => s.type === "intro").content
+                )}
+              </div>
+            </div>
+          )}
           <div className="flex flex-col lg:flex-row gap-12 items-start mb-16">
             {/* Large Image */}
+
             <div className="lg:w-1/2 flex-shrink-0">
               <div className="relative">
                 <img
                   src={newImage}
                   alt="340 Real Estate Team"
-                  className="w-full h-[600px] object-cover rounded-2xl shadow-2xl"
+                  className="w-full h-[490px] object-cover rounded-2xl shadow-2xl"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-2xl"></div>
               </div>
             </div>
-            
+
             {/* Content */}
-            <div className="lg:w-1/2 space-y-8">
+            <div className="lg:w-1/2 space-y-8 ">
               {/* Introduction Section */}
-              {sections.find(s => s.type === 'intro') && (
+              {sections.find((s) => s.type === "broker") && (
+                <div className="w-full mb-10 mx-auto bg-gradient-to-r from-[#3c6a72] to-[#3d8b99] rounded-2xl p-8 text-white">
+                  <h3 className="text-2xl font-serif font-bold mb-4 text-center">
+                    Meet Our Broker and Owner
+                  </h3>
+                  <div className="text-center">
+                    {renderContent(
+                      sections.find((s) => s.type === "broker").content
+                    )}
+                  </div>
+                </div>
+              )}
+              {/* {sections.find(s => s.type === 'intro') && (
                 <div className="space-y-4">
                   <h2 className="text-3xl lg:text-4xl font-serif font-bold text-[#3c6a72]">
                     Welcome to 340 Real Estate's New Website!
@@ -202,62 +235,60 @@ const BlogDetails = () => {
                     {renderContent(sections.find(s => s.type === 'intro').content)}
                   </div>
                 </div>
-              )}
-              
-           
+              )} */}
             </div>
           </div>
-             {/* Broker Section - Full width and centered */}
-              {sections.find(s => s.type === 'broker') && (
-                <div className="w-full mb-10 mx-auto bg-gradient-to-r from-[#3c6a72] to-[#3d8b99] rounded-2xl p-8 text-white">
-                  <h3 className="text-2xl font-serif font-bold mb-4 text-center">
-                    Meet Our Broker and Owner
-                  </h3>
-                  <div className="text-center">
-                    {renderContent(sections.find(s => s.type === 'broker').content)}
-                  </div>
-                </div>
-              )}
-          
+          {/* Broker Section - Full width and centered */}
+
           {/* Team Section */}
-          {sections.find(s => s.type === 'team') && (
+          {sections.find((s) => s.type === "team") && (
             <div className="mb-16">
               <h3 className="text-3xl font-serif font-bold text-[#3c6a72] mb-8 text-center">
                 The 340 Real Estate Team
               </h3>
               <div className="bg-white rounded-2xl shadow-lg p-8">
                 <div className="text-gray-700">
-                  {renderContent(sections.find(s => s.type === 'team').content)}
+                  {renderContent(
+                    sections.find((s) => s.type === "team").content
+                  )}
                 </div>
               </div>
             </div>
           )}
-          
+
           {/* Features and remaining content */}
-          {sections.filter(s => s.type === 'features' || s.type === 'other').map((section, idx) => (
-            <div key={idx} className="bg-gray-50 rounded-2xl p-8 lg:p-12 mb-16">
-              {section.content.find(line => line.startsWith("##")) && (
-                <h3 className="text-3xl font-serif font-bold text-[#3c6a72] mb-6 text-center">
-                  {section.content.find(line => line.startsWith("##")).replace("##", "").trim()}
-                </h3>
-              )}
-              <div className="text-gray-700">
-                {renderContent(section.content)}
+          {sections
+            .filter((s) => s.type === "features" || s.type === "other")
+            .map((section, idx) => (
+              <div
+                key={idx}
+                className="bg-gray-50 rounded-2xl p-8 lg:p-12 mb-16"
+              >
+                {section.content.find((line) => line.startsWith("##")) && (
+                  <h3 className="text-3xl font-serif font-bold text-[#3c6a72] mb-6 text-center">
+                    {section.content
+                      .find((line) => line.startsWith("##"))
+                      .replace("##", "")
+                      .trim()}
+                  </h3>
+                )}
+                <div className="text-gray-700">
+                  {renderContent(section.content)}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       );
     }
-    
+
     // Regular blog rendering for other blogs
     const lines = desc.split("\n");
     const elements = [];
     let i = 0;
-    
+
     while (i < lines.length) {
       const line = lines[i];
-      
+
       // Special handling for "Meet Our Broker and Owner" section
       if (line.trim() === "## Meet Our Broker and Owner") {
         // Find the content of this section (next few paragraphs until next ## or end)
@@ -269,7 +300,7 @@ const BlogDetails = () => {
           }
           i++;
         }
-        
+
         // Create special layout with image on left and text on right
         elements.push(
           <div key={`broker-section-${elements.length}`} className="my-8">
@@ -295,8 +326,7 @@ const BlogDetails = () => {
           </div>
         );
         i--; // Adjust because we'll increment at the end of the loop
-      }
-      else if (line.startsWith("##")) {
+      } else if (line.startsWith("##")) {
         elements.push(
           <h2
             key={`heading-${elements.length}`}
@@ -308,13 +338,19 @@ const BlogDetails = () => {
       } else if (line.startsWith("**") && line.endsWith("**")) {
         // Handle bold text
         elements.push(
-          <p key={`bold-${elements.length}`} className="text-gray-700 text-base mb-3 font-bold">
+          <p
+            key={`bold-${elements.length}`}
+            className="text-gray-700 text-base mb-3 font-bold"
+          >
             {line.replace(/\*\*/g, "").trim()}
           </p>
         );
       } else if (line.startsWith("-")) {
         elements.push(
-          <li key={`list-${elements.length}`} className="ml-5 list-disc text-gray-600 text-base">
+          <li
+            key={`list-${elements.length}`}
+            className="ml-5 list-disc text-gray-600 text-base"
+          >
             {line.replace("-", "").trim()}
           </li>
         );
@@ -326,20 +362,28 @@ const BlogDetails = () => {
           const match = line.match(imageRegex);
           if (match) {
             const [, altText, imageSrc] = match;
-            
+
             // Hardcode image for the welcome blog
             let finalImageSrc = imageSrc;
-            console.log('Blog ID:', blog?.id, 'Image src:', imageSrc); // Debug log
-            
-            if (blog?.id === "340-real-estate-first-blog" && imageSrc === "new.jpg") {
-              console.log('Using newImage for welcome blog'); // Debug log
+            console.log("Blog ID:", blog?.id, "Image src:", imageSrc); // Debug log
+
+            if (
+              blog?.id === "340-real-estate-first-blog" &&
+              imageSrc === "new.jpg"
+            ) {
+              console.log("Using newImage for welcome blog"); // Debug log
               finalImageSrc = newImage;
             } else {
-              finalImageSrc = imageSrc.startsWith('/') ? imageSrc : `/${imageSrc}`;
+              finalImageSrc = imageSrc.startsWith("/")
+                ? imageSrc
+                : `/${imageSrc}`;
             }
-            
+
             elements.push(
-              <div key={`image-${elements.length}`} className="my-6 flex justify-center">
+              <div
+                key={`image-${elements.length}`}
+                className="my-6 flex justify-center"
+              >
                 <img
                   src={finalImageSrc}
                   alt={altText}
@@ -353,7 +397,10 @@ const BlogDetails = () => {
           const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
           const parts = line.split(linkRegex);
           elements.push(
-            <p key={`link-${elements.length}`} className="text-gray-700 text-base mb-3">
+            <p
+              key={`link-${elements.length}`}
+              className="text-gray-700 text-base mb-3"
+            >
               {parts.map((part, partIndex) => {
                 if (partIndex % 3 === 1) {
                   // This is link text
@@ -382,15 +429,18 @@ const BlogDetails = () => {
         elements.push(<br key={`br-${elements.length}`} />);
       } else {
         elements.push(
-          <p key={`text-${elements.length}`} className="text-gray-700 text-base mb-3">
+          <p
+            key={`text-${elements.length}`}
+            className="text-gray-700 text-base mb-3"
+          >
             {line.trim()}
           </p>
         );
       }
-      
+
       i++;
     }
-    
+
     return elements;
   };
 
@@ -422,7 +472,7 @@ const BlogDetails = () => {
               </p>
             )}
             <div className="flex flex-wrap justify-center items-center gap-4 text-sm text-gray-300">
-              <span>By {blog.author?.name || blog.author || 'Admin'}</span>
+              <span>By {blog.author?.name || blog.author || "Admin"}</span>
               <span>•</span>
               <span>{formatDate(blog.createdAt || blog.publishedAt)}</span>
               <span>•</span>
@@ -430,7 +480,9 @@ const BlogDetails = () => {
               {blog.category && (
                 <>
                   <span>•</span>
-                  <span className="bg-blue-600 px-2 py-1 rounded">{blog.category}</span>
+                  <span className="bg-blue-600 px-2 py-1 rounded">
+                    {blog.category}
+                  </span>
                 </>
               )}
             </div>
@@ -481,11 +533,15 @@ const BlogDetails = () => {
             <div className="flex items-center space-x-4">
               <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
                 <span className="text-white font-semibold">
-                  {(blog.author.name || blog.author)?.substring(0, 2).toUpperCase()}
+                  {(blog.author.name || blog.author)
+                    ?.substring(0, 2)
+                    .toUpperCase()}
                 </span>
               </div>
               <div>
-                <h3 className="font-semibold text-gray-800">{blog.author.name || blog.author}</h3>
+                <h3 className="font-semibold text-gray-800">
+                  {blog.author.name || blog.author}
+                </h3>
                 {blog.author.role && (
                   <p className="text-sm text-gray-600">{blog.author.role}</p>
                 )}
