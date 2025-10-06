@@ -16,7 +16,17 @@
     },
     {
       "src": "/favicon.ico",
-      "dest": "/favicon.ico"
+      "dest": "/favicon.ico",
+      "headers": {
+        "Cache-Control": "public, max-age=86400"
+      }
+    },
+    {
+      "src": "/site.webmanifest",
+      "dest": "/site.webmanifest",
+      "headers": {
+        "Cache-Control": "public, max-age=86400"
+      }
     },
     {
       "src": "/manifest.json",
@@ -24,11 +34,17 @@
     },
     {
       "src": "/logo192.png",
-      "dest": "/logo192.png"
+      "dest": "/logo192.png",
+      "headers": {
+        "Cache-Control": "public, max-age=86400"
+      }
     },
     {
       "src": "/logo512.png",
-      "dest": "/logo512.png"
+      "dest": "/logo512.png",
+      "headers": {
+        "Cache-Control": "public, max-age=86400"
+      }
     },
     {
       "src": "/(.*)",
