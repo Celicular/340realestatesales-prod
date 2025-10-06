@@ -1,4 +1,5 @@
 // Firebase configuration
+import { auth, db, storage } from './config';
 export { default as app } from './config';
 export { auth } from './config';
 export { db } from './config';
@@ -32,6 +33,16 @@ export {
   getRentalProperties,
   updateRentalPropertyStatus,
   deleteRentalProperty,
+  // Villa bookings
+  addVillaBookingRequest,
+  getVillaBookingRequests,
+  updateVillaBookingRequestStatus,
+  // Booking requests
+  addBookingRequest,
+  getBookingRequests,
+  updateBookingRequestStatus,
+  getAllBookingRequestsForAgent,
+  getAllBookingRequestsForAdmin,
   // Sale properties
   addSaleProperty,
   getSaleProperties,
@@ -55,9 +66,7 @@ export {
   getFileURL,
   listFiles
 } from './storage';
-
 // Firebase services for direct access
-import { auth, db, storage } from './config';
 export const firebaseServices = {
   auth,
   db,

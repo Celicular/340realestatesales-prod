@@ -47,7 +47,19 @@ const Header = () => {
   // All links for mobile menu
   const navLinks = [
     { name: "Home", path: "/" },
-    { name: "About Us", path: "/aboutus" },
+    {
+      name: "About ↴",
+      children: [
+        {
+          name: "About Us",
+          path: "/aboutus",
+        },
+        {
+          name: "About St. John",
+          path: "/about",
+        },
+      ],
+    },
 
     {
       name: "Rentals ↴",
@@ -72,7 +84,6 @@ const Header = () => {
     },
 
     { name: "Testimonials", path: "/testimonial" },
-    { name: "About St. John", path: "/about" },
     // { name: "For Sale", path: "/properties" },
     {
       name: "Property Search ↴",
@@ -102,7 +113,6 @@ const Header = () => {
     },
 
     { name: "Sales History", path: "/saleshistory" },
-    { name: "Search MLS", path: "/mls" },
 
     {
       name: "Attraction ↴",
@@ -129,8 +139,7 @@ const Header = () => {
   const desktopNavLinks = navLinks.filter(
     (link) =>
       link.name === "Home" ||
-      link.name === "About Us" ||
-      link.name === "About St. John" ||
+      link.name.startsWith("About") ||
       link.name.startsWith("Rentals") ||
       link.name === "Testimonials" ||
       link.name === "For Sale"
@@ -140,7 +149,6 @@ const Header = () => {
   const desktopHamburgerLinks = navLinks.filter(
     (link) =>
       link.name === "Sales History" ||
-      link.name === "Search MLS" ||
       link.name.startsWith("Attraction") ||
       link.name.startsWith("Blogs") ||
       link.name === "Incentives"
@@ -201,6 +209,7 @@ const Header = () => {
                   {/* Nested dropdown for Commercial */}
                   <div className="absolute left-full top-0 ml-1 w-40 bg-white shadow-lg opacity-0 invisible group-hover/commercial:visible group-hover/commercial:opacity-100 transform transition-all duration-300 z-50">
                     <a
+                      href="#"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="block px-4 py-2 text-sm font-barlow text-blue-800 font-semibold hover:text-blue-600 hover:bg-blue-50"
@@ -225,34 +234,38 @@ const Header = () => {
                 </Link>
               </div>
             </div>
-            <Link
-              to="/about"
-              className={`font-barlow text-sm px-2 py-1 rounded-md transition-all duration-200 ${
-                isScrolled
-                  ? "text-[#3c6a72] hover:text-[#285053]"
-                  : "text-white hover:text-blue-200"
-              } ${
-                location.pathname === "/about" && isScrolled
-                  ? "font-bold underline"
-                  : ""
-              }`}
-            >
-              About St. John
-            </Link>
-            <Link
-              to="/aboutus"
-              className={`font-barlow text-sm px-2 py-1 rounded-md transition-all duration-200 ${
-                isScrolled
-                  ? "text-[#3c6a72] hover:text-[#285053]"
-                  : "text-white hover:text-blue-200"
-              } ${
-                location.pathname === "/aboutus" && isScrolled
-                  ? "font-bold underline"
-                  : ""
-              }`}
-            >
-              About Us
-            </Link>
+
+        
+            <div className="relative group">
+              <span
+                className={`cursor-pointer font-barlow text-sm px-2 py-1 transition-all duration-200 ${
+                  isScrolled
+                    ? "text-[#3c6a72] hover:text-[#285053]"
+                    : "text-white hover:text-blue-200"
+                } group-hover:text-blue-500 ${
+                  (location.pathname === "/about" || location.pathname === "/aboutus") && isScrolled
+                    ? "font-bold underline"
+                    : ""
+                }`}
+              >
+                About ↴
+              </span>
+              {/* Dropdown */}
+              <div className="absolute left-0 mt-2 w-48 bg-white shadow-lg opacity-0 invisible group-hover:visible group-hover:opacity-100 group-hover:translate-y-1 transform transition-all duration-300 z-50">
+                <Link
+                  to="/aboutus"
+                  className="block px-4 py-2 text-md font-barlow text-blue-800 font-semibold hover:text-blue-600 hover:bg-blue-50"
+                >
+                  About Us
+                </Link>
+                <Link
+                  to="/about"
+                  className="block px-4 py-2 text-md font-barlow text-blue-800 font-semibold hover:text-blue-600 hover:bg-blue-50"
+                >
+                  About St. John
+                </Link>
+              </div>
+            </div>
           </nav>
 
           {/* Logo - Centered */}

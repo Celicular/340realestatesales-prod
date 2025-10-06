@@ -424,6 +424,43 @@ export const getBlogs = async (limitCount = 10) => {
   }
 };
 
+export const getBlog = async (blogId) => {
+  try {
+    const docRef = doc(db, BLOGS_COLLECTION, blogId);
+    const docSnap = await getDoc(docRef);
+    
+    if (docSnap.exists()) {
+      return { success: true, data: { id: docSnap.id, ...docSnap.data() } };
+    } else {
+      return { success: false, error: 'Blog not found' };
+    }
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+export const updateBlog = async (blogId, updateData) => {
+  try {
+    const docRef = doc(db, BLOGS_COLLECTION, blogId);
+    await updateDoc(docRef, {
+      ...updateData,
+      updatedAt: new Date()
+    });
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+export const deleteBlog = async (blogId) => {
+  try {
+    await deleteDoc(doc(db, BLOGS_COLLECTION, blogId));
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
 // Contact form submissions
 export const submitContact = async (contactData) => {
   try {
@@ -533,4 +570,218 @@ export const subscribeToReviews = (callback) => {
     console.log('Processed reviews:', reviews);
     callback(reviews);
   });
+};
+
+// Booking Request operations
+export const addBookingRequest = async (rentalPropertyId, bookingData) => {
+  try {
+    // Add to the bookingRequests subcollection of the rental property
+    const bookingRequestsRef = collection(db, 'rentalProperties', rentalPropertyId, 'bookingRequests');
+    const docRef = await addDoc(bookingRequestsRef, {
+      ...bookingData,
+      status: 'pending',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+    
+    console.log('Booking request added with ID:', docRef.id);
+    return { success: true, id: docRef.id };
+  } catch (error) {
+    console.error('Error adding booking request:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+// Villa booking requests - separate collection since villas are static data
+export const addVillaBookingRequest = async (villaId, bookingData) => {
+  try {
+    // Add to the villa bookings collection
+    const docRef = await addDoc(collection(db, 'villaBookings'), {
+      villaId: villaId,
+      ...bookingData,
+      status: 'pending',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+    
+    console.log('Villa booking request added with ID:', docRef.id);
+    return { success: true, id: docRef.id };
+  } catch (error) {
+    console.error('Error adding villa booking request:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+export const getVillaBookingRequests = async (filters = {}) => {
+  try {
+    let q = collection(db, 'villaBookings');
+    
+    if (filters.villaId) {
+      q = query(q, where('villaId', '==', filters.villaId));
+    }
+    if (filters.status) {
+      q = query(q, where('status', '==', filters.status));
+    }
+    
+    const querySnapshot = await getDocs(q);
+    const bookingRequests = [];
+    
+    querySnapshot.forEach((doc) => {
+      bookingRequests.push({ id: doc.id, ...doc.data() });
+    });
+    
+    // Sort by creation date
+    bookingRequests.sort((a, b) => {
+      const dateA = a.createdAt?.toDate?.() || new Date(a.createdAt) || new Date(0);
+      const dateB = b.createdAt?.toDate?.() || new Date(b.createdAt) || new Date(0);
+      return dateB - dateA;
+    });
+    
+    return { success: true, data: bookingRequests };
+  } catch (error) {
+    console.error('Error fetching villa booking requests:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+export const updateVillaBookingRequestStatus = async (bookingId, status, adminNotes = '') => {
+  try {
+    const bookingRef = doc(db, 'villaBookings', bookingId);
+    await updateDoc(bookingRef, {
+      status,
+      adminNotes,
+      updatedAt: new Date(),
+      ...(status === 'approved' && { approvedAt: new Date() }),
+      ...(status === 'rejected' && { rejectedAt: new Date() })
+    });
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating villa booking request status:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+export const getBookingRequests = async (rentalPropertyId) => {
+  try {
+    const bookingRequestsRef = collection(db, 'rentalProperties', rentalPropertyId, 'bookingRequests');
+    const q = query(bookingRequestsRef, orderBy('createdAt', 'desc'));
+    const querySnapshot = await getDocs(q);
+    
+    const bookingRequests = [];
+    querySnapshot.forEach((doc) => {
+      bookingRequests.push({ id: doc.id, ...doc.data() });
+    });
+    
+    return { success: true, data: bookingRequests };
+  } catch (error) {
+    console.error('Error fetching booking requests:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+export const updateBookingRequestStatus = async (rentalPropertyId, bookingRequestId, status, adminNotes = '') => {
+  try {
+    const bookingRequestRef = doc(db, 'rentalProperties', rentalPropertyId, 'bookingRequests', bookingRequestId);
+    await updateDoc(bookingRequestRef, {
+      status,
+      adminNotes,
+      updatedAt: new Date(),
+      ...(status === 'approved' && { approvedAt: new Date() }),
+      ...(status === 'rejected' && { rejectedAt: new Date() })
+    });
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating booking request status:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+export const getAllBookingRequestsForAgent = async (agentEmail) => {
+  try {
+    // First get all rental properties for this agent
+    const rentalPropertiesRef = collection(db, 'rentalProperties');
+    const agentPropertiesQuery = query(
+      rentalPropertiesRef, 
+      where('agentInfo.email', '==', agentEmail)
+    );
+    const agentPropertiesSnapshot = await getDocs(agentPropertiesQuery);
+    
+    const allBookingRequests = [];
+    
+    // For each property, get its booking requests
+    for (const propertyDoc of agentPropertiesSnapshot.docs) {
+      const propertyData = { id: propertyDoc.id, ...propertyDoc.data() };
+      
+      const bookingRequestsRef = collection(db, 'rentalProperties', propertyDoc.id, 'bookingRequests');
+      const bookingQuery = query(bookingRequestsRef, orderBy('createdAt', 'desc'));
+      const bookingSnapshot = await getDocs(bookingQuery);
+      
+      bookingSnapshot.forEach((bookingDoc) => {
+        allBookingRequests.push({
+          id: bookingDoc.id,
+          propertyId: propertyDoc.id,
+          propertyName: propertyData.name || propertyData.propertyInfo?.name,
+          propertySlug: propertyData.propertyInfo?.slug,
+          ...bookingDoc.data()
+        });
+      });
+    }
+    
+    // Sort all booking requests by creation date
+    allBookingRequests.sort((a, b) => {
+      const dateA = a.createdAt?.toDate?.() || new Date(a.createdAt) || new Date(0);
+      const dateB = b.createdAt?.toDate?.() || new Date(b.createdAt) || new Date(0);
+      return dateB - dateA;
+    });
+    
+    return { success: true, data: allBookingRequests };
+  } catch (error) {
+    console.error('Error fetching agent booking requests:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+export const getAllBookingRequestsForAdmin = async () => {
+  try {
+    // Get all rental properties
+    const rentalPropertiesRef = collection(db, 'rentalProperties');
+    const propertiesSnapshot = await getDocs(rentalPropertiesRef);
+    
+    const allBookingRequests = [];
+    
+    // For each property, get its booking requests
+    for (const propertyDoc of propertiesSnapshot.docs) {
+      const propertyData = { id: propertyDoc.id, ...propertyDoc.data() };
+      
+      const bookingRequestsRef = collection(db, 'rentalProperties', propertyDoc.id, 'bookingRequests');
+      const bookingQuery = query(bookingRequestsRef, orderBy('createdAt', 'desc'));
+      const bookingSnapshot = await getDocs(bookingQuery);
+      
+      bookingSnapshot.forEach((bookingDoc) => {
+        allBookingRequests.push({
+          id: bookingDoc.id,
+          propertyId: propertyDoc.id,
+          propertyName: propertyData.name || propertyData.propertyInfo?.name,
+          propertySlug: propertyData.propertyInfo?.slug,
+          agentName: propertyData.agentInfo?.name,
+          agentEmail: propertyData.agentInfo?.email,
+          ...bookingDoc.data()
+        });
+      });
+    }
+    
+    // Sort all booking requests by creation date
+    allBookingRequests.sort((a, b) => {
+      const dateA = a.createdAt?.toDate?.() || new Date(a.createdAt) || new Date(0);
+      const dateB = b.createdAt?.toDate?.() || new Date(b.createdAt) || new Date(0);
+      return dateB - dateA;
+    });
+    
+    return { success: true, data: allBookingRequests };
+  } catch (error) {
+    console.error('Error fetching all booking requests:', error);
+    return { success: false, error: error.message };
+  }
 };

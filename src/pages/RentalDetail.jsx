@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { CheckCircle, MapPin, X as CloseIcon } from "lucide-react";
+import { CheckCircle, MapPin, X as CloseIcon, Calendar, Users, Mail, Phone, MessageSquare } from "lucide-react";
 import { IoHomeOutline, IoBed } from "react-icons/io5";
 import { BiMaleFemale } from "react-icons/bi";
-import { getRentalProperties } from "../firebase/firestore";
+import { getRentalProperties, addBookingRequest } from "../firebase/firestore";
+import BookingRequestForm from "../components/booking/BookingRequestForm";
 
 const RentalDetail = () => {
   const { slug } = useParams();
@@ -13,6 +14,23 @@ const RentalDetail = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSeason, setSelectedSeason] = useState("inSeason");
   const [selectedGuests, setSelectedGuests] = useState(1);
+  const [showBookingForm, setShowBookingForm] = useState(false);
+  const [checkInDate, setCheckInDate] = useState('');
+  const [checkOutDate, setCheckOutDate] = useState('');
+  const [guestMessage, setGuestMessage] = useState('');
+  
+  // Inline booking form state
+  const [bookingData, setBookingData] = useState({
+    guestName: '',
+    email: '',
+    phone: '',
+    checkInDate: '',
+    checkOutDate: '',
+    guests: 1,
+    message: ''
+  });
+  const [bookingLoading, setBookingLoading] = useState(false);
+  const [bookingError, setBookingError] = useState('');
 
   // Handle keyboard navigation for modal
   useEffect(() => {
@@ -66,6 +84,141 @@ const RentalDetail = () => {
 
     fetchRental();
   }, [slug]);
+
+  const handleBookingSuccess = (bookingId) => {
+    alert(`Booking request submitted successfully! Reference ID: ${bookingId}. You will receive a confirmation email soon.`);
+    setShowBookingForm(false);
+    // Reset form fields
+    setCheckInDate('');
+    setCheckOutDate('');
+    setSelectedGuests(1);
+    setGuestMessage('');
+  };
+
+  const handleBookingInputChange = (e) => {
+    const { name, value, type } = e.target;
+    setBookingData(prev => ({
+      ...prev,
+      [name]: type === 'number' ? parseInt(value) || 0 : value
+    }));
+  };
+
+  const calculateStayDuration = () => {
+    if (bookingData.checkInDate && bookingData.checkOutDate) {
+      const checkIn = new Date(bookingData.checkInDate);
+      const checkOut = new Date(bookingData.checkOutDate);
+      const diffTime = Math.abs(checkOut - checkIn);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays;
+    }
+    return 0;
+  };
+
+  const calculateDetailedPricing = () => {
+    const nights = calculateStayDuration();
+    const baseRate = nights * (rental.propertyInfo?.pricePerNight || 0);
+    const cleaningFee = 200;
+    const serviceFee = Math.round(baseRate * 0.05); // 5% service fee
+    const taxes = Math.round((baseRate + cleaningFee + serviceFee) * 0.125); // 12.5% VI tax
+    const totalAmount = baseRate + cleaningFee + serviceFee + taxes;
+
+    return {
+      baseRate,
+      cleaningFee,
+      serviceFee,
+      taxes,
+      totalAmount,
+      nights
+    };
+  };
+
+  const handleBookingSubmit = async (e) => {
+    e.preventDefault();
+    setBookingLoading(true);
+    setBookingError('');
+
+    try {
+      const nights = calculateStayDuration();
+      
+      if (nights <= 0) {
+        throw new Error('Please select valid check-in and check-out dates');
+      }
+
+      if (!bookingData.guestName || !bookingData.email || !bookingData.phone) {
+        throw new Error('Please fill in all required guest information');
+      }
+
+      // Calculate pricing
+      const pricing = calculateDetailedPricing();
+      
+      // Determine season based on check-in date
+      const checkInMonth = new Date(bookingData.checkInDate).getMonth() + 1;
+      const season = (checkInMonth >= 12 || checkInMonth <= 4) ? 'inSeason' : 'offSeason';
+
+      // Create booking data matching your Firestore structure
+      const bookingRequest = {
+        bookingDetails: {
+          checkIn: new Date(bookingData.checkInDate),
+          checkOut: new Date(bookingData.checkOutDate),
+          guests: bookingData.guests,
+          season: season,
+          totalNights: nights
+        },
+        guestInfo: {
+          name: bookingData.guestName,
+          email: bookingData.email,
+          phone: bookingData.phone,
+          message: bookingData.message || ''
+        },
+        pricing: {
+          baseRate: pricing.baseRate.toString(),
+          cleaningFee: pricing.cleaningFee,
+          serviceFee: pricing.serviceFee,
+          taxes: pricing.taxes,
+          totalAmount: pricing.totalAmount.toString(),
+          totalNights: nights
+        },
+        propertyDetails: {
+          propertyId: rental.id,
+          name: rental.propertyInfo?.name,
+          address: rental.propertyInfo?.address,
+          type: rental.propertyInfo?.type,
+          slug: slug
+        },
+        metadata: {
+          source: 'website',
+          userAgent: navigator.userAgent
+        },
+        requestedAt: new Date(),
+        status: 'pending',
+        updatedAt: new Date(),
+        expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000) // Expires in 48 hours
+      };
+
+      const result = await addBookingRequest(rental.id, bookingRequest);
+      
+      if (result.success) {
+        alert(`Booking request submitted successfully! Reference ID: ${result.id}`);
+        
+        // Reset form
+        setBookingData({
+          guestName: '',
+          email: '',
+          phone: '',
+          checkInDate: '',
+          checkOutDate: '',
+          guests: 1,
+          message: ''
+        });
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (err) {
+      setBookingError(err.message);
+    } finally {
+      setBookingLoading(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -649,13 +802,12 @@ const RentalDetail = () => {
           </div>
         </div>
 
-        {/* Booking Sidebar */}
-        <div className="lg:w-[350px] w-full sticky top-28 h-fit bg-white border rounded-xl shadow-xl p-6 space-y-6">
+        {/* Booking Form - Always Visible */}
+        <div className="lg:w-[400px] w-full sticky top-28 h-fit bg-white border rounded-xl shadow-xl p-6 space-y-6">
           <div>
             <h2 className="text-2xl font-bold text-green-600">
               ${rental.propertyInfo?.pricePerNight || 'N/A'} / Weekly
             </h2>
-
             {rental.rates && (rental.rates.inSeason || rental.rates.offSeason) && (
               <p className="text-sm text-gray-500 mt-1">
                 Dynamic pricing based on season and guests
@@ -663,121 +815,181 @@ const RentalDetail = () => {
             )}
           </div>
 
-          {/* Season Selection */}
-          {rental.rates && (rental.rates.inSeason || rental.rates.offSeason) && (
-            <div className="space-y-3">
-              <label className="text-sm font-medium">Season</label>
-
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setSelectedSeason("inSeason")}
-                  className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all ${
-                    selectedSeason === "inSeason"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  In Season
-                </button>
-
-                <button
-                  onClick={() => setSelectedSeason("offSeason")}
-                  className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all ${
-                    selectedSeason === "offSeason"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  Off Season
-                </button>
-              </div>
+          {bookingError && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+              {bookingError}
             </div>
           )}
 
-          <div className="space-y-3">
-            <label className="text-sm font-medium">Check-in</label>
+          <form onSubmit={handleBookingSubmit} className="space-y-4">
+            {/* Guest Information */}
+            <div className="border-b pb-4">
+              <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                <Users className="mr-2" size={18} />
+                Guest Information
+              </h4>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+                  <input
+                    type="text"
+                    name="guestName"
+                    value={bookingData.guestName}
+                    onChange={handleBookingInputChange}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter your full name"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                    <Mail className="mr-1" size={14} />
+                    Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={bookingData.email}
+                    onChange={handleBookingInputChange}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="your.email@example.com"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                    <Phone className="mr-1" size={14} />
+                    Phone Number *
+                  </label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={bookingData.phone}
+                    onChange={handleBookingInputChange}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="+1 (555) 123-4567"
+                  />
+                </div>
+              </div>
+            </div>
 
-            <input
-              type="date"
-              onFocus={(e) => e.target.showPicker && e.target.showPicker()}
-              className="w-full border px-3 py-2 rounded-md"
-            />
+            {/* Booking Dates & Guests */}
+            <div className="border-b pb-4">
+              <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                <Calendar className="mr-2" size={18} />
+                Booking Details
+              </h4>
+              <div className="space-y-3">
+                <div>
+                  <label className="text-sm font-medium">Check-in Date *</label>
+                  <input
+                    type="date"
+                    name="checkInDate"
+                    value={bookingData.checkInDate}
+                    onChange={handleBookingInputChange}
+                    required
+                    min={new Date().toISOString().split('T')[0]}
+                    onFocus={(e) => e.target.showPicker && e.target.showPicker()}
+                    className="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Check-out Date *</label>
+                  <input
+                    type="date"
+                    name="checkOutDate"
+                    value={bookingData.checkOutDate}
+                    onChange={handleBookingInputChange}
+                    required
+                    min={bookingData.checkInDate || new Date().toISOString().split('T')[0]}
+                    onFocus={(e) => e.target.showPicker && e.target.showPicker()}
+                    className="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Number of Guests *</label>
+                  <select
+                    name="guests"
+                    value={bookingData.guests}
+                    onChange={handleBookingInputChange}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    {[...Array(rental.accommodation?.maxGuests || 8)].map((_, i) => (
+                      <option key={i + 1} value={i + 1}>{i + 1} Guest{i > 0 ? 's' : ''}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
 
-            <label className="text-sm font-medium">Check-out</label>
+            {/* Message */}
+            <div className="border-b pb-4">
+              <h4 className="text-sm font-medium text-gray-700 mb-2 flex items-center">
+                <MessageSquare className="mr-1" size={14} />
+                Message to Host
+              </h4>
+              <textarea
+                name="message"
+                value={bookingData.message}
+                onChange={handleBookingInputChange}
+                rows={3}
+                className="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Any special requests or questions..."
+              />
+            </div>
 
-            <input
-              type="date"
-              onFocus={(e) => e.target.showPicker && e.target.showPicker()}
-              className="w-full border px-3 py-2 rounded-md"
-            />
+            {/* Pricing Breakdown */}
+            {calculateStayDuration() > 0 && (
+              <div className="bg-blue-50 rounded-lg p-4">
+                <h4 className="text-sm font-semibold text-gray-900 mb-2">Pricing Breakdown</h4>
+                <div className="space-y-1 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Duration:</span>
+                    <span className="font-medium">{calculateStayDuration()} night{calculateStayDuration() > 1 ? 's' : ''}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Base Rate:</span>
+                    <span>${calculateDetailedPricing().baseRate}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Cleaning Fee:</span>
+                    <span>${calculateDetailedPricing().cleaningFee}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Service Fee:</span>
+                    <span>${calculateDetailedPricing().serviceFee}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">VI Hotel Tax (12.5%):</span>
+                    <span>${calculateDetailedPricing().taxes}</span>
+                  </div>
+                  <div className="border-t pt-2 flex justify-between font-semibold">
+                    <span>Total Amount:</span>
+                    <span className="text-lg text-blue-600">${calculateDetailedPricing().totalAmount}</span>
+                  </div>
+                </div>
+              </div>
+            )}
 
-            <label className="text-sm font-medium">Guests</label>
-
-            <input
-              type="number"
-              min={1}
-              className="w-full border px-3 py-2 rounded-md"
-              value={selectedGuests}
-              onChange={(e) => setSelectedGuests(Number(e.target.value))}
-            />
-
-            <label className="text-sm font-medium">Message to Host</label>
-
-            <textarea
-              className="w-full border px-3 py-2 rounded-md"
-              rows={3}
-              placeholder="Add a message to the host..."
-            />
-
-            <button className="w-full bg-indigo-600 text-white rounded-md py-2 hover:bg-indigo-700 transition font-medium">
-              Request to Book
+            <button
+              type="submit"
+              disabled={bookingLoading}
+              className="w-full bg-indigo-600 text-white rounded-md py-3 hover:bg-indigo-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {bookingLoading ? 'Submitting Request...' : 'Submit Booking Request'}
             </button>
-          </div>
-
-          {/* Pricing Breakdown */}
-          {rental.rates && (rental.rates.inSeason || rental.rates.offSeason) && (
-            <div className="border-t pt-4">
-              <h3 className="text-sm font-medium text-gray-700 mb-3">
-                Pricing Breakdown
-              </h3>
-
-              <div className="space-y-2 text-sm">
-                {rental.rates[selectedSeason]?.oneToFour && (
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">1-4 guests</span>
-
-                    <span
-                      className={`font-medium ${
-                        selectedGuests >= 1 && selectedGuests <= 4
-                          ? "text-blue-600"
-                          : "text-gray-900"
-                      }`}
-                    >
-                      ${rental.rates[selectedSeason].oneToFour}/weekly
-                    </span>
-                  </div>
-                )}
-
-                {rental.rates[selectedSeason]?.fiveToSix && (
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">5-6 guests</span>
-
-                    <span
-                      className={`font-medium ${
-                        selectedGuests >= 5 && selectedGuests <= 6
-                          ? "text-blue-600"
-                          : "text-gray-900"
-                      }`}
-                    >
-                      ${rental.rates[selectedSeason].fiveToSix}/weekly
-                    </span>
-                  </div>
-                )}
-              </div>
+            
+            <div className="text-center text-xs text-gray-600">
+              <p>• No booking fees</p>
+              <p>• 50% deposit required to secure reservation</p>
+              <p>• Balance due 60 days prior to arrival</p>
             </div>
-          )}
+          </form>
         </div>
       </div>
+
     </div>
   );
 };

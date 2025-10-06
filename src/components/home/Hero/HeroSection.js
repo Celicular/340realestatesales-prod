@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Facebook, Instagram, Youtube } from "lucide-react";
 import { FaXTwitter } from "react-icons/fa6";
 import { FaWhatsapp } from "react-icons/fa";
@@ -139,6 +140,30 @@ const HeroSection = () => {
           <p className="text-xl sm:text-2xl lg:text-3xl mb-10 font-light animate-slide-up">
             Luxury Real Estate in St. John, USVI
           </p>
+          
+          {/* Search MLS CTA Button */}
+          <div className="animate-fade-in delay-300">
+            <Link
+              to="/mls"
+              className="inline-flex items-center px-8 py-4 bg-white/10 hover:bg-white/20 text-white font-semibold text-lg rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 backdrop-blur-md border border-white/30 hover:border-white/50"
+            >
+              <svg 
+                className="w-6 h-6 mr-3" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth={2} 
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" 
+                />
+              </svg>
+              Search MLS Properties
+            </Link>
+          </div>
+          
           {/* <SearchForm /> */}
         </div>
       </div>

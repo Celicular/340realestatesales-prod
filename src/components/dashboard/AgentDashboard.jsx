@@ -19,12 +19,14 @@ import PropertySale from '../forms/PropertySale';
 import PropertySold from '../forms/PropertySold';
 import LandSale from '../forms/LandSale';
 import LandSold from '../forms/LandSold';
+import BlogManagement from '../blog/BlogManagement';
+import BookingRequestsManagement from '../booking/BookingRequestsManagement';
 import { logout, getCurrentUser } from '../../utils/auth';
 import { getRentalProperties, getSaleProperties, getSoldProperties } from '../../firebase/firestore';
 
 const AgentDashboard = () => {
   console.log('🎯 AgentDashboard component loaded');
-  const [activeTab, setActiveTab] = useState('rental');
+  const [activeTab, setActiveTab] = useState('booking-requests');
   const [stats, setStats] = useState({
     myRentals: 0,
     mySales: 0,
@@ -77,6 +79,22 @@ const AgentDashboard = () => {
 
   const tabs = [
     { 
+      id: 'booking-requests', 
+      name: 'Booking Requests', 
+      component: () => <BookingRequestsManagement userRole="agent" />,
+      icon: Calendar,
+      color: 'blue',
+      description: 'View and manage property bookings'
+    },
+    { 
+      id: 'blog-management', 
+      name: 'Blog Management', 
+      component: BlogManagement,
+      icon: FileText,
+      color: 'teal',
+      description: 'Create and manage blog posts'
+    },
+    { 
       id: 'rental', 
       name: 'Rental Form', 
       component: RentalForm,
@@ -126,7 +144,8 @@ const AgentDashboard = () => {
       green: 'bg-green-50 text-green-700 border-green-200',
       purple: 'bg-purple-50 text-purple-700 border-purple-200',
       orange: 'bg-orange-50 text-orange-700 border-orange-200',
-      indigo: 'bg-indigo-50 text-indigo-700 border-indigo-200'
+      indigo: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+      teal: 'bg-teal-50 text-teal-700 border-teal-200'
     };
     return colors[color] || colors.blue;
   };
@@ -137,7 +156,8 @@ const AgentDashboard = () => {
       green: 'bg-green-600 text-white border-green-600',
       purple: 'bg-purple-600 text-white border-purple-600',
       orange: 'bg-orange-600 text-white border-orange-600',
-      indigo: 'bg-indigo-600 text-white border-indigo-600'
+      indigo: 'bg-indigo-600 text-white border-indigo-600',
+      teal: 'bg-teal-600 text-white border-teal-600'
     };
     return colors[color] || colors.blue;
   };
