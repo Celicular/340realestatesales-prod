@@ -204,19 +204,20 @@ const BlogDetails = () => {
                 </div>
               )}
               
-              {/* Broker Section */}
+           
+            </div>
+          </div>
+             {/* Broker Section - Full width and centered */}
               {sections.find(s => s.type === 'broker') && (
-                <div className="bg-gradient-to-r from-[#3c6a72] to-[#3d8b99] rounded-2xl p-8 text-white">
-                  <h3 className="text-2xl font-serif font-bold mb-4">
+                <div className="w-full mb-10 mx-auto bg-gradient-to-r from-[#3c6a72] to-[#3d8b99] rounded-2xl p-8 text-white">
+                  <h3 className="text-2xl font-serif font-bold mb-4 text-center">
                     Meet Our Broker and Owner
                   </h3>
-                  <div>
+                  <div className="text-center">
                     {renderContent(sections.find(s => s.type === 'broker').content)}
                   </div>
                 </div>
               )}
-            </div>
-          </div>
           
           {/* Team Section */}
           {sections.find(s => s.type === 'team') && (
