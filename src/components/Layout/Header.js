@@ -47,19 +47,8 @@ const Header = () => {
   // All links for mobile menu
   const navLinks = [
     { name: "Home", path: "/" },
-    {
-      name: "About ↴",
-      children: [
-        {
-          name: "About Us",
-          path: "/aboutus",
-        },
-        {
-          name: "About St. John",
-          path: "/about",
-        },
-      ],
-    },
+    { name: "About Us", path: "/aboutus" },
+    { name: "About St. John", path: "/about" },
 
     {
       name: "Rentals ↴",
@@ -135,16 +124,6 @@ const Header = () => {
     { name: "Incentives", path: "/incentives" },
   ];
 
-  // Only show these on desktop
-  const desktopNavLinks = navLinks.filter(
-    (link) =>
-      link.name === "Home" ||
-      link.name.startsWith("About") ||
-      link.name.startsWith("Rentals") ||
-      link.name === "Testimonials" ||
-      link.name === "For Sale"
-  );
-
   // Only show these in desktop hamburger
   const desktopHamburgerLinks = navLinks.filter(
     (link) =>
@@ -208,14 +187,12 @@ const Header = () => {
                   </span>
                   {/* Nested dropdown for Commercial */}
                   <div className="absolute left-full top-0 ml-1 w-40 bg-white shadow-lg opacity-0 invisible group-hover/commercial:visible group-hover/commercial:opacity-100 transform transition-all duration-300 z-50">
-                    <a
-                      href="#"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block px-4 py-2 text-sm font-barlow text-blue-800 font-semibold hover:text-blue-600 hover:bg-blue-50"
+                    <button
+                      disabled
+                      className="block px-4 py-2 text-sm font-barlow text-gray-400 cursor-not-allowed"
                     >
                       For Sales
-                    </a>
+                    </button>
                     <a
                       href="https://my.flexmls.com/TamelaDonnelly/search/email_links/20250816153528152858000000/listings"
                       target="_blank"
@@ -236,36 +213,37 @@ const Header = () => {
             </div>
 
         
-            <div className="relative group">
-              <span
-                className={`cursor-pointer font-barlow text-sm px-2 py-1 transition-all duration-200 ${
-                  isScrolled
-                    ? "text-[#3c6a72] hover:text-[#285053]"
-                    : "text-white hover:text-blue-200"
-                } group-hover:text-blue-500 ${
-                  (location.pathname === "/about" || location.pathname === "/aboutus") && isScrolled
-                    ? "font-bold underline"
-                    : ""
-                }`}
-              >
-                About ↴
-              </span>
-              {/* Dropdown */}
-              <div className="absolute left-0 mt-2 w-48 bg-white shadow-lg opacity-0 invisible group-hover:visible group-hover:opacity-100 group-hover:translate-y-1 transform transition-all duration-300 z-50">
-                <Link
-                  to="/aboutus"
-                  className="block px-4 py-2 text-md font-barlow text-blue-800 font-semibold hover:text-blue-600 hover:bg-blue-50"
-                >
-                  About Us
-                </Link>
-                <Link
-                  to="/about"
-                  className="block px-4 py-2 text-md font-barlow text-blue-800 font-semibold hover:text-blue-600 hover:bg-blue-50"
-                >
-                  About St. John
-                </Link>
-              </div>
-            </div>
+            {/* About Us */}
+            <Link
+              to="/aboutus"
+              className={`font-barlow text-sm px-2 py-1 rounded-md transition-all duration-200 ${
+                isScrolled
+                  ? "text-[#3c6a72] hover:text-[#285053]"
+                  : "text-white hover:text-blue-200"
+              } ${
+                location.pathname === "/aboutus" && isScrolled
+                  ? "font-bold underline"
+                  : ""
+              }`}
+            >
+              About Us
+            </Link>
+
+            {/* About St. John */}
+            <Link
+              to="/about"
+              className={`font-barlow text-sm px-2 py-1 rounded-md transition-all duration-200 ${
+                isScrolled
+                  ? "text-[#3c6a72] hover:text-[#285053]"
+                  : "text-white hover:text-blue-200"
+              } ${
+                location.pathname === "/about" && isScrolled
+                  ? "font-bold underline"
+                  : ""
+              }`}
+            >
+              About St. John
+            </Link>
           </nav>
 
           {/* Logo - Centered */}
