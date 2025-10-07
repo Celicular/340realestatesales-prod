@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { getBlog, updateBlog } from "../firebase/firestore";
 import hardcodedBlogs from "../data/Blogs";
 import newImage from "../assets/new.jpg";
+import logo from "../assets/logo.png";
 
 const BlogDetails = () => {
   const { id } = useParams();
@@ -531,12 +532,12 @@ const BlogDetails = () => {
             transition={{ delay: 0.6, duration: 0.6 }}
           >
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
-                <span className="text-white font-semibold">
-                  {(blog.author.name || blog.author)
-                    ?.substring(0, 2)
-                    .toUpperCase()}
-                </span>
+              <div className="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden bg-white border-2 border-gray-200">
+                <img 
+                  src={logo} 
+                  alt="340 Real Estate Logo" 
+                  className="w-10 h-10 object-contain"
+                />
               </div>
               <div>
                 <h3 className="font-semibold text-gray-800">
