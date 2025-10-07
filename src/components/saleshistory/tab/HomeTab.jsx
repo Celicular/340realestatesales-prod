@@ -17,7 +17,7 @@ const JumpingLogo = ({ src, index }) => {
     <motion.img
       src={src}
       alt={`Logo ${index}`}
-      className="h-16 w-auto absolute"
+      className="h-16 w-auto px-4 absolute"
       initial={{
         x: Math.random() * window.innerWidth,
         y: Math.random() * 200,
