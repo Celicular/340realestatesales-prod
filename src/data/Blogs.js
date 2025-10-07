@@ -84,7 +84,7 @@ For more information about our services or to search properties, visit our websi
 - Website: https://340realestatestjohn.com/
 - Phone: +1 340-643-6068
 - Email: 340realestateco@gmail.com
-- Follow us on [Facebook](https://www.facebook.com/340realestate/) and [Instagram](https://www.instagram.com/340realestatestjohn/)
+- Follow us on [Facebook](https://www.facebook.com/340realestateco/) and [Instagram](https://www.instagram.com/340realestateco/)
 
 We look forward to helping you find your perfect piece of paradise in St. John!`,
     coverImage: realestateintro,
