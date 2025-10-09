@@ -14,19 +14,27 @@ import {
   TrendingUp,
   Activity,
   FileText,
-  Calendar
+  Calendar,
+  Database,
+  Mail
 } from 'lucide-react';
 import AgentApproval from '../admin/AgentApproval';
 import RentalApproval from '../admin/RentalApproval';
 import SaleApproval from '../admin/SaleApproval';
 import SoldApproval from '../admin/SoldApproval';
+import PortfolioManagement from '../admin/PortfolioManagement';
+import PortfolioTest from '../admin/PortfolioTest';
+import SystemStatus from '../admin/SystemStatus';
+import BackendDataManager from '../admin/BackendDataManager';
+import BackendPortfolioDisplay from '../admin/BackendPortfolioDisplay';
+import EmailTestPanel from '../admin/EmailTestPanel';
 import BlogManagement from '../blog/BlogManagement';
 import BookingManagement from '../admin/BookingManagement';
 import { logout, getCurrentUser } from '../../utils/auth';
 import { getRentalProperties, getSaleProperties, getSoldProperties } from '../../firebase/firestore';
 
 const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState('booking-requests');
+  const [activeTab, setActiveTab] = useState('backend-data-manager');
   const [stats, setStats] = useState({
     pendingRentals: 0,
     pendingSales: 0,
@@ -74,13 +82,48 @@ const AdminDashboard = () => {
   };
 
   const tabs = [
-    // { 
-    //   id: 'agent-approval', 
-    //   name: 'Agent Approval', 
-    //   component: AgentApproval,
-    //   icon: Users,
-    //   color: 'blue'
-    // },
+    { 
+      id: 'backend-data-manager', 
+      name: 'Backend Migration', 
+      component: BackendDataManager,
+      icon: Database,
+      color: 'purple'
+    },
+    { 
+      id: 'backend-portfolio-display', 
+      name: 'Backend Portfolio', 
+      component: BackendPortfolioDisplay,
+      icon: TrendingUp,
+      color: 'blue'
+    },
+    { 
+      id: 'email-test-panel', 
+      name: 'Email Testing', 
+      component: EmailTestPanel,
+      icon: Mail,
+      color: 'indigo'
+    },
+    { 
+      id: 'system-status', 
+      name: 'System Status', 
+      component: SystemStatus,
+      icon: Shield,
+      color: 'green'
+    },
+    { 
+      id: 'portfolio-test', 
+      name: 'Portfolio Test', 
+      component: PortfolioTest,
+      icon: Activity,
+      color: 'red'
+    },
+    { 
+      id: 'portfolio-management', 
+      name: 'Portfolio Management', 
+      component: PortfolioManagement,
+      icon: Home,
+      color: 'indigo'
+    },
     { 
       id: 'booking-requests', 
       name: 'Booking Requests', 

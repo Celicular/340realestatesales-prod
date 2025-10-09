@@ -2,30 +2,31 @@ import React, { useState, useMemo, useCallback, memo, useEffect } from "react";
 import { FaMapMarkerAlt, FaRulerCombined, FaTree, FaWater } from "react-icons/fa";
 import { BsHouseDoorFill } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
-import { soldProperties } from "../../data/SoldPropertydata";
-import { getSoldProperties } from "../../firebase/firestore";
+import { getAllPortfolioItems } from "../../firebase/firestore";
 
-// Transform SoldPropertydata to match the expected format - memoized
+// Transform Portfolio data to show recent sales - memoized
 const useSoldProperties = () => {
-  const [firebaseSoldProperties, setFirebaseSoldProperties] = useState([]);
+  const [portfolioSoldProperties, setPortfolioSoldProperties] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchSoldProperties = async () => {
       try {
         setLoading(true);
-        console.log('Fetching Firebase sold properties...');
-        // Fetch only approved sold properties
-        const result = await getSoldProperties({ status: 'approved' });
-        console.log('Firebase sold properties fetch result:', result);
+        console.log('🔄 Fetching Portfolio recent sales...');
+        // Fetch portfolio items with recent-sale status
+        const result = await getAllPortfolioItems({ status: 'recent-sale' });
+        console.log('📦 Portfolio recent sales fetch result:', result);
         if (result.success) {
-          console.log('Setting Firebase sold properties:', result.data);
-          setFirebaseSoldProperties(result.data);
+          console.log('✅ Setting Portfolio recent sales:', result.data);
+          setPortfolioSoldProperties(result.data);
         } else {
-          console.log('Firebase sold properties fetch failed:', result.error);
+          console.log('❌ Portfolio recent sales fetch failed:', result.error);
+          setPortfolioSoldProperties([]);
         }
       } catch (error) {
-        console.error('Error fetching sold properties:', error);
+        console.error('💥 Error fetching recent sales:', error);
+        setPortfolioSoldProperties([]);
       } finally {
         setLoading(false);
       }
@@ -35,40 +36,44 @@ const useSoldProperties = () => {
   }, []);
 
   return useMemo(() => {
-    console.log('useSoldProperties - firebaseSoldProperties:', firebaseSoldProperties);
+    console.log('🏠 useSoldProperties - portfolioSoldProperties:', portfolioSoldProperties);
     
-    // Transform Firebase data to match the expected format
-    const firebaseFormatted = firebaseSoldProperties.map((property) => {
-      console.log('Processing Firebase sold property:', property);
+    // Transform Portfolio data to match the expected format
+    const portfolioFormatted = portfolioSoldProperties.map((property) => {
+      console.log('🔄 Processing Portfolio sold property:', property);
       
       return {
         id: property.id,
-        title: property.propertyInfo?.title || property.title,
-        location: property.propertyInfo?.location || property.location,
-        price: property.propertyInfo?.price || property.price,
-        status: property.propertyInfo?.status || property.status || 'SOLD',
-        images: property.media?.imageLinks || property.images || [],
-        description: property.description,
-        highlights: property.highlights || {},
-        features: property.features || {},
-        additionalInfo: property.additionalInfo || {},
+        title: property.title,
+        location: property.location?.address || property.location || 'St. John, USVI',
+        price: typeof property.soldPrice === 'string' ? property.soldPrice : `$${property.soldPrice?.toLocaleString() || 'Sold'}`,
+        originalPrice: typeof property.price === 'string' ? property.price : `$${property.price?.toLocaleString() || 'N/A'}`,
+        status: 'SOLD',
+        soldDate: property.soldDate,
+        images: property.images || [],
+        description: property.description || 'Beautiful property recently sold in St. John',
+        highlights: {
+          acreage: property.features?.acreage || property.acreage,
+          oceanView: property.features?.oceanView || property.amenities?.includes('Ocean View'),
+          waterfront: property.features?.waterfront || property.amenities?.includes('Waterfront'),
+        },
+        features: {
+          beds: property.features?.beds,
+          baths: property.features?.baths,
+          sqft: property.features?.sqft,
+          pool: property.features?.pool,
+        },
+        additionalInfo: {
+          category: property.category,
+          subcategory: property.subcategory,
+        },
       };
     });
 
-    console.log('useSoldProperties - firebaseFormatted:', firebaseFormatted);
+    console.log('✨ useSoldProperties - portfolioFormatted:', portfolioFormatted);
 
-    // Get local properties
-    const localProperties = soldProperties || [];
-
-    console.log('useSoldProperties - localProperties:', localProperties);
-
-    // Combine Firebase and local properties
-    const combinedProperties = [...firebaseFormatted, ...localProperties];
-
-    console.log('useSoldProperties - combinedProperties:', combinedProperties);
-
-    return combinedProperties;
-  }, [firebaseSoldProperties]);
+    return portfolioFormatted;
+  }, [portfolioSoldProperties]);
 };
 
 const SoldPropertyCard = memo(({

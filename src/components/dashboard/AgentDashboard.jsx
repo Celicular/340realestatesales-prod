@@ -19,6 +19,8 @@ import PropertySale from '../forms/PropertySale';
 import PropertySold from '../forms/PropertySold';
 import LandSale from '../forms/LandSale';
 import LandSold from '../forms/LandSold';
+import PortfolioManagement from '../admin/PortfolioManagement';
+import BackendPortfolioDisplay from '../admin/BackendPortfolioDisplay';
 import BlogManagement from '../blog/BlogManagement';
 import BookingRequestsManagement from '../booking/BookingRequestsManagement';
 import { logout, getCurrentUser } from '../../utils/auth';
@@ -26,7 +28,7 @@ import { getRentalProperties, getSaleProperties, getSoldProperties } from '../..
 
 const AgentDashboard = () => {
   console.log('🎯 AgentDashboard component loaded');
-  const [activeTab, setActiveTab] = useState('booking-requests');
+  const [activeTab, setActiveTab] = useState('portfolio-management');
   const [stats, setStats] = useState({
     myRentals: 0,
     mySales: 0,
@@ -79,11 +81,27 @@ const AgentDashboard = () => {
 
   const tabs = [
     { 
+      id: 'portfolio-management', 
+      name: 'Portfolio Management', 
+      component: PortfolioManagement,
+      icon: Home,
+      color: 'indigo',
+      description: 'Manage property portfolios'
+    },
+    { 
+      id: 'backend-portfolio', 
+      name: 'Backend Portfolio', 
+      component: BackendPortfolioDisplay,
+      icon: TrendingUp,
+      color: 'blue',
+      description: 'View portfolio data from backend'
+    },
+    { 
       id: 'booking-requests', 
       name: 'Booking Requests', 
       component: () => <BookingRequestsManagement userRole="agent" />,
       icon: Calendar,
-      color: 'blue',
+      color: 'green',
       description: 'View and manage property bookings'
     },
     { 

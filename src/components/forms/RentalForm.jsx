@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { addRentalProperty } from '../../firebase/firestore';
+import { sendNewRentalNotificationEmail } from '../../services/emailService';
 
 const RentalForm = () => {
   const [formData, setFormData] = useState({
@@ -195,6 +196,18 @@ const RentalForm = () => {
           type: 'success',
           text: `Rental property submitted successfully! ID: ${result.id}`
         });
+        
+        // Send admin notification email
+        try {
+          const emailResult = await sendNewRentalNotificationEmail(rentalData);
+          if (emailResult.success) {
+            console.log('✅ Admin notification email sent successfully');
+          } else {
+            console.warn('⚠️ Admin notification email failed:', emailResult.error);
+          }
+        } catch (emailError) {
+          console.error('❌ Error sending admin notification:', emailError);
+        }
         
         // Reset form
         setFormData({

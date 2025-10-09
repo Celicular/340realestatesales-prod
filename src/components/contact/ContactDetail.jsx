@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { Mail, MapPin, Phone, Loader2, CheckCircle, AlertCircle } from "lucide-react";
-import emailjs from '@emailjs/browser';
+import { sendContactFormEmail } from '../../services/emailService';
 
 const ContactDetail = () => {
   const formRef = useRef();
@@ -14,11 +14,6 @@ const ContactDetail = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null); // 'success', 'error', or null
 
-  // Initialize EmailJS
-  useEffect(() => {
-    emailjs.init("Ev6G3f-CBuKT20_4Q");
-  }, []);
-
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -29,14 +24,9 @@ const ContactDetail = () => {
     setSubmitStatus(null);
 
     try {
-      const result = await emailjs.sendForm(
-        "service_49ivcjo", // Service ID
-        "template_49ivcjo", // Template ID
-        formRef.current,
-        "Ev6G3f-CBuKT20_4Q" // Public Key
-      );
+      const result = await sendContactFormEmail(formData);
 
-      if (result.status === 200) {
+      if (result.success) {
         setSubmitStatus('success');
         setFormData({
           user_name: "",
@@ -52,7 +42,7 @@ const ContactDetail = () => {
         setSubmitStatus('error');
       }
     } catch (error) {
-      console.error("EmailJS Error:", error);
+      console.error("Contact Form Error:", error);
       setSubmitStatus('error');
     } finally {
       setIsLoading(false);

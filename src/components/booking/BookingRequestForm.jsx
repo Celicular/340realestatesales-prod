@@ -128,7 +128,7 @@ const BookingRequestForm = ({ rentalProperty, onSuccess, onCancel }) => {
         if (onSuccess) {
           onSuccess(result.id);
         } else {
-          alert('Booking request submitted successfully! You will receive a confirmation email soon.');
+          alert('Booking request submitted successfully! The property owner has been notified and will respond within 24 hours.');
         }
         
         // Reset form

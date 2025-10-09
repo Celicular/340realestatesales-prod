@@ -877,9 +877,6 @@ const villas = [
 //     },
 //     baseRate: 2800,
 //   },
- 
- 
- 
 ];
 
 export default villas;
