@@ -54,6 +54,7 @@ const AgentRentalDashboard = lazy(() =>
 const RegistrationTest = lazy(() =>
   import("./components/debug/RegistrationTest")
 );
+const DebugPage = lazy(() => import("./pages/DebugPage"));
 
 // Loading component
 const LoadingSpinner = () => (
@@ -82,6 +83,7 @@ function App() {
             <Route path="/incentives" element={<Insentive />} />
             <Route path="/testimonial" element={<Testimonial />} />
             <Route path="/villa-rentals/:slug" element={<VillaDetail />} />
+            <Route path="/villa/:slug" element={<VillaDetail />} />
             <Route path="/rental/:slug" element={<RentalDetail />} />
             <Route path="/saleshistory" element={<SalesHistory />} />
             <Route path="/contact" element={<Contactus />} />
@@ -107,6 +109,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/debug-registration" element={<RegistrationTest />} />
+            <Route path="/debug" element={<DebugPage />} />
 
             {/* Protected Dashboard Routes */}
             <Route
