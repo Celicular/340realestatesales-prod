@@ -406,89 +406,11 @@ const AgentMigrationTool = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 bg-blue-100 rounded-lg">
-            <Users className="h-6 w-6 text-blue-600" />
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">Agent Migration Tool</h2>
-            <p className="text-sm text-gray-600">
-              Migrate agent data from static files to Firestore database
-            </p>
-          </div>
-        </div>
+      
+       
+        
 
-        {/* Migration Status */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-blue-50 rounded-lg p-4">
-            <div className="flex items-center gap-2">
-              <Download className="h-5 w-5 text-blue-600" />
-              <span className="font-medium text-blue-900">Static Data</span>
-            </div>
-            <p className="text-2xl font-bold text-blue-600 mt-1">{staticAgentsData.length}</p>
-            <p className="text-sm text-blue-700">Agents available for migration</p>
-          </div>
-
-          <div className="bg-green-50 rounded-lg p-4">
-            <div className="flex items-center gap-2">
-              <Upload className="h-5 w-5 text-green-600" />
-              <span className="font-medium text-green-900">Firestore Data</span>
-            </div>
-            <p className="text-2xl font-bold text-green-600 mt-1">{firestoreAgents.length}</p>
-            <p className="text-sm text-green-700">Agents in database</p>
-          </div>
-
-          <div className="bg-purple-50 rounded-lg p-4">
-            <div className="flex items-center gap-2">
-              <Check className="h-5 w-5 text-purple-600" />
-              <span className="font-medium text-purple-900">Status</span>
-            </div>
-            <p className="text-lg font-bold text-purple-600 mt-1">
-              {firestoreAgents.length === staticAgentsData.length ? 'Complete' : 'Pending'}
-            </p>
-            <p className="text-sm text-purple-700">Migration status</p>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex flex-wrap gap-3">
-          <button
-            onClick={handleMigration}
-            disabled={loading || firestoreAgents.length > 0}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-          >
-            <Upload className="h-4 w-4" />
-            Migrate Agents to Firestore
-          </button>
-
-          <button
-            onClick={handleForceMigration}
-            disabled={loading}
-            className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 disabled:bg-gray-300 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-          >
-            <Upload className="h-4 w-4" />
-            Force Re-migrate
-          </button>
-
-          <button
-            onClick={loadFirestoreAgents}
-            disabled={loading}
-            className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-300 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-          >
-            <Download className="h-4 w-4" />
-            Refresh Data
-          </button>
-        </div>
-
-        {/* Loading State */}
-        {loading && (
-          <div className="mt-4 flex items-center gap-2 text-blue-600">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-            <span>Processing migration...</span>
-          </div>
-        )}
-
+      
         {/* Messages */}
         {message.text && (
           <div className={`mt-4 p-4 rounded-lg border ${
@@ -509,7 +431,7 @@ const AgentMigrationTool = () => {
             </div>
           </div>
         )}
-      </div>
+    
 
       {/* Firestore Agents List */}
       {firestoreAgents.length > 0 && (

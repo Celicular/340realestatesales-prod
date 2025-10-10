@@ -20,6 +20,7 @@ import BlogManagement from '../blog/BlogManagement';
 import BookingManagement from '../admin/BookingManagement';
 import RentalPropertyForm from '../forms/RentalPropertyForm';
 import AgentMigrationTool from '../admin/AgentMigrationTool';
+import EmailConfiguration from '../admin/EmailConfiguration';
 import { logout, getCurrentUser } from '../../utils/auth';
 import { getRentalProperties, getSaleProperties, getSoldProperties } from '../../firebase/firestore';
 
@@ -86,6 +87,13 @@ const AdminDashboard = () => {
       color: 'blue'
     },
     { 
+      id: 'email-configuration', 
+      name: 'Email Settings', 
+      component: EmailConfiguration,
+      icon: FileText,
+      color: 'purple'
+    },
+    { 
       id: 'add-rental-property', 
       name: 'Add Rental Property', 
       component: RentalPropertyForm,
@@ -130,13 +138,7 @@ const AdminDashboard = () => {
       color: 'orange',
       badge: stats.pendingSold
     },
-    { 
-      id: 'system-status', 
-      name: 'System Status', 
-      component: SystemStatus,
-      icon: Shield,
-      color: 'green'
-    }
+
   ];
 
   const ActiveComponent = tabs.find(tab => tab.id === activeTab)?.component;

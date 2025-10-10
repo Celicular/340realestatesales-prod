@@ -202,39 +202,10 @@ const DataSeeder = () => {
   };
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6">
-      <div className="flex items-center space-x-4 mb-6">
-        <div className="p-3 bg-blue-50 rounded-lg">
-          <Database className="h-6 w-6 text-blue-600" />
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900">Data Seeder</h3>
-          <p className="text-gray-600">Seed portfolio data from SalesData.js</p>
-        </div>
-      </div>
+    <div >
+     
 
-      <div className="space-y-4">
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <div className="flex items-start space-x-3">
-            <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
-            <div>
-              <h4 className="text-sm font-medium text-yellow-800">Important</h4>
-              <p className="text-sm text-yellow-700 mt-1">
-                This will populate the portfolio collections with data from your SalesData.js and LandSaleData.js files. 
-                Only run this once to avoid duplicates.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <button
-          onClick={handleSeedPortfolios}
-          disabled={seeding}
-          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg transition-colors"
-        >
-          <Play className="h-4 w-4" />
-          <span>{seeding ? 'Seeding...' : 'Seed Portfolio Data'}</span>
-        </button>
+       
 
         {result && (
           <div className={`border rounded-lg p-4 ${
@@ -264,7 +235,7 @@ const DataSeeder = () => {
           </div>
         )}
       </div>
-    </div>
+
   );
 };
 

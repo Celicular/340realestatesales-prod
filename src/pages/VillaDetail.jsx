@@ -256,20 +256,9 @@ const VillaDetails = () => {
 
   // Calculate dynamic pricing based on season and guests
   const calculatePrice = () => {
-    // Determine season based on current month for display
-    const currentMonth = new Date().getMonth() + 1;
-    const currentSeason = (currentMonth >= 12 || currentMonth <= 4) ? 'inSeason' : 'offSeason';
-    const currentGuests = bookingData.guests || 1;
-
-    if (villa.pricing?.rates && villa.pricing.rates[currentSeason]) {
-      const rate = villa.pricing.rates[currentSeason].find((r) => {
-        const [min, max] = r.persons.split("-").map(Number);
-        return currentGuests >= min && currentGuests <= max;
-      });
-      return rate ? rate.rate : villa.pricing?.pricePerNight || 500;
-    }
-
-    return villa.pricing?.pricePerNight || 500;
+    // Use pricing from database structure
+    const weeklyPrice = villa.pricing?.weekly || villa.pricing?.nightly || 500;
+    return parseFloat(weeklyPrice);
   };
 
   const currentPrice = calculatePrice();
@@ -277,7 +266,7 @@ const VillaDetails = () => {
   return (
     <div className=" mx-auto px-4 py-12">
       {/* No Images Fallback */}
-      {(!villa.media?.imageLinks || villa.media.imageLinks.length === 0) && (
+      {(!villa.images?.gallery || villa.images.gallery.length === 0) && !villa.images?.main && (
         <div className="mb-16">
           <div className="relative h-[400px] overflow-hidden rounded-2xl shadow-2xl bg-gradient-to-br from-gray-100 to-gray-200">
             <div className="absolute inset-0 flex items-center justify-center">
@@ -297,20 +286,38 @@ const VillaDetails = () => {
       )}
 
       {/* Immersive Full-Screen Hero Gallery */}
-      {villa.media?.imageLinks && villa.media.imageLinks.length > 0 && (
+      {((villa.images?.gallery && villa.images.gallery.length > 0) || villa.images?.main) && (
         <div className="relative -mx-4 -mt-12 mb-16">
           {/* Full-Screen Hero Section */}
           <div className="relative h-screen min-h-[600px] overflow-hidden">
             {/* Dynamic Background Image */}
             <div className="absolute inset-0">
-              <img
-                src={selectedImage || villa.media.imageLinks[0]}
-                alt={`${villa.propertyInfo?.name} - Hero view`}
-                className="w-full h-full object-cover animate-pulse-slow"
-                style={{
-                  animation: "fadeInScale 1.5s ease-out",
-                }}
-              />
+              {(() => {
+                // Create image array from database structure
+                const imageArray = [];
+                if (villa.images?.main) imageArray.push(villa.images.main);
+                if (villa.images?.gallery && Array.isArray(villa.images.gallery)) {
+                  villa.images.gallery.forEach(img => {
+                    if (img && img !== "") imageArray.push(img);
+                  });
+                }
+                const currentImage = selectedImage || (imageArray.length > 0 ? imageArray[0] : null);
+                
+                return currentImage ? (
+                  <img
+                    src={currentImage}
+                    alt={`${villa.propertyInfo?.name} - Hero view`}
+                    className="w-full h-full object-cover animate-pulse-slow"
+                    style={{
+                      animation: "fadeInScale 1.5s ease-out",
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center">
+                    <div className="text-6xl opacity-50">🏠</div>
+                  </div>
+                );
+              })()}
 
               {/* Multiple Overlay Layers for Depth */}
               <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60"></div>
@@ -327,7 +334,7 @@ const VillaDetails = () => {
                     {villa.propertyInfo?.name}
                   </h1>
                   <p className="text-xl md:text-2xl text-gray-200 mb-6 animate-slide-in-left-delay">
-                    {villa.propertyInfo?.type} • {villa.accommodation?.maxGuests} Guests
+                    {villa.propertyInfo?.type} • {villa.details?.maxOccupancy || 'N/A'} Guests
                   </p>
                 </div>
               </div>
@@ -336,40 +343,61 @@ const VillaDetails = () => {
               <div className="flex flex-col md:flex-row items-center justify-between gap-6 animate-fade-in-up-delay">
                 {/* Image Counter & Progress */}
                 <div className="flex items-center gap-4">
-                  <div className="bg-white/20 backdrop-blur-md text-white px-6 py-3 rounded-full font-semibold">
-                    {villa.media.imageLinks.indexOf(selectedImage || villa.media.imageLinks[0]) + 1}{" "}
-                    of {villa.media.imageLinks.length}
-                  </div>
+                  {(() => {
+                    // Create image array from database structure
+                    const imageArray = [];
+                    if (villa.images?.main) imageArray.push(villa.images.main);
+                    if (villa.images?.gallery && Array.isArray(villa.images.gallery)) {
+                      villa.images.gallery.forEach(img => {
+                        if (img && img !== "") imageArray.push(img);
+                      });
+                    }
+                    const currentImage = selectedImage || (imageArray.length > 0 ? imageArray[0] : null);
+                    const currentIndex = currentImage ? imageArray.indexOf(currentImage) : 0;
+                    const totalImages = imageArray.length;
+                    
+                    return totalImages > 0 ? (
+                      <>
+                        <div className="bg-white/20 backdrop-blur-md text-white px-6 py-3 rounded-full font-semibold">
+                          {currentIndex + 1} of {totalImages}
+                        </div>
 
-                  <div className="hidden md:block w-32 h-1 bg-white/30 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-white transition-all duration-500 ease-out"
-                      style={{
-                        width: `${
-                          ((villa.media.imageLinks.indexOf(
-                            selectedImage || villa.media.imageLinks[0]
-                          ) +
-                            1) /
-                            villa.media.imageLinks.length) *
-                          100
-                        }%`,
-                      }}
-                    ></div>
-                  </div>
+                        <div className="hidden md:block w-32 h-1 bg-white/30 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-white transition-all duration-500 ease-out"
+                            style={{
+                              width: `${((currentIndex + 1) / totalImages) * 100}%`,
+                            }}
+                          ></div>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="bg-white/20 backdrop-blur-md text-white px-6 py-3 rounded-full font-semibold">
+                        1 of 1
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {/* Navigation Controls */}
                 <div className="flex items-center gap-4">
                   <button
                     onClick={() => {
-                      const currentIndex = villa.media.imageLinks.indexOf(
-                        selectedImage || villa.media.imageLinks[0]
-                      );
-                      const prevIndex =
-                        currentIndex === 0
-                          ? villa.media.imageLinks.length - 1
-                          : currentIndex - 1;
-                      setSelectedImage(villa.media.imageLinks[prevIndex]);
+                      // Create image array from database structure
+                      const imageArray = [];
+                      if (villa.images?.main) imageArray.push(villa.images.main);
+                      if (villa.images?.gallery && Array.isArray(villa.images.gallery)) {
+                        villa.images.gallery.forEach(img => {
+                          if (img && img !== "") imageArray.push(img);
+                        });
+                      }
+                      
+                      if (imageArray.length > 1) {
+                        const currentImage = selectedImage || imageArray[0];
+                        const currentIndex = imageArray.indexOf(currentImage);
+                        const prevIndex = currentIndex === 0 ? imageArray.length - 1 : currentIndex - 1;
+                        setSelectedImage(imageArray[prevIndex]);
+                      }
                     }}
                     className="group bg-white/20 hover:bg-white/30 backdrop-blur-md text-white rounded-full p-4 transition-all duration-300 hover:scale-110 hover:shadow-2xl"
                   >
@@ -409,14 +437,21 @@ const VillaDetails = () => {
 
                   <button
                     onClick={() => {
-                      const currentIndex = villa.media.imageLinks.indexOf(
-                        selectedImage || villa.media.imageLinks[0]
-                      );
-                      const nextIndex =
-                        currentIndex === villa.media.imageLinks.length - 1
-                          ? 0
-                          : currentIndex + 1;
-                      setSelectedImage(villa.media.imageLinks[nextIndex]);
+                      // Create image array from database structure
+                      const imageArray = [];
+                      if (villa.images?.main) imageArray.push(villa.images.main);
+                      if (villa.images?.gallery && Array.isArray(villa.images.gallery)) {
+                        villa.images.gallery.forEach(img => {
+                          if (img && img !== "") imageArray.push(img);
+                        });
+                      }
+                      
+                      if (imageArray.length > 1) {
+                        const currentImage = selectedImage || imageArray[0];
+                        const currentIndex = imageArray.indexOf(currentImage);
+                        const nextIndex = currentIndex === imageArray.length - 1 ? 0 : currentIndex + 1;
+                        setSelectedImage(imageArray[nextIndex]);
+                      }
                     }}
                     className="group bg-white/20 hover:bg-white/30 backdrop-blur-md text-white rounded-full p-4 transition-all duration-300 hover:scale-110 hover:shadow-2xl"
                   >
@@ -441,31 +476,43 @@ const VillaDetails = () => {
             {/* Floating Thumbnail Strip */}
             <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
               <div className="flex gap-3 overflow-x-auto max-w-4xl px-4 pb-2 scrollbar-hide">
-                {villa.media.imageLinks.map((image, index) => (
-                  <div
-                    key={index}
-                    className={`relative flex-shrink-0 cursor-pointer transition-all duration-500 transform hover:scale-110 ${
-                      (selectedImage || villa.media.imageLinks[0]) === image
-                        ? "ring-4 ring-white ring-offset-2 scale-110"
-                        : "hover:ring-2 hover:ring-white/50"
-                    }`}
-                    onClick={() => setSelectedImage(image)}
-                  >
-                    <img
-                      src={image}
-                      alt={`${villa.propertyInfo?.name} - Thumbnail ${index + 1}`}
-                      className="w-16 h-12 md:w-20 md:h-14 object-cover rounded-lg shadow-2xl"
-                    />
-
+                {(() => {
+                  // Create image array from database structure
+                  const imageArray = [];
+                  if (villa.images?.main) imageArray.push(villa.images.main);
+                  if (villa.images?.gallery && Array.isArray(villa.images.gallery)) {
+                    villa.images.gallery.forEach(img => {
+                      if (img && img !== "") imageArray.push(img);
+                    });
+                  }
+                  const currentImage = selectedImage || (imageArray.length > 0 ? imageArray[0] : null);
+                  
+                  return imageArray.map((image, index) => (
                     <div
-                      className={`absolute inset-0 rounded-lg transition-all duration-300 ${
-                        (selectedImage || villa.media.imageLinks[0]) === image
-                          ? "bg-white/30"
-                          : "bg-black/0 hover:bg-white/20"
+                      key={index}
+                      className={`relative flex-shrink-0 cursor-pointer transition-all duration-500 transform hover:scale-110 ${
+                        currentImage === image
+                          ? "ring-4 ring-white ring-offset-2 scale-110"
+                          : "hover:ring-2 hover:ring-white/50"
                       }`}
-                    ></div>
-                  </div>
-                ))}
+                      onClick={() => setSelectedImage(image)}
+                    >
+                      <img
+                        src={image}
+                        alt={`${villa.propertyInfo?.name} - Thumbnail ${index + 1}`}
+                        className="w-16 h-12 md:w-20 md:h-14 object-cover rounded-lg shadow-2xl"
+                      />
+
+                      <div
+                        className={`absolute inset-0 rounded-lg transition-all duration-300 ${
+                          currentImage === image
+                            ? "bg-white/30"
+                            : "bg-black/0 hover:bg-white/20"
+                        }`}
+                      ></div>
+                    </div>
+                  ));
+                })()}
               </div>
             </div>
           </div>
@@ -610,12 +657,12 @@ const VillaDetails = () => {
         {/* Main Content */}
 
         <div className="flex-1 space-y-6">
-          <h1 className="text-3xl font-bold text-gray-800">{villa.name}</h1>
+          <h1 className="text-3xl font-bold text-gray-800">{villa.propertyInfo?.name}</h1>
 
           <p className="text-gray-500 italic flex pr-4">
             <MapPin />
 
-            {villa.address}
+            {villa.location?.address}
           </p>
 
           {/* <p className="text-blue-700 font-semibold">{villa.type}</p> */}
@@ -623,57 +670,85 @@ const VillaDetails = () => {
           {/* Accommodation */}
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-            {villa.accommodation.map((item, idx) => (
-              <div
-                key={idx}
-                className="p-4 border rounded-lg bg-gray-50 shadow-sm flex items-start gap-3"
-              >
-                <div className="text-indigo-600 text-xl mt-1">{item.icon}</div>
+            {(() => {
+              // Create accommodation array from database structure
+              const accommodationData = [
+                {
+                  label: "Type",
+                  icon: "🏠",
+                  value: villa.propertyInfo?.type || "Villa"
+                },
+                {
+                  label: "Guests",
+                  icon: "👥", 
+                  value: `${villa.details?.maxOccupancy || "N/A"} Max`
+                },
+                {
+                  label: "Bedrooms",
+                  icon: "🛏️",
+                  value: `${villa.details?.bedrooms || "N/A"} Beds`
+                },
+                {
+                  label: "Bathrooms", 
+                  icon: "🚿",
+                  value: `${villa.details?.bathrooms || "N/A"} Baths`
+                }
+              ];
 
-                <div>
-                  <p className="font-semibold text-sm text-gray-600">
-                    {item.label}
-                  </p>
+              return accommodationData.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="p-4 border rounded-lg bg-gray-50 shadow-sm flex items-start gap-3"
+                >
+                  <div className="text-indigo-600 text-xl mt-1">{item.icon}</div>
 
-                  <p className="text-lg font-bold text-blue-800">
-                    {item.value}
-                  </p>
+                  <div>
+                    <p className="font-semibold text-sm text-gray-600">
+                      {item.label}
+                    </p>
+
+                    <p className="text-lg font-bold text-blue-800">
+                      {item.value}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ));
+            })()}
           </div>
 
           {/* Description */}
 
           <div className="prose max-w-none text-gray-700 text-base leading-relaxed space-y-4">
-            {villa.details.split("\n").map((line, index) => {
-              // If it's a heading (ends with ":")
+            {villa.propertyInfo?.description && (
+              villa.propertyInfo.description.split("\n").map((line, index) => {
+                // If it's a heading (ends with ":")
 
-              if (line.trim().endsWith(":")) {
-                return (
-                  <h3
-                    key={index}
-                    className="text-lg font-semibold text-gray-800 mt-6"
-                  >
-                    {line}
-                  </h3>
-                );
-              }
+                if (line.trim().endsWith(":")) {
+                  return (
+                    <h3
+                      key={index}
+                      className="text-lg font-semibold text-gray-800 mt-6"
+                    >
+                      {line}
+                    </h3>
+                  );
+                }
 
-              // If it's a bullet point
+                // If it's a bullet point
 
-              if (line.trim().startsWith("-")) {
-                return (
-                  <li key={index} className="ml-5 list-disc">
-                    {line.replace("-", "").trim()}
-                  </li>
-                );
-              }
+                if (line.trim().startsWith("-")) {
+                  return (
+                    <li key={index} className="ml-5 list-disc">
+                      {line.replace("-", "").trim()}
+                    </li>
+                  );
+                }
 
-              // Default paragraph
+                // Default paragraph
 
-              return <p key={index}>{line}</p>;
-            })}
+                return <p key={index}>{line}</p>;
+              })
+            )}
           </div>
 
           {/* Amenities */}
@@ -682,16 +757,39 @@ const VillaDetails = () => {
             <h2 className="text-2xl font-bold text-gray-800 mb-6">Amenities</h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4">
-              {villa.amenities.map((item, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-start gap-3 bg-white border border-gray-200 rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow"
-                >
-                  <CheckCircle className="text-green-600 mt-1" size={20} />
+              {(() => {
+                // Create amenities array from database structure
+                const amenitiesList = [];
+                
+                // Map the amenities object to an array
+                if (villa.amenities) {
+                  Object.entries(villa.amenities).forEach(([key, value]) => {
+                    if (value === true) {
+                      // Convert camelCase to readable format
+                      const readableKey = key
+                        .replace(/([A-Z])/g, ' $1')
+                        .replace(/^./, str => str.toUpperCase())
+                        .trim();
+                      amenitiesList.push(readableKey);
+                    }
+                  });
+                }
 
-                  <span className="text-gray-700 font-medium">{item}</span>
-                </div>
-              ))}
+                return amenitiesList.length > 0 ? amenitiesList.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-start gap-3 bg-white border border-gray-200 rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow"
+                  >
+                    <CheckCircle className="text-green-600 mt-1" size={20} />
+
+                    <span className="text-gray-700 font-medium">{item}</span>
+                  </div>
+                )) : (
+                  <div className="col-span-full text-center text-gray-500 py-8">
+                    <p>Amenities information will be available soon.</p>
+                  </div>
+                );
+              })()}
             </div>
           </div>
 
@@ -708,7 +806,7 @@ const VillaDetails = () => {
               <div className="flex items-center gap-2">
                 <span className="font-medium">Smoking:</span>
 
-                {villa.terms.smoking ? (
+                {villa.details?.smokingAllowed ? (
                   <span className="text-green-600 font-semibold">Allowed</span>
                 ) : (
                   <span className="text-red-500 font-semibold">
@@ -720,7 +818,7 @@ const VillaDetails = () => {
               <div className="flex items-center gap-2">
                 <span className="font-medium">Pets:</span>
 
-                {villa.terms.pets ? (
+                {villa.details?.petFriendly ? (
                   <span className="text-green-600 font-semibold">Allowed</span>
                 ) : (
                   <span className="text-red-500 font-semibold">
@@ -732,7 +830,7 @@ const VillaDetails = () => {
               <div className="flex items-center gap-2">
                 <span className="font-medium">Party:</span>
 
-                {villa.terms.party ? (
+                {villa.policies?.partyAllowed ? (
                   <span className="text-green-600 font-semibold">Allowed</span>
                 ) : (
                   <span className="text-red-500 font-semibold">
@@ -744,7 +842,7 @@ const VillaDetails = () => {
               <div className="flex items-center gap-2">
                 <span className="font-medium">Children:</span>
 
-                {villa.terms.children ? (
+                {villa.policies?.childrenAllowed ? (
                   <span className="text-green-600 font-semibold">Allowed</span>
                 ) : (
                   <span className="text-red-500 font-semibold">
@@ -758,14 +856,22 @@ const VillaDetails = () => {
               <div className="flex flex-col">
                 <span className="font-medium">Cancellation Policy:</span>
 
-                <span>{villa.terms.cancellationPolicy}</span>
+                <span>{villa.policies?.cancellationPolicy || 'Standard cancellation policy applies'}</span>
               </div>
 
               <div className="flex flex-col">
                 <span className="font-medium">Damage Policy:</span>
 
-                <span>{villa.terms.damagePolicy}</span>
+                <span>{villa.policies?.damagePolicy || 'Standard damage policy applies'}</span>
               </div>
+
+              {/* House Rules */}
+              {villa.policies?.houseRules && (
+                <div className="flex flex-col">
+                  <span className="font-medium">House Rules:</span>
+                  <span>{villa.policies.houseRules}</span>
+                </div>
+              )}
 
               {/* Reservation Info */}
 
@@ -773,21 +879,47 @@ const VillaDetails = () => {
                 <h3 className="text-lg font-bold text-gray-800 mb-2">Notes:</h3>
 
                 <div className=" rounded-lg p-6">
-                  <ul className="space-y-3">
-                    {villa.terms.notes.map((note, idx) => (
-                      <li key={idx} className="flex items-start text-gray-700">
+                  <div className="space-y-3">
+                    {villa.propertyInfo?.description && (
+                      <div className="flex items-start text-gray-700">
                         <div className="flex-shrink-0 w-2 h-2 bg-black rounded-full mt-2 mr-3"></div>
-                        <p className="text-sm leading-relaxed">{note}</p>
-                      </li>
-                    ))}
-                  </ul>
+                        <p className="text-sm leading-relaxed">{villa.propertyInfo.description}</p>
+                      </div>
+                    )}
+                    
+                    {/* Check-in/out times */}
+                    <div className="flex items-start text-gray-700">
+                      <div className="flex-shrink-0 w-2 h-2 bg-black rounded-full mt-2 mr-3"></div>
+                      <p className="text-sm leading-relaxed">
+                        Check-in: {villa.details?.checkInTime || '3:00 PM'} | Check-out: {villa.details?.checkOutTime || '11:00 AM'}
+                      </p>
+                    </div>
+
+                    {/* Minimum stay */}
+                    {villa.details?.minimumStay && (
+                      <div className="flex items-start text-gray-700">
+                        <div className="flex-shrink-0 w-2 h-2 bg-black rounded-full mt-2 mr-3"></div>
+                        <p className="text-sm leading-relaxed">
+                          Minimum stay: {villa.details.minimumStay} night{villa.details.minimumStay > 1 ? 's' : ''}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-              {villa.terms.additionalFees.propertyFee && (
+              {villa.pricing?.securityDeposit && (
                 <div className="flex flex-col">
-                  <span className="font-medium">Property Fee:</span>
+                  <span className="font-medium">Security Deposit:</span>
 
-                  <span>{villa.terms.additionalFees.propertyFee}</span>
+                  <span>${villa.pricing.securityDeposit}</span>
+                </div>
+              )}
+              
+              {villa.pricing?.cleaningFee && (
+                <div className="flex flex-col">
+                  <span className="font-medium">Cleaning Fee:</span>
+
+                  <span>${villa.pricing.cleaningFee}</span>
                 </div>
               )}
             </div>
@@ -798,9 +930,9 @@ const VillaDetails = () => {
         <div className="lg:w-[400px] w-full sticky top-28 h-fit bg-white border rounded-xl shadow-xl p-6 space-y-6">
           <div>
             <h2 className="text-2xl font-bold text-green-600">
-              ${currentPrice} / Weekly
+              ${villa.pricing?.weekly || villa.pricing?.nightly || 'N/A'} / Weekly
             </h2>
-            {villa.rates && (villa.rates.inSeason || villa.rates.offSeason) && (
+            {villa.pricing && (villa.pricing.monthly || villa.pricing.nightly) && (
               <p className="text-sm text-gray-500 mt-1">
                 Dynamic pricing based on season and guests
               </p>
@@ -908,7 +1040,7 @@ const VillaDetails = () => {
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    {[...Array(villa.accommodation?.find(a => a.label === 'Guests')?.value || 8)].map((_, i) => (
+                    {[...Array(villa.details?.maxOccupancy || 8)].map((_, i) => (
                       <option key={i + 1} value={i + 1}>{i + 1} Guest{i > 0 ? 's' : ''}</option>
                     ))}
                   </select>
@@ -999,16 +1131,15 @@ const VillaDetails = () => {
               >
                 {/* Property Image */}
 
-                {rental.media?.imageLinks &&
-                  rental.media.imageLinks.length > 0 && (
-                    <div className="relative h-48 overflow-hidden rounded-t-xl">
-                      <img
-                        src={rental.media.imageLinks[0]}
-                        alt={rental.propertyInfo?.name || "Rental Property"}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
+                {rental.images?.main && (
+                  <div className="relative h-48 overflow-hidden rounded-t-xl">
+                    <img
+                      src={rental.images.main}
+                      alt={rental.propertyInfo?.name || "Rental Property"}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
 
                 {/* Property Content */}
 
@@ -1020,7 +1151,7 @@ const VillaDetails = () => {
                   <p className="text-gray-600 text-sm mb-3 flex items-center gap-2">
                     <MapPin size={16} />
 
-                    {rental.propertyInfo?.address || "Address not available"}
+                    {rental.location?.address || "Address not available"}
                   </p>
 
                   <p className="text-blue-700 font-medium mb-3">
@@ -1034,7 +1165,7 @@ const VillaDetails = () => {
                       <p className="text-xs text-gray-500">Guests</p>
 
                       <p className="font-semibold text-gray-800">
-                        {rental.accommodation?.maxGuests || "N/A"}
+                        {rental.details?.maxOccupancy || "N/A"}
                       </p>
                     </div>
 
@@ -1042,7 +1173,7 @@ const VillaDetails = () => {
                       <p className="text-xs text-gray-500">Bedrooms</p>
 
                       <p className="font-semibold text-gray-800">
-                        {rental.accommodation?.bedrooms || "N/A"}
+                        {rental.details?.bedrooms || "N/A"}
                       </p>
                     </div>
 
@@ -1050,7 +1181,7 @@ const VillaDetails = () => {
                       <p className="text-xs text-gray-500">Bathrooms</p>
 
                       <p className="font-semibold text-gray-800">
-                        {rental.accommodation?.bathrooms || "N/A"}
+                        {rental.details?.bathrooms || "N/A"}
                       </p>
                     </div>
                   </div>
@@ -1063,41 +1194,57 @@ const VillaDetails = () => {
                     </span>
 
                     <span className="text-lg font-bold text-blue-600">
-                      ${rental.propertyInfo?.pricePerNight || "N/A"}
+                      ${rental.pricing?.weekly || rental.pricing?.nightly || "N/A"}
                     </span>
                   </div>
 
                   {/* Description */}
 
-                  {rental.description && (
+                  {rental.propertyInfo?.description && (
                     <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                      {rental.description}
+                      {rental.propertyInfo.description}
                     </p>
                   )}
 
                   {/* Amenities */}
 
-                  {rental.amenities && rental.amenities.length > 0 && (
+                  {rental.amenities && (
                     <div className="mb-4">
                       <p className="text-xs text-gray-500 mb-2">
                         Key Amenities
                       </p>
 
                       <div className="flex flex-wrap gap-1">
-                        {rental.amenities.slice(0, 4).map((amenity, index) => (
-                          <span
-                            key={index}
-                            className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs"
-                          >
-                            {amenity}
-                          </span>
-                        ))}
+                        {(() => {
+                          // Convert amenities object to array
+                          const amenitiesList = [];
+                          if (typeof rental.amenities === 'object') {
+                            Object.entries(rental.amenities).forEach(([key, value]) => {
+                              if (value === true) {
+                                const readableKey = key
+                                  .replace(/([A-Z])/g, ' $1')
+                                  .replace(/^./, str => str.toUpperCase())
+                                  .trim();
+                                amenitiesList.push(readableKey);
+                              }
+                            });
+                          }
 
-                        {rental.amenities.length > 4 && (
-                          <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
-                            +{rental.amenities.length - 4} more
-                          </span>
-                        )}
+                          return amenitiesList.slice(0, 4).map((amenity, index) => (
+                            <span
+                              key={index}
+                              className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs"
+                            >
+                              {amenity}
+                            </span>
+                          )).concat(
+                            amenitiesList.length > 4 ? [
+                              <span key="more" className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
+                                +{amenitiesList.length - 4} more
+                              </span>
+                            ] : []
+                          );
+                        })()}
                       </div>
                     </div>
                   )}

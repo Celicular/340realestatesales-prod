@@ -4,7 +4,7 @@ import { CheckCircle, MapPin, X as CloseIcon, Calendar, Users, Mail, Phone, Mess
 import { IoHomeOutline, IoBed } from "react-icons/io5";
 import { BiMaleFemale } from "react-icons/bi";
 import { getRentalProperties, addBookingRequest } from "../firebase/firestore";
-import BookingRequestForm from "../components/booking/BookingRequestForm";
+import { sendBookingNotificationToAgent, sendBookingConfirmationToGuest } from "../services/emailService";
 
 const RentalDetail = () => {
   const { slug } = useParams();
@@ -12,12 +12,6 @@ const RentalDetail = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedSeason, setSelectedSeason] = useState("inSeason");
-  const [selectedGuests, setSelectedGuests] = useState(1);
-  const [showBookingForm, setShowBookingForm] = useState(false);
-  const [checkInDate, setCheckInDate] = useState('');
-  const [checkOutDate, setCheckOutDate] = useState('');
-  const [guestMessage, setGuestMessage] = useState('');
   
   // Inline booking form state
   const [bookingData, setBookingData] = useState({
@@ -39,20 +33,40 @@ const RentalDetail = () => {
         setIsModalOpen(false);
       }
 
-      if (isModalOpen && rental && rental.media?.imageLinks && rental.media.imageLinks.length > 1) {
+      if (isModalOpen && rental && rental.images) {
         if (e.key === "ArrowLeft") {
           e.preventDefault();
-          const currentIndex = rental.media.imageLinks.indexOf(selectedImage);
-          const prevIndex =
-            currentIndex === 0 ? rental.media.imageLinks.length - 1 : currentIndex - 1;
-          setSelectedImage(rental.media.imageLinks[prevIndex]);
+          // Create image array from database structure
+          const imageArray = [];
+          if (rental.images?.main) imageArray.push(rental.images.main);
+          if (rental.images?.gallery && Array.isArray(rental.images.gallery)) {
+            rental.images.gallery.forEach(img => {
+              if (img && img !== "") imageArray.push(img);
+            });
+          }
+          
+          if (imageArray.length > 1) {
+            const currentIndex = imageArray.indexOf(selectedImage);
+            const prevIndex = currentIndex === 0 ? imageArray.length - 1 : currentIndex - 1;
+            setSelectedImage(imageArray[prevIndex]);
+          }
         }
         if (e.key === "ArrowRight") {
           e.preventDefault();
-          const currentIndex = rental.media.imageLinks.indexOf(selectedImage);
-          const nextIndex =
-            currentIndex === rental.media.imageLinks.length - 1 ? 0 : currentIndex + 1;
-          setSelectedImage(rental.media.imageLinks[nextIndex]);
+          // Create image array from database structure
+          const imageArray = [];
+          if (rental.images?.main) imageArray.push(rental.images.main);
+          if (rental.images?.gallery && Array.isArray(rental.images.gallery)) {
+            rental.images.gallery.forEach(img => {
+              if (img && img !== "") imageArray.push(img);
+            });
+          }
+          
+          if (imageArray.length > 1) {
+            const currentIndex = imageArray.indexOf(selectedImage);
+            const nextIndex = currentIndex === imageArray.length - 1 ? 0 : currentIndex + 1;
+            setSelectedImage(imageArray[nextIndex]);
+          }
         }
       }
     };
@@ -70,8 +84,16 @@ const RentalDetail = () => {
           const foundRental = result.data.find(r => r.propertyInfo?.slug === slug);
           if (foundRental) {
             setRental(foundRental);
-            if (foundRental.media?.imageLinks?.length > 0) {
-              setSelectedImage(foundRental.media.imageLinks[0]);
+            // Set the first available image
+            const imageArray = [];
+            if (foundRental.images?.main) imageArray.push(foundRental.images.main);
+            if (foundRental.images?.gallery && Array.isArray(foundRental.images.gallery)) {
+              foundRental.images.gallery.forEach(img => {
+                if (img && img !== "") imageArray.push(img);
+              });
+            }
+            if (imageArray.length > 0) {
+              setSelectedImage(imageArray[0]);
             }
           }
         }
@@ -84,16 +106,6 @@ const RentalDetail = () => {
 
     fetchRental();
   }, [slug]);
-
-  const handleBookingSuccess = (bookingId) => {
-    alert(`Booking request submitted successfully! Reference ID: ${bookingId}. You will receive a confirmation email soon.`);
-    setShowBookingForm(false);
-    // Reset form fields
-    setCheckInDate('');
-    setCheckOutDate('');
-    setSelectedGuests(1);
-    setGuestMessage('');
-  };
 
   const handleBookingInputChange = (e) => {
     const { name, value, type } = e.target;
@@ -116,8 +128,19 @@ const RentalDetail = () => {
 
   const calculateDetailedPricing = () => {
     const nights = calculateStayDuration();
-    const baseRate = nights * (rental.propertyInfo?.pricePerNight || 0);
-    const cleaningFee = 200;
+    // Handle different pricing formats from database
+    let baseNightlyRate = 0;
+    
+    if (rental.pricing?.nightly) {
+      baseNightlyRate = parseFloat(rental.pricing.nightly);
+    } else if (rental.pricing?.weekly) {
+      baseNightlyRate = parseFloat(rental.pricing.weekly) / 7; // Convert weekly to nightly
+    } else {
+      baseNightlyRate = 100; // Default fallback
+    }
+    
+    const baseRate = nights * baseNightlyRate;
+    const cleaningFee = parseFloat(rental.pricing?.cleaningFee) || 200;
     const serviceFee = Math.round(baseRate * 0.05); // 5% service fee
     const taxes = Math.round((baseRate + cleaningFee + serviceFee) * 0.125); // 12.5% VI tax
     const totalAmount = baseRate + cleaningFee + serviceFee + taxes;
@@ -195,10 +218,81 @@ const RentalDetail = () => {
         expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000) // Expires in 48 hours
       };
 
+      // Submit booking request to Firebase
       const result = await addBookingRequest(rental.id, bookingRequest);
       
       if (result.success) {
-        alert(`Booking request submitted successfully! Reference ID: ${result.id}`);
+        // Send email notifications
+        try {
+          // Get agent email - check multiple possible locations
+          const agentEmail = rental?.agentInfo?.email || 
+                           rental?.agentEmail || 
+                           'agent.demo@340realestate.com'; // Fallback to demo email
+
+          console.log('Sending booking notification to agent:', agentEmail);
+          
+          // Send notification to agent
+          const agentEmailResult = await sendBookingNotificationToAgent(
+            bookingRequest, 
+            rental, 
+            agentEmail
+          );
+
+          if (agentEmailResult.success) {
+            console.log('✅ Agent notification sent successfully:', agentEmailResult.message);
+          } else {
+            console.error('❌ Failed to send agent notification:', agentEmailResult.error);
+          }
+
+          // Send confirmation to guest
+          const guestEmailResult = await sendBookingConfirmationToGuest(
+            bookingRequest, 
+            rental
+          );
+
+          if (guestEmailResult.success) {
+            console.log('✅ Guest confirmation sent successfully:', guestEmailResult.message);
+          } else {
+            console.error('❌ Failed to send guest confirmation:', guestEmailResult.error);
+          }
+
+          // Show success message with email info
+          const emailInfo = agentEmailResult.emailInfo;
+          const successMessage = emailInfo 
+            ? `🎉 Booking request submitted successfully!
+
+📧 Agent Notification: The property agent (${emailInfo.agentName}) has been notified at ${emailInfo.sentTo}
+
+🏡 Property: ${emailInfo.propertyName}
+📋 Reference ID: ${result.id}
+
+You will receive a response within 24 hours. A confirmation email has also been sent to ${bookingData.email}.
+
+💡 Payment Terms: 50% deposit required within 7-9 days to secure reservation. Balance due 60 days prior to arrival.`
+            : `🎉 Booking request submitted successfully!
+
+📋 Reference ID: ${result.id}
+
+The property owner has been notified and will respond within 24 hours.`;
+
+          alert(successMessage);
+
+        } catch (emailError) {
+          console.error('Email sending error:', emailError);
+          
+          // Even if email fails, booking was still submitted successfully
+          const fallbackMessage = `✅ Booking request submitted successfully!
+
+📋 Reference ID: ${result.id}
+
+Your booking request has been saved to our system and will be processed manually.
+
+⚠️ Note: There was an issue sending email notifications, but your booking request is still valid.
+
+📞 For immediate assistance, contact us at +1 (340) 555-0123.`;
+
+          alert(fallbackMessage);
+        }
         
         // Reset form
         setBookingData({
@@ -255,37 +349,55 @@ const RentalDetail = () => {
     {
       icon: <BiMaleFemale />,
       label: "Guests",
-      value: `${rental.accommodation?.maxGuests || "N/A"} Guests`
+      value: `${rental.details?.maxOccupancy || "N/A"} Guests`
     },
     {
       icon: <IoBed />,
       label: "Bedrooms",
-      value: `${rental.accommodation?.bedrooms || "N/A"} Bedrooms`
+      value: `${rental.details?.bedrooms || "N/A"} Bedrooms`
     },
     {
       icon: <IoHomeOutline />,
       label: "Bathrooms",
-      value: `${rental.accommodation?.bathrooms || "N/A"} Full`
+      value: `${rental.details?.bathrooms || "N/A"} Full`
     }
   ];
 
   return (
     <div className=" mx-auto px-4 py-12">
       {/* Immersive Full-Screen Hero Gallery */}
-      {rental.media?.imageLinks && rental.media.imageLinks.length > 0 && (
+      {((rental.images?.gallery && rental.images.gallery.length > 0) || rental.images?.main) && (
         <div className="relative -mx-4 -mt-12 mb-16">
           {/* Full-Screen Hero Section */}
           <div className="relative h-screen min-h-[600px] overflow-hidden">
             {/* Dynamic Background Image */}
             <div className="absolute inset-0">
-              <img
-                src={selectedImage || rental.media.imageLinks[0]}
-                alt={`${rental.propertyInfo?.name || 'Rental Property'} - Hero view`}
-                className="w-full h-full object-cover animate-pulse-slow"
-                style={{
-                  animation: "fadeInScale 1.5s ease-out",
-                }}
-              />
+              {(() => {
+                // Create image array from database structure
+                const imageArray = [];
+                if (rental.images?.main) imageArray.push(rental.images.main);
+                if (rental.images?.gallery && Array.isArray(rental.images.gallery)) {
+                  rental.images.gallery.forEach(img => {
+                    if (img && img !== "") imageArray.push(img);
+                  });
+                }
+                const currentImage = selectedImage || (imageArray.length > 0 ? imageArray[0] : null);
+                
+                return currentImage ? (
+                  <img
+                    src={currentImage}
+                    alt={`${rental.propertyInfo?.name || 'Rental Property'} - Hero view`}
+                    className="w-full h-full object-cover animate-pulse-slow"
+                    style={{
+                      animation: "fadeInScale 1.5s ease-out",
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center">
+                    <div className="text-6xl opacity-50">🏠</div>
+                  </div>
+                );
+              })()}
 
               {/* Multiple Overlay Layers for Depth */}
               <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60"></div>
@@ -322,42 +434,61 @@ const RentalDetail = () => {
               <div className="flex flex-col md:flex-row items-center justify-between gap-6 animate-fade-in-up-delay">
                 {/* Image Counter & Progress */}
                 <div className="flex items-center gap-4">
-                  <div className="bg-white/20 backdrop-blur-md text-white px-6 py-3 rounded-full font-semibold">
-                    {rental.media.imageLinks.indexOf(selectedImage || rental.media.imageLinks[0]) + 1}{" "}
-                    of {rental.media.imageLinks.length}
-                  </div>
+                  {(() => {
+                    // Create image array from database structure
+                    const imageArray = [];
+                    if (rental.images?.main) imageArray.push(rental.images.main);
+                    if (rental.images?.gallery && Array.isArray(rental.images.gallery)) {
+                      rental.images.gallery.forEach(img => {
+                        if (img && img !== "") imageArray.push(img);
+                      });
+                    }
+                    const currentImage = selectedImage || (imageArray.length > 0 ? imageArray[0] : null);
+                    const currentIndex = currentImage ? imageArray.indexOf(currentImage) : 0;
+                    const totalImages = imageArray.length;
+                    
+                    return totalImages > 0 ? (
+                      <>
+                        <div className="bg-white/20 backdrop-blur-md text-white px-6 py-3 rounded-full font-semibold">
+                          {currentIndex + 1} of {totalImages}
+                        </div>
 
-                  <div className="hidden md:block w-32 h-1 bg-white/30 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-white transition-all duration-500 ease-out"
-                      style={{
-                        width: `${
-                          ((rental.media.imageLinks.indexOf(
-                            selectedImage || rental.media.imageLinks[0]
-                          ) +
-                            1) /
-                            rental.media.imageLinks.length) *
-                          100
-                        }%`,
-                      }}
-                    ></div>
-                  </div>
+                        <div className="hidden md:block w-32 h-1 bg-white/30 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-white transition-all duration-500 ease-out"
+                            style={{
+                              width: `${((currentIndex + 1) / totalImages) * 100}%`,
+                            }}
+                          ></div>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="bg-white/20 backdrop-blur-md text-white px-6 py-3 rounded-full font-semibold">
+                        1 of 1
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {/* Navigation Controls */}
                 <div className="flex items-center gap-4">
                   <button
                     onClick={() => {
-                      const currentIndex = rental.media.imageLinks.indexOf(
-                        selectedImage || rental.media.imageLinks[0]
-                      );
-
-                      const prevIndex =
-                        currentIndex === 0
-                          ? rental.media.imageLinks.length - 1
-                          : currentIndex - 1;
-
-                      setSelectedImage(rental.media.imageLinks[prevIndex]);
+                      // Create image array from database structure
+                      const imageArray = [];
+                      if (rental.images?.main) imageArray.push(rental.images.main);
+                      if (rental.images?.gallery && Array.isArray(rental.images.gallery)) {
+                        rental.images.gallery.forEach(img => {
+                          if (img && img !== "") imageArray.push(img);
+                        });
+                      }
+                      
+                      if (imageArray.length > 1) {
+                        const currentImage = selectedImage || imageArray[0];
+                        const currentIndex = imageArray.indexOf(currentImage);
+                        const prevIndex = currentIndex === 0 ? imageArray.length - 1 : currentIndex - 1;
+                        setSelectedImage(imageArray[prevIndex]);
+                      }
                     }}
                     className="group bg-white/20 hover:bg-white/30 backdrop-blur-md text-white rounded-full p-4 transition-all duration-300 hover:scale-110 hover:shadow-2xl"
                   >
@@ -397,16 +528,21 @@ const RentalDetail = () => {
 
                   <button
                     onClick={() => {
-                      const currentIndex = rental.media.imageLinks.indexOf(
-                        selectedImage || rental.media.imageLinks[0]
-                      );
-
-                      const nextIndex =
-                        currentIndex === rental.media.imageLinks.length - 1
-                          ? 0
-                          : currentIndex + 1;
-
-                      setSelectedImage(rental.media.imageLinks[nextIndex]);
+                      // Create image array from database structure
+                      const imageArray = [];
+                      if (rental.images?.main) imageArray.push(rental.images.main);
+                      if (rental.images?.gallery && Array.isArray(rental.images.gallery)) {
+                        rental.images.gallery.forEach(img => {
+                          if (img && img !== "") imageArray.push(img);
+                        });
+                      }
+                      
+                      if (imageArray.length > 1) {
+                        const currentImage = selectedImage || imageArray[0];
+                        const currentIndex = imageArray.indexOf(currentImage);
+                        const nextIndex = currentIndex === imageArray.length - 1 ? 0 : currentIndex + 1;
+                        setSelectedImage(imageArray[nextIndex]);
+                      }
                     }}
                     className="group bg-white/20 hover:bg-white/30 backdrop-blur-md text-white rounded-full p-4 transition-all duration-300 hover:scale-110 hover:shadow-2xl"
                   >
@@ -431,31 +567,43 @@ const RentalDetail = () => {
             {/* Floating Thumbnail Strip */}
             <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
               <div className="flex gap-3 overflow-x-auto max-w-4xl px-4 pb-2 scrollbar-hide">
-                {rental.media.imageLinks.map((image, index) => (
-                  <div
-                    key={index}
-                    className={`relative flex-shrink-0 cursor-pointer transition-all duration-500 transform hover:scale-110 ${
-                      (selectedImage || rental.media.imageLinks[0]) === image
-                        ? "ring-4 ring-white ring-offset-2 scale-110"
-                        : "hover:ring-2 hover:ring-white/50"
-                    }`}
-                    onClick={() => setSelectedImage(image)}
-                  >
-                    <img
-                      src={image}
-                      alt={`${rental.propertyInfo?.name} - Thumbnail ${index + 1}`}
-                      className="w-16 h-12 md:w-20 md:h-14 object-cover rounded-lg shadow-2xl"
-                    />
-
+                {(() => {
+                  // Create image array from database structure
+                  const imageArray = [];
+                  if (rental.images?.main) imageArray.push(rental.images.main);
+                  if (rental.images?.gallery && Array.isArray(rental.images.gallery)) {
+                    rental.images.gallery.forEach(img => {
+                      if (img && img !== "") imageArray.push(img);
+                    });
+                  }
+                  const currentImage = selectedImage || (imageArray.length > 0 ? imageArray[0] : null);
+                  
+                  return imageArray.map((image, index) => (
                     <div
-                      className={`absolute inset-0 rounded-lg transition-all duration-300 ${
-                        (selectedImage || rental.media.imageLinks[0]) === image
-                          ? "bg-white/30"
-                          : "bg-black/0 hover:bg-white/20"
+                      key={index}
+                      className={`relative flex-shrink-0 cursor-pointer transition-all duration-500 transform hover:scale-110 ${
+                        currentImage === image
+                          ? "ring-4 ring-white ring-offset-2 scale-110"
+                          : "hover:ring-2 hover:ring-white/50"
                       }`}
-                    ></div>
-                  </div>
-                ))}
+                      onClick={() => setSelectedImage(image)}
+                    >
+                      <img
+                        src={image}
+                        alt={`${rental.propertyInfo?.name} - Thumbnail ${index + 1}`}
+                        className="w-16 h-12 md:w-20 md:h-14 object-cover rounded-lg shadow-2xl"
+                      />
+
+                      <div
+                        className={`absolute inset-0 rounded-lg transition-all duration-300 ${
+                          currentImage === image
+                            ? "bg-white/30"
+                            : "bg-black/0 hover:bg-white/20"
+                        }`}
+                      ></div>
+                    </div>
+                  ));
+                })()}
               </div>
             </div>
           </div>
@@ -463,7 +611,7 @@ const RentalDetail = () => {
       )}
 
       {/* No Images Fallback */}
-      {(!rental.media?.imageLinks || rental.media.imageLinks.length === 0) && (
+      {(!rental.images?.gallery || rental.images.gallery.length === 0) && !rental.images?.main && (
         <div className="mb-16">
           <div className="relative h-[400px] overflow-hidden rounded-2xl shadow-2xl bg-gradient-to-br from-gray-100 to-gray-200">
             <div className="absolute inset-0 flex items-center justify-center">
@@ -497,18 +645,32 @@ const RentalDetail = () => {
             </button>
 
             {/* Navigation buttons */}
-            {rental && rental.media.imageLinks && rental.media.imageLinks.length > 1 && (
+            {rental && rental.images && ((() => {
+              // Create image array from database structure
+              const imageArray = [];
+              if (rental.images?.main) imageArray.push(rental.images.main);
+              if (rental.images?.gallery && Array.isArray(rental.images.gallery)) {
+                rental.images.gallery.forEach(img => {
+                  if (img && img !== "") imageArray.push(img);
+                });
+              }
+              return imageArray.length > 1;
+            })()) && (
               <>
                 <button
                   onClick={() => {
-                    const currentIndex = rental.media.imageLinks.indexOf(selectedImage);
-
-                    const prevIndex =
-                      currentIndex === 0
-                        ? rental.media.imageLinks.length - 1
-                        : currentIndex - 1;
-
-                    setSelectedImage(rental.media.imageLinks[prevIndex]);
+                    // Create image array from database structure
+                    const imageArray = [];
+                    if (rental.images?.main) imageArray.push(rental.images.main);
+                    if (rental.images?.gallery && Array.isArray(rental.images.gallery)) {
+                      rental.images.gallery.forEach(img => {
+                        if (img && img !== "") imageArray.push(img);
+                      });
+                    }
+                    
+                    const currentIndex = imageArray.indexOf(selectedImage);
+                    const prevIndex = currentIndex === 0 ? imageArray.length - 1 : currentIndex - 1;
+                    setSelectedImage(imageArray[prevIndex]);
                   }}
                   className="absolute left-6 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 transition-all duration-300 z-20 bg-black/50 backdrop-blur-sm rounded-full p-4 hover:bg-black/70 hover:scale-110"
                 >
@@ -529,14 +691,18 @@ const RentalDetail = () => {
 
                 <button
                   onClick={() => {
-                    const currentIndex = rental.media.imageLinks.indexOf(selectedImage);
-
-                    const nextIndex =
-                      currentIndex === rental.media.imageLinks.length - 1
-                        ? 0
-                        : currentIndex + 1;
-
-                    setSelectedImage(rental.media.imageLinks[nextIndex]);
+                    // Create image array from database structure
+                    const imageArray = [];
+                    if (rental.images?.main) imageArray.push(rental.images.main);
+                    if (rental.images?.gallery && Array.isArray(rental.images.gallery)) {
+                      rental.images.gallery.forEach(img => {
+                        if (img && img !== "") imageArray.push(img);
+                      });
+                    }
+                    
+                    const currentIndex = imageArray.indexOf(selectedImage);
+                    const nextIndex = currentIndex === imageArray.length - 1 ? 0 : currentIndex + 1;
+                    setSelectedImage(imageArray[nextIndex]);
                   }}
                   className="absolute right-6 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 transition-all duration-300 z-20 bg-black/50 backdrop-blur-sm rounded-full p-4 hover:bg-black/70 hover:scale-110"
                 >
@@ -566,43 +732,82 @@ const RentalDetail = () => {
               />
 
               {/* Image counter */}
-              {rental && rental.media.imageLinks && rental.media.imageLinks.length > 1 && (
+              {rental && rental.images && ((() => {
+                // Create image array from database structure
+                const imageArray = [];
+                if (rental.images?.main) imageArray.push(rental.images.main);
+                if (rental.images?.gallery && Array.isArray(rental.images.gallery)) {
+                  rental.images.gallery.forEach(img => {
+                    if (img && img !== "") imageArray.push(img);
+                  });
+                }
+                return imageArray.length > 1;
+              })()) && (
                 <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 text-white bg-black/70 backdrop-blur-sm px-6 py-3 rounded-full text-lg font-medium">
-                  {rental.media.imageLinks.indexOf(selectedImage) + 1} of{" "}
-                  {rental.media.imageLinks.length}
+                  {(() => {
+                    const imageArray = [];
+                    if (rental.images?.main) imageArray.push(rental.images.main);
+                    if (rental.images?.gallery && Array.isArray(rental.images.gallery)) {
+                      rental.images.gallery.forEach(img => {
+                        if (img && img !== "") imageArray.push(img);
+                      });
+                    }
+                    const currentIndex = imageArray.indexOf(selectedImage);
+                    return `${currentIndex + 1} of ${imageArray.length}`;
+                  })()}
                 </div>
               )}
             </div>
 
             {/* Thumbnail Strip */}
-            {rental && rental.media.imageLinks && rental.media.imageLinks.length > 1 && (
+            {rental && rental.images && ((() => {
+              // Create image array from database structure
+              const imageArray = [];
+              if (rental.images?.main) imageArray.push(rental.images.main);
+              if (rental.images?.gallery && Array.isArray(rental.images.gallery)) {
+                rental.images.gallery.forEach(img => {
+                  if (img && img !== "") imageArray.push(img);
+                });
+              }
+              return imageArray.length > 1;
+            })()) && (
               <div className="mt-8 flex justify-center">
                 <div className="flex gap-3 overflow-x-auto max-w-4xl pb-4 scrollbar-hide">
-                  {rental.media.imageLinks.map((image, index) => (
-                    <div
-                      key={index}
-                      className={`relative flex-shrink-0 cursor-pointer transition-all duration-300 ${
-                        selectedImage === image
-                          ? "ring-4 ring-blue-400 ring-offset-2"
-                          : "hover:ring-2 hover:ring-white/50"
-                      }`}
-                      onClick={() => setSelectedImage(image)}
-                    >
-                      <img
-                        src={image}
-                        alt={`Thumbnail ${index + 1}`}
-                        className="w-16 h-12 object-cover rounded-lg shadow-lg"
-                      />
-
+                  {(() => {
+                    const imageArray = [];
+                    if (rental.images?.main) imageArray.push(rental.images.main);
+                    if (rental.images?.gallery && Array.isArray(rental.images.gallery)) {
+                      rental.images.gallery.forEach(img => {
+                        if (img && img !== "") imageArray.push(img);
+                      });
+                    }
+                    
+                    return imageArray.map((image, index) => (
                       <div
-                        className={`absolute inset-0 rounded-lg transition-all duration-300 ${
+                        key={index}
+                        className={`relative flex-shrink-0 cursor-pointer transition-all duration-300 ${
                           selectedImage === image
-                            ? "bg-blue-400/30"
-                            : "bg-black/0 hover:bg-white/10"
+                            ? "ring-4 ring-blue-400 ring-offset-2"
+                            : "hover:ring-2 hover:ring-white/50"
                         }`}
-                      ></div>
-                    </div>
-                  ))}
+                        onClick={() => setSelectedImage(image)}
+                      >
+                        <img
+                          src={image}
+                          alt={`Thumbnail ${index + 1}`}
+                          className="w-16 h-12 object-cover rounded-lg shadow-lg"
+                        />
+
+                        <div
+                          className={`absolute inset-0 rounded-lg transition-all duration-300 ${
+                            selectedImage === image
+                              ? "bg-blue-400/30"
+                              : "bg-black/0 hover:bg-white/10"
+                          }`}
+                        ></div>
+                      </div>
+                    ));
+                  })()}
                 </div>
               </div>
             )}
@@ -617,7 +822,7 @@ const RentalDetail = () => {
 
           <p className="text-gray-500 italic flex pr-4">
             <MapPin />
-            {rental.propertyInfo?.address || 'Address not available'}
+            {rental.location?.address || 'Address not available'}
           </p>
 
           {/* <p className="text-blue-700 font-semibold">{rental.propertyInfo?.type || 'Property Type'}</p> */}
@@ -646,25 +851,45 @@ const RentalDetail = () => {
 
           {/* Description */}
           <div className="prose max-w-none text-gray-700 text-base leading-relaxed space-y-4">
-            {rental.description && (
-              <p>{rental.description}</p>
+            {rental.propertyInfo?.description && (
+              <p>{rental.propertyInfo.description}</p>
             )}
           </div>
 
           {/* Amenities */}
-          {rental.amenities && rental.amenities.length > 0 && (
+          {rental.amenities && (
             <div className="mt-10">
               <h2 className="text-2xl font-bold text-gray-800 mb-6">Amenities</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4">
-                {rental.amenities.map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-start gap-3 bg-white border border-gray-200 rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow"
-                  >
-                    <CheckCircle className="text-green-600 mt-1" size={20} />
-                    <span className="text-gray-700 font-medium">{item}</span>
-                  </div>
-                ))}
+                {(() => {
+                  // Convert amenities object to array
+                  const amenitiesList = [];
+                  if (typeof rental.amenities === 'object') {
+                    Object.entries(rental.amenities).forEach(([key, value]) => {
+                      if (value === true) {
+                        const readableKey = key
+                          .replace(/([A-Z])/g, ' $1')
+                          .replace(/^./, str => str.toUpperCase())
+                          .trim();
+                        amenitiesList.push(readableKey);
+                      }
+                    });
+                  }
+
+                  return amenitiesList.length > 0 ? amenitiesList.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-start gap-3 bg-white border border-gray-200 rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow"
+                    >
+                      <CheckCircle className="text-green-600 mt-1" size={20} />
+                      <span className="text-gray-700 font-medium">{item}</span>
+                    </div>
+                  )) : (
+                    <div className="col-span-full text-center text-gray-500 py-8">
+                      <p>Amenities information will be available soon.</p>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           )}
@@ -730,7 +955,7 @@ const RentalDetail = () => {
               <div className="flex items-center gap-2">
                 <span className="font-medium">Smoking:</span>
 
-                {rental.smoking ? (
+                {rental.details?.smokingAllowed ? (
                   <span className="text-green-600 font-semibold">Allowed</span>
                 ) : (
                   <span className="text-red-500 font-semibold">
@@ -742,7 +967,7 @@ const RentalDetail = () => {
               <div className="flex items-center gap-2">
                 <span className="font-medium">Pets:</span>
 
-                {rental.pets ? (
+                {rental.details?.petFriendly ? (
                   <span className="text-green-600 font-semibold">Allowed</span>
                 ) : (
                   <span className="text-red-500 font-semibold">
@@ -806,9 +1031,9 @@ const RentalDetail = () => {
         <div className="lg:w-[400px] w-full sticky top-28 h-fit bg-white border rounded-xl shadow-xl p-6 space-y-6">
           <div>
             <h2 className="text-2xl font-bold text-green-600">
-              ${rental.propertyInfo?.pricePerNight || 'N/A'} / Weekly
+              ${rental.pricing?.weekly || rental.pricing?.nightly || 'N/A'} / Weekly
             </h2>
-            {rental.rates && (rental.rates.inSeason || rental.rates.offSeason) && (
+            {rental.pricing && (rental.pricing.monthly || rental.pricing.nightly) && (
               <p className="text-sm text-gray-500 mt-1">
                 Dynamic pricing based on season and guests
               </p>
@@ -916,7 +1141,7 @@ const RentalDetail = () => {
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    {[...Array(rental.accommodation?.maxGuests || 8)].map((_, i) => (
+                    {[...Array(rental.details?.maxOccupancy || 8)].map((_, i) => (
                       <option key={i + 1} value={i + 1}>{i + 1} Guest{i > 0 ? 's' : ''}</option>
                     ))}
                   </select>

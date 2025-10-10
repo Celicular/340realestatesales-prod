@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { addBookingRequest } from '../../firebase/firestore';
-import { Calendar, Users, Mail, Phone, MessageSquare } from 'lucide-react';
+import { sendBookingNotificationToAgent, sendBookingConfirmationToGuest } from '../../services/emailService';
+import { Calendar, Users, Mail, Phone, MessageSquare, Send } from 'lucide-react';
 
 const BookingRequestForm = ({ rentalProperty, onSuccess, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -122,13 +123,79 @@ const BookingRequestForm = ({ rentalProperty, onSuccess, onCancel }) => {
         expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000) // Expires in 48 hours
       };
 
+      // Submit booking request to Firebase
       const result = await addBookingRequest(rentalProperty.id, bookingData);
       
       if (result.success) {
-        if (onSuccess) {
-          onSuccess(result.id);
-        } else {
-          alert('Booking request submitted successfully! The property owner has been notified and will respond within 24 hours.');
+        // Send email notifications
+        try {
+          // Get agent email - check multiple possible locations
+          const agentEmail = rentalProperty?.agentInfo?.email || 
+                           rentalProperty?.agentEmail || 
+                           'agent.demo@340realestate.com'; // Fallback to demo email
+
+          console.log('Sending booking notification to agent:', agentEmail);
+          
+          // Send notification to agent
+          const agentEmailResult = await sendBookingNotificationToAgent(
+            bookingData, 
+            rentalProperty, 
+            agentEmail
+          );
+
+          if (agentEmailResult.success) {
+            console.log('✅ Agent notification sent successfully:', agentEmailResult.message);
+          } else {
+            console.error('❌ Failed to send agent notification:', agentEmailResult.error);
+          }
+
+          // Send confirmation to guest
+          const guestEmailResult = await sendBookingConfirmationToGuest(
+            bookingData, 
+            rentalProperty
+          );
+
+          if (guestEmailResult.success) {
+            console.log('✅ Guest confirmation sent successfully:', guestEmailResult.message);
+          } else {
+            console.error('❌ Failed to send guest confirmation:', guestEmailResult.error);
+          }
+
+          // Show success message with email info
+          const emailInfo = agentEmailResult.emailInfo;
+          const successMessage = emailInfo 
+            ? `Booking request submitted successfully! 
+
+📧 The property agent (${emailInfo.agentName}) has been notified at ${emailInfo.sentTo}
+
+🏡 Property: ${emailInfo.propertyName}
+
+You will receive a response within 24 hours. A confirmation email has also been sent to ${formData.email}.`
+            : 'Booking request submitted successfully! The property owner has been notified and will respond within 24 hours.';
+
+          if (onSuccess) {
+            onSuccess(result.id);
+          } else {
+            alert(successMessage);
+          }
+
+        } catch (emailError) {
+          console.error('Email sending error:', emailError);
+          
+          // Even if email fails, booking was still submitted successfully
+          const fallbackMessage = `Booking request submitted successfully! 
+
+The property has been saved to our system (ID: ${result.id}). 
+
+Note: There was an issue sending email notifications, but your booking request is still valid and will be processed manually.
+
+You can contact us directly at +1 (340) 555-0123 for immediate assistance.`;
+
+          if (onSuccess) {
+            onSuccess(result.id);
+          } else {
+            alert(fallbackMessage);
+          }
         }
         
         // Reset form
@@ -330,9 +397,10 @@ const BookingRequestForm = ({ rentalProperty, onSuccess, onCancel }) => {
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+            className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center justify-center space-x-2"
           >
-            {loading ? 'Submitting Request...' : 'Submit Booking Request'}
+            <Send className="w-5 h-5" />
+            <span>{loading ? 'Submitting Request...' : 'Submit Booking Request'}</span>
           </button>
           {onCancel && (
             <button
