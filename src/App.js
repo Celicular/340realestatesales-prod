@@ -48,6 +48,9 @@ const AdminDashboard = lazy(() =>
 const AgentDashboard = lazy(() =>
   import("./components/dashboard/AgentDashboard")
 );
+const AgentRentalDashboard = lazy(() =>
+  import("./components/agent/AgentRentalDashboard")
+);
 const RegistrationTest = lazy(() =>
   import("./components/debug/RegistrationTest")
 );
@@ -119,6 +122,14 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={["agent"]}>
                   <AgentDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/agent/rentals"
+              element={
+                <ProtectedRoute allowedRoles={["agent", "admin"]}>
+                  <AgentRentalDashboard />
                 </ProtectedRoute>
               }
             />

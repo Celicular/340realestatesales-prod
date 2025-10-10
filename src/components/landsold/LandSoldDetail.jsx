@@ -2,20 +2,71 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { FaMapMarkerAlt, FaRulerCombined, FaTree, FaWater, FaCalendarAlt, FaDollarSign } from "react-icons/fa";
 import { BsHouseDoorFill, BsArrowLeft } from "react-icons/bs";
-import { landSoldProperties } from "../../data/landSoldData";
+import { getSoldProperties } from "../../firebase/firestore";
 
 const LandSoldDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [currentImage, setCurrentImage] = useState(0);
   const [property, setProperty] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const foundProperty = landSoldProperties.find(p => p.id === id);
-    if (foundProperty) {
-      setProperty(foundProperty);
+    const fetchProperty = async () => {
+      try {
+        setLoading(true);
+        const result = await getSoldProperties({ status: 'approved' });
+        
+        if (result.success) {
+          const foundProperty = result.data.find(p => p.id === id);
+          if (foundProperty) {
+            setProperty(foundProperty);
+          } else {
+            setError('Property not found');
+          }
+        } else {
+          setError(result.error || 'Failed to fetch property');
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchProperty();
     }
   }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Loading Property...</h2>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Error</h2>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <button
+            onClick={() => navigate("/landsold")}
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Back to Sold Properties
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (!property) {
     return (

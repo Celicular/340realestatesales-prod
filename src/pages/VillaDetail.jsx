@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  selectVilla
+  selectVilla,
+  fetchVillas
 } from "../redux/slices/villaSlice";
 
 import { CheckCircle, MapPin, X as CloseIcon, Calendar, Users, Mail, Phone, MessageSquare } from "lucide-react";
@@ -13,6 +14,7 @@ const VillaDetails = () => {
   const { slug } = useParams();
   const dispatch = useDispatch();
   const villa = useSelector((state) => state.villa.selectedVilla);
+  const { villas, loading: villasLoading, error: villasError } = useSelector((state) => state.villa);
   const [selectedImage, setSelectedImage] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -70,53 +72,45 @@ const VillaDetails = () => {
   }, [isModalOpen, selectedImage, villa]);
 
   useEffect(() => {
-    // Format slug back to proper name
-
-    const formattedName = slug
-
-      .split("-")
-
-      .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
-
-      .join(" ");
-
-    // Only dispatch if we don't already have the correct villa selected
-
-    if (!villa || villa.name !== formattedName) {
-      setIsLoading(true);
-
-      dispatch(selectVilla(formattedName));
-    } else {
-      setIsLoading(false);
+    // Fetch villas if not already loaded
+    if (villas.length === 0 && !villasLoading && !villasError) {
+      dispatch(fetchVillas());
     }
-  }, [slug, dispatch, villa]);
-
-  // Set loading to false when villa is loaded
+  }, [dispatch, villas.length, villasLoading, villasError]);
 
   useEffect(() => {
-    if (villa) {
+    // Format slug back to proper name
+    const formattedName = slug
+      .split("-")
+      .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+      .join(" ");
+
+    // Only dispatch if we have villas loaded and don't already have the correct villa selected
+    if (villas.length > 0 && (!villa || villa.propertyInfo?.name !== formattedName)) {
+      setIsLoading(true);
+      dispatch(selectVilla(formattedName));
+    } else if (villa && villa.propertyInfo?.name === formattedName) {
       setIsLoading(false);
     }
-  }, [villa]);
+  }, [slug, dispatch, villa, villas.length]);
 
-  
+  // Set loading to false when villa is loaded
+  useEffect(() => {
+    if (villa || villasError) {
+      setIsLoading(false);
+    }
+  }, [villa, villasError]);
+
   // Fetch rental properties
-
   useEffect(() => {
     const fetchRentalProperties = async () => {
       try {
         console.log("🔍 Fetching rental properties...");
-
         const result = await getRentalProperties({ status: "approved" });
-
         console.log("📋 Rental properties result:", result);
-
         if (result.success) {
           setRentalProperties(result.data);
-
-          console.log(
-            `✅ Loaded ${result.data.length} approved rental properties`
-          );
+          console.log(`✅ Loaded ${result.data.length} approved rental properties`);
         } else {
           console.error("❌ Failed to fetch rental properties:", result.error);
         }
@@ -189,7 +183,7 @@ const VillaDetails = () => {
       const season = (checkInMonth >= 12 || checkInMonth <= 4) ? 'inSeason' : 'offSeason';
 
       // Create villa property ID from slug or name
-      const propertyId = villa.slug || villa.name?.toLowerCase().replace(/\s+/g, '-') || 'villa-property';
+      const propertyId = villa.propertyInfo?.slug || villa.propertyInfo?.name?.toLowerCase().replace(/\s+/g, '-') || 'villa-property';
 
       // Create booking data matching your Firestore structure
       const bookingRequest = {
@@ -216,10 +210,10 @@ const VillaDetails = () => {
         },
         propertyDetails: {
           propertyId: propertyId,
-          name: villa.name,
-          address: villa.address,
-          type: villa.type || 'Villa',
-          slug: villa.slug || villa.name?.toLowerCase().replace(/\s+/g, '-')
+          name: villa.propertyInfo?.name,
+          address: villa.propertyInfo?.address,
+          type: villa.propertyInfo?.type || 'Villa',
+          slug: villa.propertyInfo?.slug || villa.propertyInfo?.name?.toLowerCase().replace(/\s+/g, '-')
         },
         metadata: {
           source: 'website',
@@ -256,46 +250,62 @@ const VillaDetails = () => {
     }
   };
 
-  if (isLoading || !villa) return <div className="p-6">Loading...</div>;
+  if (villasLoading || isLoading) return <div className="p-6">Loading villas...</div>;
+  if (villasError) return <div className="p-6 text-red-500">Error loading villas: {villasError}</div>;
+  if (!villa) return <div className="p-6">Villa not found</div>;
 
   // Calculate dynamic pricing based on season and guests
-
   const calculatePrice = () => {
     // Determine season based on current month for display
     const currentMonth = new Date().getMonth() + 1;
     const currentSeason = (currentMonth >= 12 || currentMonth <= 4) ? 'inSeason' : 'offSeason';
     const currentGuests = bookingData.guests || 1;
 
-    if (villa.rates && villa.rates[currentSeason]) {
-      const rate = villa.rates[currentSeason].find((r) => {
+    if (villa.pricing?.rates && villa.pricing.rates[currentSeason]) {
+      const rate = villa.pricing.rates[currentSeason].find((r) => {
         const [min, max] = r.persons.split("-").map(Number);
-
         return currentGuests >= min && currentGuests <= max;
       });
-
-      return rate ? rate.rate : villa.pricePerNight;
+      return rate ? rate.rate : villa.pricing?.pricePerNight || 500;
     }
 
-    return villa.pricePerNight;
+    return villa.pricing?.pricePerNight || 500;
   };
 
   const currentPrice = calculatePrice();
 
   return (
     <div className=" mx-auto px-4 py-12">
-      {/* Immersive Full-Screen Hero Gallery */}
+      {/* No Images Fallback */}
+      {(!villa.media?.imageLinks || villa.media.imageLinks.length === 0) && (
+        <div className="mb-16">
+          <div className="relative h-[400px] overflow-hidden rounded-2xl shadow-2xl bg-gradient-to-br from-gray-100 to-gray-200">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center">
+                <div className="text-8xl mb-6 opacity-50">🏠</div>
+                <h3 className="text-2xl font-semibold text-gray-700 mb-2">
+                  Gallery Coming Soon
+                </h3>
+                <p className="text-gray-500">
+                  Professional photos of this beautiful villa will be available
+                  shortly.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
-      {villa.images && villa.images.length > 0 && (
+      {/* Immersive Full-Screen Hero Gallery */}
+      {villa.media?.imageLinks && villa.media.imageLinks.length > 0 && (
         <div className="relative -mx-4 -mt-12 mb-16">
           {/* Full-Screen Hero Section */}
-
           <div className="relative h-screen min-h-[600px] overflow-hidden">
             {/* Dynamic Background Image */}
-
             <div className="absolute inset-0">
               <img
-                src={selectedImage || villa.images[0]}
-                alt={`${villa.name} - Hero view`}
+                src={selectedImage || villa.media.imageLinks[0]}
+                alt={`${villa.propertyInfo?.name} - Hero view`}
                 className="w-full h-full object-cover animate-pulse-slow"
                 style={{
                   animation: "fadeInScale 1.5s ease-out",
@@ -303,74 +313,32 @@ const VillaDetails = () => {
               />
 
               {/* Multiple Overlay Layers for Depth */}
-
               <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60"></div>
-
               <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30"></div>
-
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
             </div>
 
             {/* Floating Content Overlay */}
-
             <div className="relative z-10 h-full flex flex-col justify-between p-8 md:p-12">
               {/* Top Section - Villa Info */}
-
               <div className="text-white animate-fade-in-up">
                 <div className="max-w-4xl">
-                  {/* <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-4 leading-tight animate-slide-in-left">
-
-                    {villa.name}
-
-                  </h1> */}
-
+                  <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-4 leading-tight animate-slide-in-left">
+                    {villa.propertyInfo?.name}
+                  </h1>
                   <p className="text-xl md:text-2xl text-gray-200 mb-6 animate-slide-in-left-delay">
-                    {/* {villa.type} •{" "}
-
-                    {
-
-                      villa.accommodation.find((a) => a.label === "Guests")
-
-                        ?.value
-
-                    } */}
+                    {villa.propertyInfo?.type} • {villa.accommodation?.maxGuests} Guests
                   </p>
-
-                  <div className="flex flex-wrap gap-4 animate-slide-in-left-delay-2">
-                    {/* {villa.accommodation.slice(0, 3).map((item, idx) => (
-
-                      <div
-
-                        key={idx}
-
-                        className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full"
-
-                      >
-
-                        <span className="text-white">{item.icon}</span>
-
-                        <span className="text-white font-medium">
-
-                          {item.value}
-
-                        </span>
-
-                      </div>
-
-                    ))} */}
-                  </div>
                 </div>
               </div>
 
               {/* Bottom Section - Navigation & Controls */}
-
               <div className="flex flex-col md:flex-row items-center justify-between gap-6 animate-fade-in-up-delay">
                 {/* Image Counter & Progress */}
-
                 <div className="flex items-center gap-4">
                   <div className="bg-white/20 backdrop-blur-md text-white px-6 py-3 rounded-full font-semibold">
-                    {villa.images.indexOf(selectedImage || villa.images[0]) + 1}{" "}
-                    of {villa.images.length}
+                    {villa.media.imageLinks.indexOf(selectedImage || villa.media.imageLinks[0]) + 1}{" "}
+                    of {villa.media.imageLinks.length}
                   </div>
 
                   <div className="hidden md:block w-32 h-1 bg-white/30 rounded-full overflow-hidden">
@@ -378,11 +346,11 @@ const VillaDetails = () => {
                       className="h-full bg-white transition-all duration-500 ease-out"
                       style={{
                         width: `${
-                          ((villa.images.indexOf(
-                            selectedImage || villa.images[0]
+                          ((villa.media.imageLinks.indexOf(
+                            selectedImage || villa.media.imageLinks[0]
                           ) +
                             1) /
-                            villa.images.length) *
+                            villa.media.imageLinks.length) *
                           100
                         }%`,
                       }}
@@ -391,20 +359,17 @@ const VillaDetails = () => {
                 </div>
 
                 {/* Navigation Controls */}
-
                 <div className="flex items-center gap-4">
                   <button
                     onClick={() => {
-                      const currentIndex = villa.images.indexOf(
-                        selectedImage || villa.images[0]
+                      const currentIndex = villa.media.imageLinks.indexOf(
+                        selectedImage || villa.media.imageLinks[0]
                       );
-
                       const prevIndex =
                         currentIndex === 0
-                          ? villa.images.length - 1
+                          ? villa.media.imageLinks.length - 1
                           : currentIndex - 1;
-
-                      setSelectedImage(villa.images[prevIndex]);
+                      setSelectedImage(villa.media.imageLinks[prevIndex]);
                     }}
                     className="group bg-white/20 hover:bg-white/30 backdrop-blur-md text-white rounded-full p-4 transition-all duration-300 hover:scale-110 hover:shadow-2xl"
                   >
@@ -444,16 +409,14 @@ const VillaDetails = () => {
 
                   <button
                     onClick={() => {
-                      const currentIndex = villa.images.indexOf(
-                        selectedImage || villa.images[0]
+                      const currentIndex = villa.media.imageLinks.indexOf(
+                        selectedImage || villa.media.imageLinks[0]
                       );
-
                       const nextIndex =
-                        currentIndex === villa.images.length - 1
+                        currentIndex === villa.media.imageLinks.length - 1
                           ? 0
                           : currentIndex + 1;
-
-                      setSelectedImage(villa.images[nextIndex]);
+                      setSelectedImage(villa.media.imageLinks[nextIndex]);
                     }}
                     className="group bg-white/20 hover:bg-white/30 backdrop-blur-md text-white rounded-full p-4 transition-all duration-300 hover:scale-110 hover:shadow-2xl"
                   >
@@ -476,14 +439,13 @@ const VillaDetails = () => {
             </div>
 
             {/* Floating Thumbnail Strip */}
-
             <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
               <div className="flex gap-3 overflow-x-auto max-w-4xl px-4 pb-2 scrollbar-hide">
-                {villa.images.map((image, index) => (
+                {villa.media.imageLinks.map((image, index) => (
                   <div
                     key={index}
                     className={`relative flex-shrink-0 cursor-pointer transition-all duration-500 transform hover:scale-110 ${
-                      (selectedImage || villa.images[0]) === image
+                      (selectedImage || villa.media.imageLinks[0]) === image
                         ? "ring-4 ring-white ring-offset-2 scale-110"
                         : "hover:ring-2 hover:ring-white/50"
                     }`}
@@ -491,42 +453,19 @@ const VillaDetails = () => {
                   >
                     <img
                       src={image}
-                      alt={`${villa.name} - Thumbnail ${index + 1}`}
+                      alt={`${villa.propertyInfo?.name} - Thumbnail ${index + 1}`}
                       className="w-16 h-12 md:w-20 md:h-14 object-cover rounded-lg shadow-2xl"
                     />
 
                     <div
                       className={`absolute inset-0 rounded-lg transition-all duration-300 ${
-                        (selectedImage || villa.images[0]) === image
+                        (selectedImage || villa.media.imageLinks[0]) === image
                           ? "bg-white/30"
                           : "bg-black/0 hover:bg-white/20"
                       }`}
                     ></div>
                   </div>
                 ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* No Images Fallback */}
-
-      {(!villa.images || villa.images.length === 0) && (
-        <div className="mb-16">
-          <div className="relative h-[400px] overflow-hidden rounded-2xl shadow-2xl bg-gradient-to-br from-gray-100 to-gray-200">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center">
-                <div className="text-8xl mb-6 opacity-50">🏠</div>
-
-                <h3 className="text-2xl font-semibold text-gray-700 mb-2">
-                  Gallery Coming Soon
-                </h3>
-
-                <p className="text-gray-500">
-                  Professional photos of this beautiful villa will be available
-                  shortly.
-                </p>
               </div>
             </div>
           </div>

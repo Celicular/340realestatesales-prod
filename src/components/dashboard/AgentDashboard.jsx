@@ -14,7 +14,7 @@ import {
   Calendar,
   Award
 } from 'lucide-react';
-import RentalForm from '../forms/RentalForm';
+import RentalPropertyForm from '../forms/RentalPropertyForm';
 import PropertySale from '../forms/PropertySale';
 import PropertySold from '../forms/PropertySold';
 import LandSale from '../forms/LandSale';
@@ -115,7 +115,7 @@ const AgentDashboard = () => {
     { 
       id: 'rental', 
       name: 'Rental Form', 
-      component: RentalForm,
+      component: RentalPropertyForm,
       icon: Home,
       color: 'blue',
       description: 'Submit rental property listings'
@@ -294,7 +294,16 @@ const AgentDashboard = () => {
 
         {/* Quick Actions */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">Quick Actions</h2>
+            <button
+              onClick={() => navigate('/agent/rentals')}
+              className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Manage Rental Properties</span>
+            </button>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {tabs.map((tab) => {
               const IconComponent = tab.icon;

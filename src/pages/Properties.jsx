@@ -1,48 +1,77 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import PropertiesHero from "./../components/properties/PropertiesHero";
 import PropertiesForSale from "../components/properties/PropertiesForSale";
 import SoldProperty from "../components/soldproperty/SoldProperty";
-import LandProperty from "../components/land/LandProperty";
-import { Home, MapPin, DollarSign, CheckCircle, Crown, Building, TreePine } from "lucide-react";
-import { propertyData } from "../data/SalesData.js";
+import { Home, DollarSign, CheckCircle, Crown, Building, TreePine } from "lucide-react";
+import { getPortfolioItems } from "../firebase/firestore";
 
 const Properties = () => {
   const [mainTab, setMainTab] = useState("sale");
   const [subTab, setSubTab] = useState("house");
   const [propertiesToShow, setPropertiesToShow] = useState(2); // Number to slice
+  const [propertyData, setPropertyData] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Memoize property categories to avoid recalculation
-  const propertyCategories = useMemo(() => {
-    const categories = new Set();
+  // Fetch properties from Firestore
+  useEffect(() => {
+    const fetchProperties = async () => {
+      try {
+        setLoading(true);
+        const result = await getPortfolioItems('residential');
+        if (result.success) {
+          // Convert array to object format for compatibility
+          const dataObject = {};
+          result.data.forEach((property, index) => {
+            dataObject[property.id || index] = property;
+          });
+          setPropertyData(dataObject);
+        } else {
+          setError(result.error || 'Failed to fetch properties');
+        }
+      } catch (err) {
+        setError('Error fetching properties: ' + err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProperties();
+  }, []);
+
+  // Memoize property types to avoid recalculation
+  const propertyTypes = useMemo(() => {
+    const types = new Set();
     Object.values(propertyData).forEach(property => {
-      if (property.category) {
-        categories.add(property.category);
+      if (property.propertyType) {
+        types.add(property.propertyType);
       }
     });
-    return Array.from(categories).sort();
-  }, []);
+    return Array.from(types).sort();
+  }, [propertyData]);
 
   // Memoize filtered properties to avoid recalculation on every render
   const filteredProperties = useMemo(() => {
     if (mainTab === "sale") {
       if (subTab) {
-        // Filter by specific category if sub-tab is selected
+        // Filter by specific property type if sub-tab is selected
         return Object.entries(propertyData)
-          .filter(([key, property]) => property.category === subTab)
+          .filter(([key, property]) => property.propertyType === subTab)
+          .slice(0, propertiesToShow)
           .map(([id, property]) => ({
             id,
-            title: property.title,
+            title: property.title || property.name,
             price: property.price,
             images: property.images,
             description: property.description || property.fullDescription,
             features: {
-              totalBeds: property.features?.beds,
-              totalBaths: property.features?.baths,
-              pool: property.features?.pool,
-              type: property.features?.type,
+              totalBeds: property.features?.beds || property.bedrooms,
+              totalBaths: property.features?.baths || property.bathrooms,
+              pool: property.features?.pool || property.amenities?.pool,
+              type: property.features?.type || property.type,
               properties: 1,
             },
-            propertyDetails: property.propertyDetails,
+            propertyDetails: property.propertyDetails || property.details,
           }));
       } else {
         // Show limited properties when no sub-tab is selected
@@ -50,23 +79,23 @@ const Properties = () => {
           .slice(0, propertiesToShow)
           .map(([id, property]) => ({
             id,
-            title: property.title,
+            title: property.title || property.name,
             price: property.price,
             images: property.images,
             description: property.description || property.fullDescription,
             features: {
-              totalBeds: property.features?.beds,
-              totalBaths: property.features?.baths,
-              pool: property.features?.pool,
-              type: property.features?.type,
+              totalBeds: property.features?.beds || property.bedrooms,
+              totalBaths: property.features?.baths || property.bathrooms,
+              pool: property.features?.pool || property.amenities?.pool,
+              type: property.features?.type || property.type,
               properties: 1,
             },
-            propertyDetails: property.propertyDetails,
+            propertyDetails: property.propertyDetails || property.details,
           }));
       }
     }
     return [];
-  }, [mainTab, subTab, propertiesToShow]);
+  }, [mainTab, subTab, propertiesToShow, propertyData]);
 
   const renderContent = () => {
     if (mainTab === "sale") {
@@ -81,41 +110,112 @@ const Properties = () => {
     }
   };
 
-    // Memoize main tabs
-  const mainTabs = useMemo(() => [
-    {
-      id: "sale",
-      label: "FOR SALE",
-      icon: DollarSign,
-    },
-    {
-      id: "sold",
-      label: "RECENT SALES",
-      icon: CheckCircle,
-    },
-  ], []);
+  // Memoize click handlers
+  const handleSaleTabClick = useCallback(() => {
+    setMainTab("sale");
+    // Set the first available property type as default instead of "all"
+    if (propertyTypes.length > 0) {
+      setSubTab(propertyTypes[0]);
+    }
+    setPropertiesToShow(2); // Reset to 2 when clicking FOR SALE
+  }, [propertyTypes]);
 
-  // Memoize sub tabs
+  const handleSoldTabClick = useCallback(() => {
+    setMainTab("sold");
+    setSubTab(""); // No sub-tab needed for sold
+  }, []);
+
+  // Memoize sub tabs with enhanced property type support
   const subTabs = useMemo(() => {
     if (mainTab === "sale") {
-      return propertyCategories.map(category => ({
-        id: category,
-        label: category.charAt(0).toUpperCase() + category.slice(1),
-        icon: category === "villa" ? Building : 
-              category === "combo" ? Crown : 
-              category === "cottage" ? Home : 
-              category === "house" ? Building : 
-              category === "condo" ? Building : TreePine,
-      }));
+      const tabs = propertyTypes.map(propertyType => {
+        // Enhanced icon mapping for different property types
+        let icon = Building; // default
+        let label = propertyType.charAt(0).toUpperCase() + propertyType.slice(1);
+        
+        switch(propertyType.toLowerCase()) {
+          case 'villa':
+            icon = Crown;
+            break;
+          case 'combo':
+            icon = Building;
+            label = 'Combo Properties';
+            break;
+          case 'cottage':
+            icon = Home;
+            break;
+          case 'house':
+            icon = Home;
+            break;
+          case 'condo':
+            icon = Building;
+            label = 'Condominiums';
+            break;
+          case 'apartment':
+            icon = Building;
+            break;
+          case 'townhouse':
+            icon = Building;
+            label = 'Town Houses';
+            break;
+          case 'land':
+            icon = TreePine;
+            break;
+          default:
+            icon = Building;
+        }
+        
+        return {
+          id: propertyType,
+          label: label,
+          icon: icon,
+        };
+      });
+      
+      // Return only the property type tabs (no "All Properties" tab)
+      return tabs;
     }
     return [];
-  }, [mainTab, propertyCategories]);
+  }, [mainTab, propertyTypes]);
 
   // Memoize sub tab click handler
   const handleSubTabClick = useCallback((tabId) => {
     setSubTab(tabId);
     setPropertiesToShow(2); // Reset to 2 when switching tabs
   }, []);
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="App relative scroll-smooth">
+        <PropertiesHero />
+        <div className="container mx-auto px-4 py-16 text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">Loading properties...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="App relative scroll-smooth">
+        <PropertiesHero />
+        <div className="container mx-auto px-4 py-16 text-center">
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <p>Error loading properties: {error}</p>
+          </div>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="App relative scroll-smooth">
@@ -131,11 +231,7 @@ const Properties = () => {
            <div className="flex mb-8 relative">
              <div className="w-1/2 flex justify-center">
                <button
-                                   onClick={useCallback(() => {
-                    setMainTab("sale");
-                    setSubTab(""); // Don't set any sub-tab initially
-                    setPropertiesToShow(2); // Reset to 2 when clicking FOR SALE
-                  }, [])}
+                 onClick={handleSaleTabClick}
                  className={`relative flex items-center justify-center gap-3 px-8 py-6 text-lg font-semibold transition-all duration-300 ${
                    mainTab === "sale"
                      ? "text-slate-800 border-b-2 border-slate-800"
@@ -150,10 +246,7 @@ const Properties = () => {
              <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-slate-300 to-transparent shadow-sm"></div>
              <div className="w-1/2 flex justify-center">
                <button
-                 onClick={useCallback(() => {
-                   setMainTab("sold");
-                   setSubTab(""); // No sub-tab needed for sold
-                 }, [])}
+                 onClick={handleSoldTabClick}
                  className={`relative flex items-center justify-center gap-3 px-8 py-6 text-lg font-semibold transition-all duration-300 ${
                    mainTab === "sold"
                      ? "text-slate-800 border-b-2 border-slate-800"
@@ -183,32 +276,30 @@ const Properties = () => {
              </p>
            </div> */}
 
-          {/* Sub Tabs - Only show for "For Sale" tab */}
+          {/* Sub Tabs - Dynamic grid layout for property types */}
           {mainTab === "sale" && subTabs.length > 0 && (
             <>
-                             {/* Sub Tabs - 50-50 Screen Width with Individual Centering */}
-               <div className="flex mb-10 relative">
-                 {subTabs.map((tab, index) => (
-                   <div key={tab.id} className="w-1/2 flex justify-center">
-                     {index > 0 && (
-                       <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-slate-300 to-transparent shadow-sm"></div>
-                     )}
-                     <button
-                       onClick={() => handleSubTabClick(tab.id)}
-                       className={`relative flex items-center justify-center gap-2.5 px-6 py-4 text-base font-medium transition-all duration-300 ${
-                         subTab === tab.id
-                           ? "text-slate-800 border-b-2 border-slate-800"
-                           : "text-slate-500 hover:text-slate-700 hover:border-b-2 hover:border-slate-300"
-                       }`}
-                     >
-                       <tab.icon className="w-5 h-5" />
-                       {tab.label}
-                     </button>
-                   </div>
-                 ))}
-               </div>
+              {/* Property Type Tabs */}
+              <div className="mb-10">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                  {subTabs.map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => handleSubTabClick(tab.id)}
+                      className={`relative flex flex-col items-center justify-center gap-2 px-4 py-6 rounded-xl border-2 transition-all duration-300 hover:shadow-lg ${
+                        subTab === tab.id
+                          ? "border-blue-600 bg-blue-50 text-blue-800 shadow-md"
+                          : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                      }`}
+                    >
+                      <tab.icon className={`w-6 h-6 ${subTab === tab.id ? "text-blue-600" : "text-slate-500"}`} />
+                      <span className="text-sm font-medium text-center leading-tight">{tab.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-              {/* Middle Border */}
+              {/* Divider */}
               <div className="w-full h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent shadow-sm mb-8"></div>
             </>
           )}
@@ -250,30 +341,6 @@ export const tabConfig = {
       icon: CheckCircle,
     },
   ],
-  getSubTabs: (mainTab, propertyData) => {
-    if (mainTab === "sale") {
-      const categories = new Set();
-      Object.values(propertyData).forEach(property => {
-        if (property.category) {
-          categories.add(property.category);
-        }
-      });
-      const propertyCategories = Array.from(categories).sort();
-      
-             return [
-         ...propertyCategories.map(category => ({
-           id: category,
-           label: category.charAt(0).toUpperCase() + category.slice(1),
-           icon: category === "villa" ? Building : 
-                 category === "combo" ? Crown : 
-                 category === "cottage" ? Home : 
-                 category === "house" ? Building : 
-                 category === "condo" ? Building : TreePine,
-         }))
-       ];
-    }
-    return [];
-  },
 };
 
 // Export content mapping for reuse
@@ -293,7 +360,7 @@ export const contentMapping = {
 // Export default state values
 export const defaultStates = {
   mainTab: "sale",
-  subTab: "house",
+  subTab: "all", // Start with all properties
 };
 
 export default Properties;
