@@ -5,6 +5,8 @@ import { IoHomeOutline, IoBed } from "react-icons/io5";
 import { BiMaleFemale } from "react-icons/bi";
 import { getRentalProperties, addBookingRequest } from "../firebase/firestore";
 import { sendBookingNotificationToAgent, sendBookingConfirmationToGuest } from "../services/emailService";
+import SEOHead from "../components/SEO/SEOHead";
+import { generateRentalJsonLd, generateSEOTitle, generateSEODescription, generateKeywords } from "../utils/seoUtils";
 
 const RentalDetail = () => {
   const { slug } = useParams();
@@ -387,7 +389,24 @@ Your booking request has been saved to our system and will be processed manually
   ];
 
   return (
-    <div className=" mx-auto px-4 py-12">
+    <>
+      {/* SEO Meta Tags */}
+      {rental && (
+        <SEOHead
+          title={generateSEOTitle(rental.propertyInfo?.name || 'Luxury Vacation Rental', 'St. John USVI', rental.propertyInfo?.type)}
+          description={generateSEODescription(rental, 'rental')}
+          keywords={generateKeywords(rental, 'rental', ['vacation rental st john', 'usvi villa rental', 'caribbean vacation home'])}
+          image={rental.media?.imageLinks?.[0] || (typeof window !== 'undefined' ? `${window.location.origin}/images/hero1.jpeg` : '')}
+          url={typeof window !== 'undefined' ? window.location.href : ''}
+          type="product"
+          price={rental.propertyInfo?.pricePerNight || rental.pricing?.nightly}
+          currency="USD"
+          availability="instock"
+          jsonLd={generateRentalJsonLd(rental)}
+        />
+      )}
+      
+      <div className=" mx-auto px-4 py-12">
       {/* Immersive Full-Screen Hero Gallery */}
       {getValidImages(rental).length > 0 && (
         <div className="relative -mx-4 -mt-12 mb-16">
@@ -404,6 +423,7 @@ Your booking request has been saved to our system and will be processed manually
                     src={currentImage}
                     alt={`${rental.propertyInfo?.name || 'Rental Property'} - Hero view`}
                     className="w-full h-full object-cover animate-pulse-slow"
+                    loading="eager"
                     style={{
                       animation: "fadeInScale 1.5s ease-out",
                     }}
@@ -583,6 +603,7 @@ Your booking request has been saved to our system and will be processed manually
                         src={image}
                         alt={`${rental.propertyInfo?.name} - Thumbnail ${index + 1}`}
                         className="w-16 h-12 md:w-20 md:h-14 object-cover rounded-lg shadow-2xl"
+                        loading="lazy"
                       />
 
                       <div
@@ -694,6 +715,7 @@ Your booking request has been saved to our system and will be processed manually
                 src={selectedImage}
                 alt="Fullscreen view"
                 className="max-w-full max-h-[85vh] object-contain  shadow-2xl"
+                loading="lazy"
               />
 
               {/* Image counter */}
@@ -726,6 +748,7 @@ Your booking request has been saved to our system and will be processed manually
                         src={image}
                         alt={`Thumbnail ${index + 1}`}
                         className="w-16 h-12 object-cover rounded-lg shadow-lg"
+                        loading="lazy"
                       />
 
                       <div
@@ -1311,6 +1334,7 @@ Your booking request has been saved to our system and will be processed manually
       </div>
 
     </div>
+    </>
   );
 };
 

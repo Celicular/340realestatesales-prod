@@ -558,7 +558,7 @@ const SalesHistoryTab = ({ data }) => {
         </table>
       </motion.div>
       <div className="pt-16 ">
-        <img src={chart} alt="chart" />
+        <img src={chart} alt="chart" loading="lazy" />
       </div>
     </div>
   );

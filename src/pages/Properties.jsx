@@ -4,6 +4,7 @@ import PropertiesForSale from "../components/properties/PropertiesForSale";
 import SoldProperty from "../components/soldproperty/SoldProperty";
 import { Home, DollarSign, CheckCircle, Crown, Building, TreePine } from "lucide-react";
 import { getPortfolioItems } from "../firebase/firestore";
+import SEOHead from "../components/SEO/SEOHead";
 
 const Properties = () => {
   const [mainTab, setMainTab] = useState("sale");
@@ -219,6 +220,30 @@ const Properties = () => {
 
   return (
     <div className="App relative scroll-smooth">
+      <SEOHead
+        title="Properties for Sale | 340 Real Estate St. John"
+        description="Browse luxury properties for sale in St. John, USVI. Find your perfect home among our collection of villas, condos, and houses in paradise."
+        keywords="St John properties for sale, USVI real estate, Virgin Islands properties, luxury homes St John, villas for sale, condos St John, houses USVI"
+        canonicalUrl="https://340realestate.com/properties"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "RealEstateAgent",
+          "name": "340 Real Estate St. John",
+          "description": "Luxury properties for sale in St. John, U.S. Virgin Islands",
+          "url": "https://340realestate.com/properties",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "St. John",
+            "addressRegion": "VI",
+            "addressCountry": "US"
+          },
+          "areaServed": {
+            "@type": "State",
+            "name": "U.S. Virgin Islands"
+          }
+        }}
+      />
+      
       {/* Hero Section */}
       <PropertiesHero />
 

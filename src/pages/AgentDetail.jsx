@@ -431,6 +431,7 @@ Whether you are looking to buy or sell, John would love to put his over 20 years
           src={teamhero}
           alt="St. John"
           className="absolute inset-0 w-full h-full object-cover object-center  scale-105 transition-transform duration-700 ease-in-out"
+          loading="eager"
         />
         <div className="absolute inset-0 bg-black/40 " />
 
@@ -473,8 +474,9 @@ Whether you are looking to buy or sell, John would love to put his over 20 years
                 <div className="aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl border border-gray-200">
                   <img
                     src={agent.images[0]}
-                    alt={`${agent.name} - Professional Photo`}
+                    alt={`${agent.name} - Professional headshot`}
                     className="w-full h-full object-cover"
+                    loading="lazy"
                   />
                 </div>
                 {/* Professional Badge */}
@@ -648,8 +650,9 @@ Whether you are looking to buy or sell, John would love to put his over 20 years
                       <div className="aspect-[4/3] overflow-hidden">
                         <img
                           src={image}
-                          alt={`${agent.name} - Gallery Image ${index + 2}`}
+                          alt={`${agent.name} - Portfolio ${index + 2}`}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          loading="lazy"
                         />
                       </div>
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">

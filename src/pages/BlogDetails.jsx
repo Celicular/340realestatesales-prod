@@ -212,6 +212,7 @@ const BlogDetails = () => {
                   src={newImage}
                   alt="340 Real Estate Team"
                   className="w-full h-[490px] object-cover rounded-2xl shadow-2xl"
+                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-2xl"></div>
               </div>
@@ -319,6 +320,7 @@ const BlogDetails = () => {
                   src={newImage}
                   alt="Tammy Donnelly - Broker and Owner"
                   className="h-48 w-auto object-contain rounded-lg shadow-lg bg-gray-50"
+                  loading="lazy"
                 />
               </div>
               <div className="flex-1">
@@ -394,6 +396,7 @@ const BlogDetails = () => {
                   src={finalImageSrc}
                   alt={altText}
                   className="max-w-sm w-full h-auto rounded-lg shadow-lg"
+                  loading="lazy"
                 />
               </div>
             );
@@ -463,6 +466,7 @@ const BlogDetails = () => {
             src={blog.coverImage}
             alt={blog.title}
             className="absolute inset-0 w-full h-full object-cover"
+            loading="eager"
           />
         ) : (
           <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-600 to-purple-700"></div>
@@ -542,6 +546,7 @@ const BlogDetails = () => {
                   src={logo} 
                   alt="340 Real Estate Logo" 
                   className="w-10 h-10 object-contain"
+                  loading="lazy"
                 />
               </div>
               <div>

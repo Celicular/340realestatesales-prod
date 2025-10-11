@@ -308,6 +308,7 @@ const VillaDetails = () => {
                     src={currentImage}
                     alt={`${villa.propertyInfo?.name} - Hero view`}
                     className="w-full h-full object-cover animate-pulse-slow"
+                    loading="eager"
                     style={{
                       animation: "fadeInScale 1.5s ease-out",
                     }}
@@ -501,6 +502,7 @@ const VillaDetails = () => {
                         src={image}
                         alt={`${villa.propertyInfo?.name} - Thumbnail ${index + 1}`}
                         className="w-16 h-12 md:w-20 md:h-14 object-cover rounded-lg shadow-2xl"
+                        loading="lazy"
                       />
 
                       <div
@@ -604,6 +606,7 @@ const VillaDetails = () => {
                 src={selectedImage}
                 alt="Fullscreen view"
                 className="max-w-full max-h-[85vh] object-contain  shadow-2xl"
+                loading="lazy"
               />
 
               {/* Image counter */}
@@ -635,6 +638,7 @@ const VillaDetails = () => {
                         src={image}
                         alt={`Thumbnail ${index + 1}`}
                         className="w-16 h-12 object-cover rounded-lg shadow-lg"
+                        loading="lazy"
                       />
 
                       <div
