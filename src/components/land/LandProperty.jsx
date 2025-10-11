@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaMapMarkerAlt, FaRulerCombined, FaTree, FaWater } from "react-icons/fa";
 import { BsHouseDoorFill } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
-import { landProperties } from "../../data/LandSaleData";
+import { getPortfolioItems } from "../../firebase/firestore";
 
 const LandPropertyCard = ({
   id,
@@ -133,7 +133,37 @@ const LandPropertyCard = ({
 };
 
 const LandProperty = ({ filteredProperties }) => {
-  // Use filtered properties if provided, otherwise use all land properties
+  const [landProperties, setLandProperties] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch land properties from Firestore
+  useEffect(() => {
+    const fetchLandProperties = async () => {
+      try {
+        setLoading(true);
+        const result = await getPortfolioItems('land');
+        if (result.success) {
+          setLandProperties(result.data);
+        } else {
+          setError(result.error || 'Failed to fetch land properties');
+        }
+      } catch (err) {
+        setError('Error fetching land properties: ' + err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Only fetch if no filtered properties are provided
+    if (!filteredProperties) {
+      fetchLandProperties();
+    } else {
+      setLoading(false);
+    }
+  }, [filteredProperties]);
+
+  // Use filtered properties if provided, otherwise use fetched land properties
   const propertiesToShow = filteredProperties || landProperties;
   
   // Debug logging
@@ -141,6 +171,37 @@ const LandProperty = ({ filteredProperties }) => {
   console.log("filteredProperties prop:", filteredProperties);
   console.log("propertiesToShow:", propertiesToShow);
   console.log("propertiesToShow length:", propertiesToShow?.length);
+
+  // Loading state
+  if (loading && !filteredProperties) {
+    return (
+      <div className="pb-20 px-4 lg:px-24 bg-gradient-to-br from-gray-50 to-white">
+        <div className="text-center py-16">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">Loading land properties...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error && !filteredProperties) {
+    return (
+      <div className="pb-20 px-4 lg:px-24 bg-gradient-to-br from-gray-50 to-white">
+        <div className="text-center py-16">
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <p>Error loading land properties: {error}</p>
+          </div>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div>

@@ -4,7 +4,9 @@ import { CheckCircle, MapPin, X as CloseIcon, Calendar, Users, Mail, Phone, Mess
 import { IoHomeOutline, IoBed } from "react-icons/io5";
 import { BiMaleFemale } from "react-icons/bi";
 import { getRentalProperties, addBookingRequest } from "../firebase/firestore";
-import BookingRequestForm from "../components/booking/BookingRequestForm";
+import { sendBookingNotificationToAgent, sendBookingConfirmationToGuest } from "../services/emailService";
+import SEOHead from "../components/SEO/SEOHead";
+import { generateRentalJsonLd, generateSEOTitle, generateSEODescription, generateKeywords } from "../utils/seoUtils";
 
 const RentalDetail = () => {
   const { slug } = useParams();
@@ -12,12 +14,31 @@ const RentalDetail = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedSeason, setSelectedSeason] = useState("inSeason");
-  const [selectedGuests, setSelectedGuests] = useState(1);
-  const [showBookingForm, setShowBookingForm] = useState(false);
-  const [checkInDate, setCheckInDate] = useState('');
-  const [checkOutDate, setCheckOutDate] = useState('');
-  const [guestMessage, setGuestMessage] = useState('');
+
+  // Helper function to get valid images from rental data
+  const getValidImages = (rental) => {
+    const imageArray = [];
+    
+    console.log('🖼️ Image processing for rental:', rental?.propertyInfo?.name);
+    console.log('📸 Media object:', rental?.media);
+    
+    if (rental?.media?.imageLinks && Array.isArray(rental.media.imageLinks)) {
+      console.log('📋 ImageLinks array:', rental.media.imageLinks);
+      rental.media.imageLinks.forEach((img, index) => {
+        if (img && typeof img === 'string' && img.trim() !== "") {
+          console.log(`✅ Adding image ${index + 1}:`, img);
+          imageArray.push(img);
+        } else {
+          console.log(`❌ Skipping invalid image ${index + 1}:`, img);
+        }
+      });
+    } else {
+      console.log('❌ No valid imageLinks array');
+    }
+    
+    console.log('🎯 Final image array:', imageArray);
+    return imageArray;
+  };
   
   // Inline booking form state
   const [bookingData, setBookingData] = useState({
@@ -39,20 +60,26 @@ const RentalDetail = () => {
         setIsModalOpen(false);
       }
 
-      if (isModalOpen && rental && rental.media?.imageLinks && rental.media.imageLinks.length > 1) {
+      if (isModalOpen && rental && rental.media?.imageLinks) {
         if (e.key === "ArrowLeft") {
           e.preventDefault();
-          const currentIndex = rental.media.imageLinks.indexOf(selectedImage);
-          const prevIndex =
-            currentIndex === 0 ? rental.media.imageLinks.length - 1 : currentIndex - 1;
-          setSelectedImage(rental.media.imageLinks[prevIndex]);
+          const imageArray = getValidImages(rental);
+          
+          if (imageArray.length > 1) {
+            const currentIndex = imageArray.indexOf(selectedImage);
+            const prevIndex = currentIndex === 0 ? imageArray.length - 1 : currentIndex - 1;
+            setSelectedImage(imageArray[prevIndex]);
+          }
         }
         if (e.key === "ArrowRight") {
           e.preventDefault();
-          const currentIndex = rental.media.imageLinks.indexOf(selectedImage);
-          const nextIndex =
-            currentIndex === rental.media.imageLinks.length - 1 ? 0 : currentIndex + 1;
-          setSelectedImage(rental.media.imageLinks[nextIndex]);
+          const imageArray = getValidImages(rental);
+          
+          if (imageArray.length > 1) {
+            const currentIndex = imageArray.indexOf(selectedImage);
+            const nextIndex = currentIndex === imageArray.length - 1 ? 0 : currentIndex + 1;
+            setSelectedImage(imageArray[nextIndex]);
+          }
         }
       }
     };
@@ -65,18 +92,40 @@ const RentalDetail = () => {
     const fetchRental = async () => {
       try {
         setIsLoading(true);
+        console.log('🔍 Fetching rental property with slug:', slug);
         const result = await getRentalProperties({ status: 'approved' });
+        console.log('📋 Rental properties result:', result);
+        
         if (result.success) {
+          console.log(`✅ Found ${result.data.length} approved rental properties`);
           const foundRental = result.data.find(r => r.propertyInfo?.slug === slug);
+          console.log('🏠 Found rental for slug:', slug, foundRental);
+          
           if (foundRental) {
             setRental(foundRental);
-            if (foundRental.media?.imageLinks?.length > 0) {
-              setSelectedImage(foundRental.media.imageLinks[0]);
+            console.log('📊 Rental data structure:', foundRental);
+            console.log('📍 Address data:', {
+              'propertyInfo.address': foundRental.propertyInfo?.address,
+              'location.address': foundRental.location?.address,
+              'address': foundRental.address
+            });
+            console.log('🏨 Amenities data:', foundRental.amenities);
+            
+            // Set the first available image using helper function
+            const imageArray = getValidImages(foundRental);
+            if (imageArray.length > 0) {
+              setSelectedImage(imageArray[0]);
             }
+            console.log('🖼️ Available images:', imageArray);
+          } else {
+            console.warn('❌ No rental found with slug:', slug);
+            console.log('Available slugs:', result.data.map(r => r.propertyInfo?.slug));
           }
+        } else {
+          console.error('❌ Failed to fetch rental properties:', result.error);
         }
       } catch (error) {
-        console.error('Error fetching rental property:', error);
+        console.error('❌ Error fetching rental property:', error);
       } finally {
         setIsLoading(false);
       }
@@ -84,16 +133,6 @@ const RentalDetail = () => {
 
     fetchRental();
   }, [slug]);
-
-  const handleBookingSuccess = (bookingId) => {
-    alert(`Booking request submitted successfully! Reference ID: ${bookingId}. You will receive a confirmation email soon.`);
-    setShowBookingForm(false);
-    // Reset form fields
-    setCheckInDate('');
-    setCheckOutDate('');
-    setSelectedGuests(1);
-    setGuestMessage('');
-  };
 
   const handleBookingInputChange = (e) => {
     const { name, value, type } = e.target;
@@ -116,8 +155,17 @@ const RentalDetail = () => {
 
   const calculateDetailedPricing = () => {
     const nights = calculateStayDuration();
-    const baseRate = nights * (rental.propertyInfo?.pricePerNight || 0);
-    const cleaningFee = 200;
+    // Handle different pricing formats from database
+    let baseNightlyRate = 0;
+    
+    if (rental.propertyInfo?.pricePerNight) {
+      baseNightlyRate = parseFloat(rental.propertyInfo.pricePerNight);
+    } else {
+      baseNightlyRate = 100; // Default fallback
+    }
+    
+    const baseRate = nights * baseNightlyRate;
+    const cleaningFee = 200; // Fixed cleaning fee
     const serviceFee = Math.round(baseRate * 0.05); // 5% service fee
     const taxes = Math.round((baseRate + cleaningFee + serviceFee) * 0.125); // 12.5% VI tax
     const totalAmount = baseRate + cleaningFee + serviceFee + taxes;
@@ -195,10 +243,81 @@ const RentalDetail = () => {
         expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000) // Expires in 48 hours
       };
 
+      // Submit booking request to Firebase
       const result = await addBookingRequest(rental.id, bookingRequest);
       
       if (result.success) {
-        alert(`Booking request submitted successfully! Reference ID: ${result.id}`);
+        // Send email notifications
+        try {
+          // Get agent email - check multiple possible locations
+          const agentEmail = rental?.agentInfo?.email || 
+                           rental?.agentEmail || 
+                           'agent.demo@340realestate.com'; // Fallback to demo email
+
+          console.log('Sending booking notification to agent:', agentEmail);
+          
+          // Send notification to agent
+          const agentEmailResult = await sendBookingNotificationToAgent(
+            bookingRequest, 
+            rental, 
+            agentEmail
+          );
+
+          if (agentEmailResult.success) {
+            console.log('✅ Agent notification sent successfully:', agentEmailResult.message);
+          } else {
+            console.error('❌ Failed to send agent notification:', agentEmailResult.error);
+          }
+
+          // Send confirmation to guest
+          const guestEmailResult = await sendBookingConfirmationToGuest(
+            bookingRequest, 
+            rental
+          );
+
+          if (guestEmailResult.success) {
+            console.log('✅ Guest confirmation sent successfully:', guestEmailResult.message);
+          } else {
+            console.error('❌ Failed to send guest confirmation:', guestEmailResult.error);
+          }
+
+          // Show success message with email info
+          const emailInfo = agentEmailResult.emailInfo;
+          const successMessage = emailInfo 
+            ? `🎉 Booking request submitted successfully!
+
+📧 Agent Notification: The property agent (${emailInfo.agentName}) has been notified at ${emailInfo.sentTo}
+
+🏡 Property: ${emailInfo.propertyName}
+📋 Reference ID: ${result.id}
+
+You will receive a response within 24 hours. A confirmation email has also been sent to ${bookingData.email}.
+
+💡 Payment Terms: 50% deposit required within 7-9 days to secure reservation. Balance due 60 days prior to arrival.`
+            : `🎉 Booking request submitted successfully!
+
+📋 Reference ID: ${result.id}
+
+The property owner has been notified and will respond within 24 hours.`;
+
+          alert(successMessage);
+
+        } catch (emailError) {
+          console.error('Email sending error:', emailError);
+          
+          // Even if email fails, booking was still submitted successfully
+          const fallbackMessage = `✅ Booking request submitted successfully!
+
+📋 Reference ID: ${result.id}
+
+Your booking request has been saved to our system and will be processed manually.
+
+⚠️ Note: There was an issue sending email notifications, but your booking request is still valid.
+
+📞 For immediate assistance, contact us at +1 (340) 555-0123.`;
+
+          alert(fallbackMessage);
+        }
         
         // Reset form
         setBookingData({
@@ -270,22 +389,51 @@ const RentalDetail = () => {
   ];
 
   return (
-    <div className=" mx-auto px-4 py-12">
+    <>
+      {/* SEO Meta Tags */}
+      {rental && (
+        <SEOHead
+          title={generateSEOTitle(rental.propertyInfo?.name || 'Luxury Vacation Rental', 'St. John USVI', rental.propertyInfo?.type)}
+          description={generateSEODescription(rental, 'rental')}
+          keywords={generateKeywords(rental, 'rental', ['vacation rental st john', 'usvi villa rental', 'caribbean vacation home'])}
+          image={rental.media?.imageLinks?.[0] || (typeof window !== 'undefined' ? `${window.location.origin}/images/hero1.jpeg` : '')}
+          url={typeof window !== 'undefined' ? window.location.href : ''}
+          type="product"
+          price={rental.propertyInfo?.pricePerNight || rental.pricing?.nightly}
+          currency="USD"
+          availability="instock"
+          jsonLd={generateRentalJsonLd(rental)}
+        />
+      )}
+      
+      <div className=" mx-auto px-4 py-12">
       {/* Immersive Full-Screen Hero Gallery */}
-      {rental.media?.imageLinks && rental.media.imageLinks.length > 0 && (
+      {getValidImages(rental).length > 0 && (
         <div className="relative -mx-4 -mt-12 mb-16">
           {/* Full-Screen Hero Section */}
           <div className="relative h-screen min-h-[600px] overflow-hidden">
             {/* Dynamic Background Image */}
             <div className="absolute inset-0">
-              <img
-                src={selectedImage || rental.media.imageLinks[0]}
-                alt={`${rental.propertyInfo?.name || 'Rental Property'} - Hero view`}
-                className="w-full h-full object-cover animate-pulse-slow"
-                style={{
-                  animation: "fadeInScale 1.5s ease-out",
-                }}
-              />
+              {(() => {
+                const imageArray = getValidImages(rental);
+                const currentImage = selectedImage || (imageArray.length > 0 ? imageArray[0] : null);
+                
+                return currentImage ? (
+                  <img
+                    src={currentImage}
+                    alt={`${rental.propertyInfo?.name || 'Rental Property'} - Hero view`}
+                    className="w-full h-full object-cover animate-pulse-slow"
+                    loading="eager"
+                    style={{
+                      animation: "fadeInScale 1.5s ease-out",
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center">
+                    <div className="text-6xl opacity-50">🏠</div>
+                  </div>
+                );
+              })()}
 
               {/* Multiple Overlay Layers for Depth */}
               <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60"></div>
@@ -298,20 +446,23 @@ const RentalDetail = () => {
               {/* Top Section - Property Info */}
               <div className="text-white animate-fade-in-up">
                 <div className="max-w-4xl">
+                  <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-4 leading-tight animate-slide-in-left">
+                    {rental.propertyInfo?.name || 'Beautiful Rental Property'}
+                  </h1>
                   <p className="text-xl md:text-2xl text-gray-200 mb-6 animate-slide-in-left-delay">
-                    {/* ?{rental.propertyInfo?.type || 'Property Type'} • {rental.accommodation?.maxGuests || "N/A"} Guests */}
+                    {rental.propertyInfo?.type || 'Property Type'} • {rental.details?.maxOccupancy || "N/A"} Guests
                   </p>
 
                   <div className="flex flex-wrap gap-4 animate-slide-in-left-delay-2">
                     {accommodation.slice(0, 3).map((item, idx) => (
                       <div
                         key={idx}
-                        className="flex items-center gap-2  px-4 py-2 rounded-full"
+                        className="flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full"
                       >
-                        {/* <span className="text-white">{item.icon}</span> */}
-                        {/* <span className="text-white font-medium">
+                        <span className="text-white">{item.icon}</span>
+                        <span className="text-white font-medium">
                           {item.value}
-                        </span> */}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -322,42 +473,47 @@ const RentalDetail = () => {
               <div className="flex flex-col md:flex-row items-center justify-between gap-6 animate-fade-in-up-delay">
                 {/* Image Counter & Progress */}
                 <div className="flex items-center gap-4">
-                  <div className="bg-white/20 backdrop-blur-md text-white px-6 py-3 rounded-full font-semibold">
-                    {rental.media.imageLinks.indexOf(selectedImage || rental.media.imageLinks[0]) + 1}{" "}
-                    of {rental.media.imageLinks.length}
-                  </div>
+                  {(() => {
+                    const imageArray = getValidImages(rental);
+                    const currentImage = selectedImage || (imageArray.length > 0 ? imageArray[0] : null);
+                    const currentIndex = currentImage ? imageArray.indexOf(currentImage) : 0;
+                    const totalImages = imageArray.length;
+                    
+                    return totalImages > 0 ? (
+                      <>
+                        <div className="bg-white/20 backdrop-blur-md text-white px-6 py-3 rounded-full font-semibold">
+                          {currentIndex + 1} of {totalImages}
+                        </div>
 
-                  <div className="hidden md:block w-32 h-1 bg-white/30 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-white transition-all duration-500 ease-out"
-                      style={{
-                        width: `${
-                          ((rental.media.imageLinks.indexOf(
-                            selectedImage || rental.media.imageLinks[0]
-                          ) +
-                            1) /
-                            rental.media.imageLinks.length) *
-                          100
-                        }%`,
-                      }}
-                    ></div>
-                  </div>
+                        <div className="hidden md:block w-32 h-1 bg-white/30 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-white transition-all duration-500 ease-out"
+                            style={{
+                              width: `${((currentIndex + 1) / totalImages) * 100}%`,
+                            }}
+                          ></div>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="bg-white/20 backdrop-blur-md text-white px-6 py-3 rounded-full font-semibold">
+                        1 of 1
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {/* Navigation Controls */}
                 <div className="flex items-center gap-4">
                   <button
                     onClick={() => {
-                      const currentIndex = rental.media.imageLinks.indexOf(
-                        selectedImage || rental.media.imageLinks[0]
-                      );
-
-                      const prevIndex =
-                        currentIndex === 0
-                          ? rental.media.imageLinks.length - 1
-                          : currentIndex - 1;
-
-                      setSelectedImage(rental.media.imageLinks[prevIndex]);
+                      const imageArray = getValidImages(rental);
+                      
+                      if (imageArray.length > 1) {
+                        const currentImage = selectedImage || imageArray[0];
+                        const currentIndex = imageArray.indexOf(currentImage);
+                        const prevIndex = currentIndex === 0 ? imageArray.length - 1 : currentIndex - 1;
+                        setSelectedImage(imageArray[prevIndex]);
+                      }
                     }}
                     className="group bg-white/20 hover:bg-white/30 backdrop-blur-md text-white rounded-full p-4 transition-all duration-300 hover:scale-110 hover:shadow-2xl"
                   >
@@ -397,16 +553,14 @@ const RentalDetail = () => {
 
                   <button
                     onClick={() => {
-                      const currentIndex = rental.media.imageLinks.indexOf(
-                        selectedImage || rental.media.imageLinks[0]
-                      );
-
-                      const nextIndex =
-                        currentIndex === rental.media.imageLinks.length - 1
-                          ? 0
-                          : currentIndex + 1;
-
-                      setSelectedImage(rental.media.imageLinks[nextIndex]);
+                      const imageArray = getValidImages(rental);
+                      
+                      if (imageArray.length > 1) {
+                        const currentImage = selectedImage || imageArray[0];
+                        const currentIndex = imageArray.indexOf(currentImage);
+                        const nextIndex = currentIndex === imageArray.length - 1 ? 0 : currentIndex + 1;
+                        setSelectedImage(imageArray[nextIndex]);
+                      }
                     }}
                     className="group bg-white/20 hover:bg-white/30 backdrop-blur-md text-white rounded-full p-4 transition-all duration-300 hover:scale-110 hover:shadow-2xl"
                   >
@@ -431,31 +585,37 @@ const RentalDetail = () => {
             {/* Floating Thumbnail Strip */}
             <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
               <div className="flex gap-3 overflow-x-auto max-w-4xl px-4 pb-2 scrollbar-hide">
-                {rental.media.imageLinks.map((image, index) => (
-                  <div
-                    key={index}
-                    className={`relative flex-shrink-0 cursor-pointer transition-all duration-500 transform hover:scale-110 ${
-                      (selectedImage || rental.media.imageLinks[0]) === image
-                        ? "ring-4 ring-white ring-offset-2 scale-110"
-                        : "hover:ring-2 hover:ring-white/50"
-                    }`}
-                    onClick={() => setSelectedImage(image)}
-                  >
-                    <img
-                      src={image}
-                      alt={`${rental.propertyInfo?.name} - Thumbnail ${index + 1}`}
-                      className="w-16 h-12 md:w-20 md:h-14 object-cover rounded-lg shadow-2xl"
-                    />
-
+                {(() => {
+                  const imageArray = getValidImages(rental);
+                  const currentImage = selectedImage || (imageArray.length > 0 ? imageArray[0] : null);
+                  
+                  return imageArray.map((image, index) => (
                     <div
-                      className={`absolute inset-0 rounded-lg transition-all duration-300 ${
-                        (selectedImage || rental.media.imageLinks[0]) === image
-                          ? "bg-white/30"
-                          : "bg-black/0 hover:bg-white/20"
+                      key={index}
+                      className={`relative flex-shrink-0 cursor-pointer transition-all duration-500 transform hover:scale-110 ${
+                        currentImage === image
+                          ? "ring-4 ring-white ring-offset-2 scale-110"
+                          : "hover:ring-2 hover:ring-white/50"
                       }`}
-                    ></div>
-                  </div>
-                ))}
+                      onClick={() => setSelectedImage(image)}
+                    >
+                      <img
+                        src={image}
+                        alt={`${rental.propertyInfo?.name} - Thumbnail ${index + 1}`}
+                        className="w-16 h-12 md:w-20 md:h-14 object-cover rounded-lg shadow-2xl"
+                        loading="lazy"
+                      />
+
+                      <div
+                        className={`absolute inset-0 rounded-lg transition-all duration-300 ${
+                          currentImage === image
+                            ? "bg-white/30"
+                            : "bg-black/0 hover:bg-white/20"
+                        }`}
+                      ></div>
+                    </div>
+                  ));
+                })()}
               </div>
             </div>
           </div>
@@ -463,7 +623,7 @@ const RentalDetail = () => {
       )}
 
       {/* No Images Fallback */}
-      {(!rental.media?.imageLinks || rental.media.imageLinks.length === 0) && (
+      {getValidImages(rental).length === 0 && (
         <div className="mb-16">
           <div className="relative h-[400px] overflow-hidden rounded-2xl shadow-2xl bg-gradient-to-br from-gray-100 to-gray-200">
             <div className="absolute inset-0 flex items-center justify-center">
@@ -497,18 +657,14 @@ const RentalDetail = () => {
             </button>
 
             {/* Navigation buttons */}
-            {rental && rental.media.imageLinks && rental.media.imageLinks.length > 1 && (
+            {getValidImages(rental).length > 1 && (
               <>
                 <button
                   onClick={() => {
-                    const currentIndex = rental.media.imageLinks.indexOf(selectedImage);
-
-                    const prevIndex =
-                      currentIndex === 0
-                        ? rental.media.imageLinks.length - 1
-                        : currentIndex - 1;
-
-                    setSelectedImage(rental.media.imageLinks[prevIndex]);
+                    const imageArray = getValidImages(rental);
+                    const currentIndex = imageArray.indexOf(selectedImage);
+                    const prevIndex = currentIndex === 0 ? imageArray.length - 1 : currentIndex - 1;
+                    setSelectedImage(imageArray[prevIndex]);
                   }}
                   className="absolute left-6 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 transition-all duration-300 z-20 bg-black/50 backdrop-blur-sm rounded-full p-4 hover:bg-black/70 hover:scale-110"
                 >
@@ -529,14 +685,10 @@ const RentalDetail = () => {
 
                 <button
                   onClick={() => {
-                    const currentIndex = rental.media.imageLinks.indexOf(selectedImage);
-
-                    const nextIndex =
-                      currentIndex === rental.media.imageLinks.length - 1
-                        ? 0
-                        : currentIndex + 1;
-
-                    setSelectedImage(rental.media.imageLinks[nextIndex]);
+                    const imageArray = getValidImages(rental);
+                    const currentIndex = imageArray.indexOf(selectedImage);
+                    const nextIndex = currentIndex === imageArray.length - 1 ? 0 : currentIndex + 1;
+                    setSelectedImage(imageArray[nextIndex]);
                   }}
                   className="absolute right-6 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 transition-all duration-300 z-20 bg-black/50 backdrop-blur-sm rounded-full p-4 hover:bg-black/70 hover:scale-110"
                 >
@@ -563,22 +715,26 @@ const RentalDetail = () => {
                 src={selectedImage}
                 alt="Fullscreen view"
                 className="max-w-full max-h-[85vh] object-contain  shadow-2xl"
+                loading="lazy"
               />
 
               {/* Image counter */}
-              {rental && rental.media.imageLinks && rental.media.imageLinks.length > 1 && (
+              {getValidImages(rental).length > 1 && (
                 <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 text-white bg-black/70 backdrop-blur-sm px-6 py-3 rounded-full text-lg font-medium">
-                  {rental.media.imageLinks.indexOf(selectedImage) + 1} of{" "}
-                  {rental.media.imageLinks.length}
+                  {(() => {
+                    const imageArray = getValidImages(rental);
+                    const currentIndex = imageArray.indexOf(selectedImage);
+                    return `${currentIndex + 1} of ${imageArray.length}`;
+                  })()}
                 </div>
               )}
             </div>
 
             {/* Thumbnail Strip */}
-            {rental && rental.media.imageLinks && rental.media.imageLinks.length > 1 && (
+            {getValidImages(rental).length > 1 && (
               <div className="mt-8 flex justify-center">
                 <div className="flex gap-3 overflow-x-auto max-w-4xl pb-4 scrollbar-hide">
-                  {rental.media.imageLinks.map((image, index) => (
+                  {getValidImages(rental).map((image, index) => (
                     <div
                       key={index}
                       className={`relative flex-shrink-0 cursor-pointer transition-all duration-300 ${
@@ -592,6 +748,7 @@ const RentalDetail = () => {
                         src={image}
                         alt={`Thumbnail ${index + 1}`}
                         className="w-16 h-12 object-cover rounded-lg shadow-lg"
+                        loading="lazy"
                       />
 
                       <div
@@ -615,12 +772,20 @@ const RentalDetail = () => {
         <div className="flex-1 space-y-6">
           <h1 className="text-3xl font-bold text-gray-800">{rental.propertyInfo?.name || 'Unnamed Property'}</h1>
 
-          <p className="text-gray-500 italic flex pr-4">
-            <MapPin />
-            {rental.propertyInfo?.address || 'Address not available'}
-          </p>
+          <div className="flex flex-col space-y-2">
+            <p className="text-gray-500 italic flex items-center gap-2">
+              <MapPin size={16} />
+              {rental.propertyInfo?.address || rental.location?.address || rental.address || 'Address not available'}
+            </p>
+            {(rental.location?.city || rental.location?.state) && (
+              <p className="text-gray-600 text-sm ml-6">
+                {[rental.location?.city, rental.location?.state].filter(Boolean).join(', ')}
+                {rental.location?.zipCode && ` ${rental.location.zipCode}`}
+              </p>
+            )}
+          </div>
 
-          {/* <p className="text-blue-700 font-semibold">{rental.propertyInfo?.type || 'Property Type'}</p> */}
+          <p className="text-blue-700 font-semibold">{rental.propertyInfo?.type || 'Property Type'}</p>
 
           {/* Accommodation */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
@@ -646,25 +811,152 @@ const RentalDetail = () => {
 
           {/* Description */}
           <div className="prose max-w-none text-gray-700 text-base leading-relaxed space-y-4">
-            {rental.description && (
-              <p>{rental.description}</p>
+            {(rental.propertyInfo?.description || rental.description) && (
+              <p>{rental.propertyInfo?.description || rental.description}</p>
             )}
           </div>
 
+          {/* Debug Section - Remove this in production */}
+         
+          {/* Property Details */}
+          {(rental.details?.squareFeet || rental.details?.yearBuilt || rental.location?.neighborhood) && (
+            <div className="mt-10">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">Property Details</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {rental.details?.squareFeet && (
+                  <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-4">
+                    <h3 className="font-semibold text-gray-800 mb-1">Square Feet</h3>
+                    <p className="text-gray-600">{rental.details.squareFeet} sq ft</p>
+                  </div>
+                )}
+                {rental.details?.yearBuilt && (
+                  <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-4">
+                    <h3 className="font-semibold text-gray-800 mb-1">Year Built</h3>
+                    <p className="text-gray-600">{rental.details.yearBuilt}</p>
+                  </div>
+                )}
+                {rental.location?.neighborhood && (
+                  <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-4">
+                    <h3 className="font-semibold text-gray-800 mb-1">Neighborhood</h3>
+                    <p className="text-gray-600">{rental.location.neighborhood}</p>
+                  </div>
+                )}
+                {rental.details?.furnished !== undefined && (
+                  <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-4">
+                    <h3 className="font-semibold text-gray-800 mb-1">Furnished</h3>
+                    <p className="text-gray-600">{rental.details.furnished ? 'Yes' : 'No'}</p>
+                  </div>
+                )}
+                {rental.location?.zipCode && (
+                  <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-4">
+                    <h3 className="font-semibold text-gray-800 mb-1">Zip Code</h3>
+                    <p className="text-gray-600">{rental.location.zipCode}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Pricing Information */}
+          {rental.pricing && (
+            <div className="mt-10">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">Pricing</h2>
+              <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {rental.pricing.nightly && (
+                    <div className="text-center p-4 bg-blue-50 rounded-lg">
+                      <h3 className="font-semibold text-gray-800 mb-1">Nightly Rate</h3>
+                      <p className="text-2xl font-bold text-blue-600">${rental.pricing.nightly}</p>
+                    </div>
+                  )}
+                  {rental.pricing.weekly && (
+                    <div className="text-center p-4 bg-green-50 rounded-lg">
+                      <h3 className="font-semibold text-gray-800 mb-1">Weekly Rate</h3>
+                      <p className="text-2xl font-bold text-green-600">${rental.pricing.weekly}</p>
+                    </div>
+                  )}
+                  {rental.pricing.monthly && (
+                    <div className="text-center p-4 bg-purple-50 rounded-lg">
+                      <h3 className="font-semibold text-gray-800 mb-1">Monthly Rate</h3>
+                      <p className="text-2xl font-bold text-purple-600">${rental.pricing.monthly}</p>
+                    </div>
+                  )}
+                </div>
+                
+                {(rental.pricing.cleaningFee || rental.pricing.securityDeposit) && (
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <h4 className="font-semibold text-gray-800 mb-3">Additional Fees</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                      {rental.pricing.cleaningFee && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Cleaning Fee:</span>
+                          <span className="font-medium">${rental.pricing.cleaningFee}</span>
+                        </div>
+                      )}
+                      {rental.pricing.securityDeposit && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Security Deposit:</span>
+                          <span className="font-medium">${rental.pricing.securityDeposit}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Amenities */}
-          {rental.amenities && rental.amenities.length > 0 && (
+          {(rental.amenities || rental.propertyInfo?.amenities || rental.features) && (
             <div className="mt-10">
               <h2 className="text-2xl font-bold text-gray-800 mb-6">Amenities</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4">
-                {rental.amenities.map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-start gap-3 bg-white border border-gray-200 rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow"
-                  >
-                    <CheckCircle className="text-green-600 mt-1" size={20} />
-                    <span className="text-gray-700 font-medium">{item}</span>
-                  </div>
-                ))}
+                {(() => {
+                  const amenitiesList = [];
+                  
+                  // Try different possible locations for amenities
+                  const amenitiesData = rental.amenities || rental.propertyInfo?.amenities || rental.features;
+                  console.log('🏨 Processing amenities:', amenitiesData, 'Type:', typeof amenitiesData);
+                  
+                  if (Array.isArray(amenitiesData)) {
+                    // Handle array format
+                    console.log('📋 Amenities is array:', amenitiesData);
+                    amenitiesData.forEach(item => {
+                      if (item && typeof item === 'string' && item.trim() !== '') {
+                        amenitiesList.push(item.trim());
+                      }
+                    });
+                  } else if (typeof amenitiesData === 'object' && amenitiesData !== null) {
+                    // Handle object format with boolean values
+                    console.log('📋 Amenities is object:', amenitiesData);
+                    Object.entries(amenitiesData).forEach(([key, value]) => {
+                      if (value === true || value === 'true' || value === 1) {
+                        const readableKey = key
+                          .replace(/([A-Z])/g, ' $1')
+                          .replace(/^./, str => str.toUpperCase())
+                          .trim();
+                        amenitiesList.push(readableKey);
+                      }
+                    });
+                  }
+                  
+                  console.log('✅ Final amenities list:', amenitiesList);
+
+                  return amenitiesList.length > 0 ? amenitiesList.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-start gap-3 bg-white border border-gray-200 rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow"
+                    >
+                      <CheckCircle className="text-green-600 mt-1" size={20} />
+                      <span className="text-gray-700 font-medium">{item}</span>
+                    </div>
+                  )) : (
+                    <div className="col-span-full text-center text-gray-500 py-8">
+                      <p>Amenities information will be available soon.</p>
+                      <p className="text-xs mt-2">Debug: {JSON.stringify(amenitiesData)}</p>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           )}
@@ -730,7 +1022,7 @@ const RentalDetail = () => {
               <div className="flex items-center gap-2">
                 <span className="font-medium">Smoking:</span>
 
-                {rental.smoking ? (
+                {rental.details?.smokingAllowed ? (
                   <span className="text-green-600 font-semibold">Allowed</span>
                 ) : (
                   <span className="text-red-500 font-semibold">
@@ -742,7 +1034,7 @@ const RentalDetail = () => {
               <div className="flex items-center gap-2">
                 <span className="font-medium">Pets:</span>
 
-                {rental.pets ? (
+                {rental.details?.petFriendly ? (
                   <span className="text-green-600 font-semibold">Allowed</span>
                 ) : (
                   <span className="text-red-500 font-semibold">
@@ -754,7 +1046,7 @@ const RentalDetail = () => {
               <div className="flex items-center gap-2">
                 <span className="font-medium">Party:</span>
 
-                {rental.party ? (
+                {rental.policies?.partyAllowed ? (
                   <span className="text-green-600 font-semibold">Allowed</span>
                 ) : (
                   <span className="text-red-500 font-semibold">
@@ -766,7 +1058,7 @@ const RentalDetail = () => {
               <div className="flex items-center gap-2">
                 <span className="font-medium">Children:</span>
 
-                {rental.children ? (
+                {rental.policies?.childrenAllowed ? (
                   <span className="text-green-600 font-semibold">Allowed</span>
                 ) : (
                   <span className="text-red-500 font-semibold">
@@ -778,23 +1070,76 @@ const RentalDetail = () => {
               {/* Policies */}
               <div className="flex flex-col">
                 <span className="font-medium">Cancellation Policy:</span>
-
-                <span>{rental.cancellationPolicy || 'Standard cancellation policy applies'}</span>
+                <span>{rental.policies?.cancellationPolicy || 'Standard cancellation policy applies'}</span>
               </div>
 
               <div className="flex flex-col">
                 <span className="font-medium">Damage Policy:</span>
-
-                <span>{rental.damagePolicy || 'Standard damage policy applies'}</span>
+                <span>{rental.policies?.damagePolicy || 'Standard damage policy applies'}</span>
               </div>
 
-              {/* Additional Notes */}
-              {rental.notes && (
-                <div className="mt-8">
-                  <h3 className="text-lg font-bold text-gray-800 mb-2">Notes:</h3>
+              {/* House Rules */}
+              {rental.policies?.houseRules && (
+                <div className="flex flex-col">
+                  <span className="font-medium">House Rules:</span>
+                  <span>{rental.policies.houseRules}</span>
+                </div>
+              )}
 
-                  <div className=" rounded-lg p-6">
-                    <p className="text-sm leading-relaxed text-gray-700">{rental.notes}</p>
+              {/* Check-in/out Information */}
+              <div className="flex flex-col">
+                <span className="font-medium">Check-in Time:</span>
+                <span>{rental.details?.checkInTime || '3:00 PM'}</span>
+              </div>
+
+              <div className="flex flex-col">
+                <span className="font-medium">Check-out Time:</span>
+                <span>{rental.details?.checkOutTime || '11:00 AM'}</span>
+              </div>
+
+              {rental.details?.minimumStay && (
+                <div className="flex flex-col">
+                  <span className="font-medium">Minimum Stay:</span>
+                  <span>{rental.details.minimumStay} night{rental.details.minimumStay > 1 ? 's' : ''}</span>
+                </div>
+              )}
+
+              {/* Pricing Information */}
+              {rental.pricing?.securityDeposit && (
+                <div className="flex flex-col">
+                  <span className="font-medium">Security Deposit:</span>
+                  <span>${rental.pricing.securityDeposit}</span>
+                </div>
+              )}
+              
+              {rental.pricing?.cleaningFee && (
+                <div className="flex flex-col">
+                  <span className="font-medium">Cleaning Fee:</span>
+                  <span>${rental.pricing.cleaningFee}</span>
+                </div>
+              )}
+
+              {/* Additional Notes */}
+              {rental.propertyInfo?.description && (
+                <div className="mt-8">
+                  <h3 className="text-lg font-bold text-gray-800 mb-2">Additional Information:</h3>
+                  <div className="rounded-lg p-6">
+                    <p className="text-sm leading-relaxed text-gray-700">{rental.propertyInfo.description}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Agent Information */}
+              {rental.agentInfo && (
+                <div className="mt-8">
+                  <h3 className="text-lg font-bold text-gray-800 mb-2">Listed by:</h3>
+                  <div className="rounded-lg p-6 bg-gray-50">
+                    <p className="text-sm leading-relaxed text-gray-700">
+                      <span className="font-medium">{rental.agentInfo.name}</span>
+                      {rental.agentInfo.email && (
+                        <span className="block text-gray-600">{rental.agentInfo.email}</span>
+                      )}
+                    </p>
                   </div>
                 </div>
               )}
@@ -806,13 +1151,11 @@ const RentalDetail = () => {
         <div className="lg:w-[400px] w-full sticky top-28 h-fit bg-white border rounded-xl shadow-xl p-6 space-y-6">
           <div>
             <h2 className="text-2xl font-bold text-green-600">
-              ${rental.propertyInfo?.pricePerNight || 'N/A'} / Weekly
+              ${rental.propertyInfo?.pricePerNight || 'N/A'} / Night
             </h2>
-            {rental.rates && (rental.rates.inSeason || rental.rates.offSeason) && (
-              <p className="text-sm text-gray-500 mt-1">
-                Dynamic pricing based on season and guests
-              </p>
-            )}
+            <div className="text-sm text-gray-500 mt-1">
+              <p>Dynamic pricing based on season and duration</p>
+            </div>
           </div>
 
           {bookingError && (
@@ -991,6 +1334,7 @@ const RentalDetail = () => {
       </div>
 
     </div>
+    </>
   );
 };
 

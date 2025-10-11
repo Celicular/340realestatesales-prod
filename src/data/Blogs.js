@@ -78,10 +78,10 @@ Our new website has a user-friendly, fully searchable database of all St. John p
 
 We are so proud of 340 Real Estate's new website, and we are excited to share all of this valuable information with you. Please check back here often to see what's new here at 340 Real Estate and what's happening around the island. You can find this page easily, simply by bookmarking it at [www.340realestate.com/blogs](https://340realestate.com/blogs).
 
-For more information about our services or to search properties, visit our website at [340realestatestjohn.com](https://340realestatestjohn.com) or contact us directly.
+For more information about our services or to search properties, visit our website at [340realestate.com](https://340realestate.com) or contact us directly.
 
 **Contact Information:**
-- Website: https://340realestatestjohn.com/
+- Website: https://340realestate.com/
 - Phone: +1 340-643-6068
 - Email: 340realestateco@gmail.com
 - Follow us on [Facebook](https://www.facebook.com/340realestateco/) and [Instagram](https://www.instagram.com/340realestateco/)
@@ -90,7 +90,7 @@ We look forward to helping you find your perfect piece of paradise in St. John!`
     coverImage: realestateintro,
     author: "340 Real Estate Team",
     publishedAt: "2025-10-04",
-    category: "Company News"
+    category: "Company News",
   },
   {
     id: "tenant-rights",

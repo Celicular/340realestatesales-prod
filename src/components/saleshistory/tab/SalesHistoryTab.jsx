@@ -468,12 +468,12 @@ const SalesHistoryTab = ({ data }) => {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="w-full h-[300px] md:h-[450px] mb-10"
+        className="w-full h-[300px] md:h-[450px] mb-10 px-6"
       >
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={chartData}
-            margin={{ top: 10, right: 20, left: 0, bottom: 10 }}
+            margin={{ top: 10, right: 20, left: 40, bottom: 10 }}
             barGap={8}
             barCategoryGap={20}
           >
@@ -558,7 +558,7 @@ const SalesHistoryTab = ({ data }) => {
         </table>
       </motion.div>
       <div className="pt-16 ">
-        <img src={chart} alt="chart" />
+        <img src={chart} alt="chart" loading="lazy" />
       </div>
     </div>
   );

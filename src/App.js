@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 
 import Header from "./components/Layout/Header";
 import Footer from "./components/Layout/Footer";
+import Breadcrumb from "./components/Layout/Breadcrumb";
 import ChatbotButton from "./components/Chatbot";
 import ScrollToTop from "./components/ScrollToTop";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
@@ -48,9 +49,13 @@ const AdminDashboard = lazy(() =>
 const AgentDashboard = lazy(() =>
   import("./components/dashboard/AgentDashboard")
 );
+const AgentRentalDashboard = lazy(() =>
+  import("./components/agent/AgentRentalDashboard")
+);
 const RegistrationTest = lazy(() =>
   import("./components/debug/RegistrationTest")
 );
+const DebugPage = lazy(() => import("./pages/DebugPage"));
 
 // Loading component
 const LoadingSpinner = () => (
@@ -67,6 +72,10 @@ function App() {
     <div className="App relative scroll-smooth">
       {/* 🌐 Header */}
       <Header />
+      
+      {/* 📍 Breadcrumb Navigation */}
+      <Breadcrumb />
+      
       <ScrollToTop />
       {/* 📄 Main Page Content */}
       <main>
@@ -79,6 +88,7 @@ function App() {
             <Route path="/incentives" element={<Insentive />} />
             <Route path="/testimonial" element={<Testimonial />} />
             <Route path="/villa-rentals/:slug" element={<VillaDetail />} />
+            <Route path="/villa/:slug" element={<VillaDetail />} />
             <Route path="/rental/:slug" element={<RentalDetail />} />
             <Route path="/saleshistory" element={<SalesHistory />} />
             <Route path="/contact" element={<Contactus />} />
@@ -104,6 +114,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/debug-registration" element={<RegistrationTest />} />
+            <Route path="/debug" element={<DebugPage />} />
 
             {/* Protected Dashboard Routes */}
             <Route
@@ -119,6 +130,14 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={["agent"]}>
                   <AgentDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/agent/rentals"
+              element={
+                <ProtectedRoute allowedRoles={["agent", "admin"]}>
+                  <AgentRentalDashboard />
                 </ProtectedRoute>
               }
             />

@@ -23,6 +23,12 @@ const USERS_COLLECTION = 'users';
 const BLOGS_COLLECTION = 'blogs';
 const CONTACTS_COLLECTION = 'contacts';
 const REVIEWS_COLLECTION = 'reviews'; // NEW: For testimonials/reviews
+const AGENTS_COLLECTION = 'agents'; // NEW: For agents collection
+
+// Portfolio Collections
+const RESIDENTIAL_PORTFOLIO = 'residentialPortfolio';
+const COMMERCIAL_PORTFOLIO = 'commercialPortfolio';
+const LAND_PORTFOLIO = 'landPortfolio';
 
 // Property operations
 export const addProperty = async (propertyData) => {
@@ -782,6 +788,279 @@ export const getAllBookingRequestsForAdmin = async () => {
     return { success: true, data: allBookingRequests };
   } catch (error) {
     console.error('Error fetching all booking requests:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+// ==========================================
+// PORTFOLIO MANAGEMENT FUNCTIONS
+// ==========================================
+
+// Add portfolio item
+export const addPortfolioItem = async (portfolioData, category) => {
+  try {
+    let collectionName;
+    switch (category) {
+      case 'residential':
+        collectionName = RESIDENTIAL_PORTFOLIO;
+        break;
+      case 'commercial':
+        collectionName = COMMERCIAL_PORTFOLIO;
+        break;
+      case 'land':
+        collectionName = LAND_PORTFOLIO;
+        break;
+      default:
+        return { success: false, error: 'Invalid portfolio category' };
+    }
+
+    const docRef = await addDoc(collection(db, collectionName), {
+      ...portfolioData,
+      category: category,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+    return { success: true, id: docRef.id };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+// Get portfolio items with filters
+export const getPortfolioItems = async (category, filters = {}) => {
+  try {
+    let collectionName;
+    switch (category) {
+      case 'residential':
+        collectionName = RESIDENTIAL_PORTFOLIO;
+        break;
+      case 'commercial':
+        collectionName = COMMERCIAL_PORTFOLIO;
+        break;
+      case 'land':
+        collectionName = LAND_PORTFOLIO;
+        break;
+      default:
+        return { success: false, error: 'Invalid portfolio category' };
+    }
+
+    let q = collection(db, collectionName);
+    
+    // Apply filters
+    if (filters.status) {
+      q = query(q, where('status', '==', filters.status));
+    }
+    if (filters.subcategory) {
+      q = query(q, where('subcategory', '==', filters.subcategory));
+    }
+    if (filters.minPrice) {
+      q = query(q, where('price', '>=', filters.minPrice));
+    }
+    if (filters.maxPrice) {
+      q = query(q, where('price', '<=', filters.maxPrice));
+    }
+
+    const querySnapshot = await getDocs(q);
+    const items = [];
+    
+    querySnapshot.forEach((doc) => {
+      items.push({ id: doc.id, ...doc.data() });
+    });
+
+    // Sort by creation date
+    items.sort((a, b) => {
+      const dateA = a.createdAt?.toDate?.() || new Date(a.createdAt) || new Date(0);
+      const dateB = b.createdAt?.toDate?.() || new Date(b.createdAt) || new Date(0);
+      return dateB - dateA;
+    });
+
+    return { success: true, data: items };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+// Update portfolio item
+export const updatePortfolioItem = async (category, itemId, updateData) => {
+  try {
+    let collectionName;
+    switch (category) {
+      case 'residential':
+        collectionName = RESIDENTIAL_PORTFOLIO;
+        break;
+      case 'commercial':
+        collectionName = COMMERCIAL_PORTFOLIO;
+        break;
+      case 'land':
+        collectionName = LAND_PORTFOLIO;
+        break;
+      default:
+        return { success: false, error: 'Invalid portfolio category' };
+    }
+
+    const docRef = doc(db, collectionName, itemId);
+    await updateDoc(docRef, {
+      ...updateData,
+      updatedAt: new Date()
+    });
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+// Delete portfolio item
+export const deletePortfolioItem = async (category, itemId) => {
+  try {
+    let collectionName;
+    switch (category) {
+      case 'residential':
+        collectionName = RESIDENTIAL_PORTFOLIO;
+        break;
+      case 'commercial':
+        collectionName = COMMERCIAL_PORTFOLIO;
+        break;
+      case 'land':
+        collectionName = LAND_PORTFOLIO;
+        break;
+      default:
+        return { success: false, error: 'Invalid portfolio category' };
+    }
+
+    await deleteDoc(doc(db, collectionName, itemId));
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+// Get all portfolio items across categories
+export const getAllPortfolioItems = async (filters = {}) => {
+  try {
+    const categories = ['residential', 'commercial', 'land'];
+    const allItems = [];
+
+    for (const category of categories) {
+      const result = await getPortfolioItems(category, filters);
+      if (result.success) {
+        allItems.push(...result.data.map(item => ({ ...item, category })));
+      }
+    }
+
+    // Sort all items by creation date
+    allItems.sort((a, b) => {
+      const dateA = a.createdAt?.toDate?.() || new Date(a.createdAt) || new Date(0);
+      const dateB = b.createdAt?.toDate?.() || new Date(b.createdAt) || new Date(0);
+      return dateB - dateA;
+    });
+
+    return { success: true, data: allItems };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+// ==========================================
+// AGENTS MANAGEMENT FUNCTIONS
+// ==========================================
+
+// Add agent
+export const addAgent = async (agentData) => {
+  try {
+    const docRef = await addDoc(collection(db, AGENTS_COLLECTION), {
+      ...agentData,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+    return { success: true, id: docRef.id };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+// Get all agents
+export const getAgents = async (filters = {}) => {
+  try {
+    let q = collection(db, AGENTS_COLLECTION);
+    
+    // Apply filters if needed
+    if (filters.status) {
+      q = query(q, where('status', '==', filters.status));
+    }
+    
+    const querySnapshot = await getDocs(q);
+    const agents = [];
+    
+    querySnapshot.forEach((doc) => {
+      agents.push({ id: doc.id, ...doc.data() });
+    });
+
+    // Sort by creation date or name
+    agents.sort((a, b) => {
+      if (filters.sortBy === 'name') {
+        return a.name.localeCompare(b.name);
+      }
+      const dateA = a.createdAt?.toDate?.() || new Date(a.createdAt) || new Date(0);
+      const dateB = b.createdAt?.toDate?.() || new Date(b.createdAt) || new Date(0);
+      return dateB - dateA;
+    });
+
+    return { success: true, data: agents };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+// Get single agent
+export const getAgent = async (agentId) => {
+  try {
+    const docRef = doc(db, AGENTS_COLLECTION, agentId);
+    const docSnap = await getDoc(docRef);
+    
+    if (docSnap.exists()) {
+      return { success: true, data: { id: docSnap.id, ...docSnap.data() } };
+    } else {
+      return { success: false, error: 'Agent not found' };
+    }
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+// Update agent
+export const updateAgent = async (agentId, updateData) => {
+  try {
+    const docRef = doc(db, AGENTS_COLLECTION, agentId);
+    await updateDoc(docRef, {
+      ...updateData,
+      updatedAt: new Date()
+    });
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+// Delete agent
+export const deleteAgent = async (agentId) => {
+  try {
+    await deleteDoc(doc(db, AGENTS_COLLECTION, agentId));
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+// Bulk add agents (for migration)
+export const bulkAddAgents = async (agentsArray) => {
+  try {
+    const results = [];
+    for (const agentData of agentsArray) {
+      const result = await addAgent(agentData);
+      results.push(result);
+    }
+    return { success: true, results };
+  } catch (error) {
     return { success: false, error: error.message };
   }
 };

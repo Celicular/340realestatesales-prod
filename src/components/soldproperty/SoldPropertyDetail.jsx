@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -18,7 +18,7 @@ import {
   Waves,
 } from "lucide-react";
 import { FaWhatsapp, FaMapMarkerAlt, FaRulerCombined, FaTree } from "react-icons/fa";
-import { soldProperties } from "../../data/SoldPropertydata";
+import { getSoldProperties } from "../../firebase/firestore";
 
 const SoldPropertyDetail = () => {
   const { id } = useParams();
@@ -27,9 +27,77 @@ const SoldPropertyDetail = () => {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
   const [showBookingModal, setShowBookingModal] = useState(false);
+  const [soldProperty, setSoldProperty] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Find the sold property by ID
-  const property = soldProperties.find((property) => property.id === id);
+  // Fetch sold property from Firestore
+  useEffect(() => {
+    const fetchSoldProperty = async () => {
+      try {
+        setLoading(true);
+        const result = await getSoldProperties();
+        if (result.success) {
+          const property = result.data.find(p => p.id === id);
+          if (property) {
+            setSoldProperty(property);
+          } else {
+            setError('Sold property not found');
+          }
+        } else {
+          setError(result.error || 'Failed to fetch sold properties');
+        }
+      } catch (err) {
+        setError('Error fetching sold property: ' + err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchSoldProperty();
+    }
+  }, [id]);
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">Loading sold property details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <p>Error: {error}</p>
+          </div>
+          <button 
+            onClick={() => navigate('/properties')}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 mr-2"
+          >
+            Back to Properties
+          </button>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Get the sold property
+  const property = soldProperty;
 
   // Agent data
   const agent = {

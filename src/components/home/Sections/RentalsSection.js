@@ -40,7 +40,7 @@ const RentalsSection = () => {
       rating: 4.5, // Default rating since backend doesn't have ratings yet
       image: property.media?.imageLinks?.[0] || "/placeholder-image.jpg",
       description: property.description?.split("\n")[0] || "Beautiful rental property",
-      amenities: property.amenities?.slice(0, 8) || [],
+      amenities: Array.isArray(property.amenities) ? property.amenities.slice(0, 8) : [],
       guests: property.accommodation?.maxGuests || "N/A",
       bedrooms: property.accommodation?.bedrooms || "N/A",
       bathrooms: property.accommodation?.bathrooms || "N/A",
@@ -237,7 +237,7 @@ const RentalsSection = () => {
 
                       {/* Amenities */}
                       <div className="grid grid-cols-2 gap-4 pt-6 border-t border-gray-200">
-                        {villa.amenities.slice(0, 4).map((amenity, index) => (
+                        {Array.isArray(villa.amenities) && villa.amenities.slice(0, 4).map((amenity, index) => (
                           <div
                             key={index}
                             className="flex items-center space-x-2"

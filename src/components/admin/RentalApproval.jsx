@@ -1,13 +1,20 @@
 import React, { useState, useEffect } from 'react';
+import { Mail, Send, CheckCircle, XCircle, Clock, AlertCircle } from 'lucide-react';
 import { getRentalProperties, updateRentalPropertyStatus, deleteRentalProperty } from '../../firebase/firestore';
+import { sendRentalApprovalEmail, sendRentalRejectionEmail, validateEmailConfiguration } from '../../services/emailService';
 
 const RentalApproval = () => {
   const [rentalProperties, setRentalProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('all');
+  const [emailConfig, setEmailConfig] = useState({ isValid: false });
+  const [emailLoading, setEmailLoading] = useState({});
 
   useEffect(() => {
     loadRentalProperties();
+    // Check email configuration on component mount
+    const config = validateEmailConfiguration();
+    setEmailConfig(config);
   }, [filterStatus]);
 
   const loadRentalProperties = async () => {
@@ -30,6 +37,10 @@ const RentalApproval = () => {
 
   const handleStatusUpdate = async (rentalId, newStatus, adminNotes = '') => {
     try {
+      // Find the rental property for email notification
+      const rentalProperty = rentalProperties.find(r => r.id === rentalId);
+      
+      // Update status in database
       const result = await updateRentalPropertyStatus(rentalId, newStatus, adminNotes);
       
       if (result.success) {
@@ -41,6 +52,32 @@ const RentalApproval = () => {
               : rental
           )
         );
+        
+        // Send email notification
+        if (rentalProperty && emailConfig.isValid) {
+          setEmailLoading(prev => ({ ...prev, [rentalId]: true }));
+          
+          try {
+            let emailResult;
+            if (newStatus === 'approved') {
+              emailResult = await sendRentalApprovalEmail(rentalProperty, adminNotes);
+            } else if (newStatus === 'rejected') {
+              emailResult = await sendRentalRejectionEmail(rentalProperty, adminNotes);
+            }
+            
+            if (emailResult?.success) {
+              console.log('✅ Email notification sent successfully');
+              // You could show a success message here
+            } else {
+              console.warn('⚠️ Email notification failed:', emailResult?.error);
+              // You could show a warning message here
+            }
+          } catch (emailError) {
+            console.error('❌ Email notification error:', emailError);
+          } finally {
+            setEmailLoading(prev => ({ ...prev, [rentalId]: false }));
+          }
+        }
         
         // Reload to get updated data
         loadRentalProperties();
@@ -109,9 +146,51 @@ const RentalApproval = () => {
 
   return (
     <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold text-gray-900">Rental Property Approvals</h3>
         
+        {/* Email Configuration Status */}
+        <div className="flex items-center gap-2">
+          {emailConfig.isValid ? (
+            <div className="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-800 rounded-lg">
+              <Mail className="h-4 w-4" />
+              <span className="text-sm font-medium">Email Enabled</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg">
+              <AlertCircle className="h-4 w-4" />
+              <span className="text-sm font-medium">Email Not Configured</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Email Server Warning */}
+      {!emailConfig.isValid && (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
+            <div>
+              <h4 className="text-sm font-medium text-yellow-800 mb-2">Email Server Not Available</h4>
+              <p className="text-sm text-yellow-700 mb-3">
+                To enable automatic email notifications for rental approvals/rejections, please start the email server:
+              </p>
+              <div className="bg-yellow-100 p-3 rounded text-xs font-mono text-yellow-800 space-y-1">
+                <div>cd server</div>
+                <div>npm install</div>
+                <div>cp .env.example .env</div>
+                <div># Edit .env with your dummy email credentials</div>
+                <div>npm start</div>
+              </div>
+              <p className="text-xs text-yellow-600 mt-2">
+                The server will run on port 3001 by default.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      <div className="flex justify-between items-center mb-6">
         {/* Filter */}
         <select
           value={filterStatus}
@@ -200,9 +279,20 @@ const RentalApproval = () => {
                 <div className="flex gap-3">
                   <button
                     onClick={() => handleStatusUpdate(rental.id, 'approved')}
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                    disabled={emailLoading[rental.id]}
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-green-400 transition-colors flex items-center gap-2"
                   >
-                    Approve
+                    {emailLoading[rental.id] ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        Approving...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="h-4 w-4" />
+                        Approve & Email
+                      </>
+                    )}
                   </button>
                   <button
                     onClick={() => {
@@ -211,9 +301,20 @@ const RentalApproval = () => {
                         handleStatusUpdate(rental.id, 'rejected', notes);
                       }
                     }}
-                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                    disabled={emailLoading[rental.id]}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-red-400 transition-colors flex items-center gap-2"
                   >
-                    Reject
+                    {emailLoading[rental.id] ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        Rejecting...
+                      </>
+                    ) : (
+                      <>
+                        <XCircle className="h-4 w-4" />
+                        Reject & Email
+                      </>
+                    )}
                   </button>
                 </div>
               )}

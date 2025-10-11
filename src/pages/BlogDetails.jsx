@@ -1,51 +1,56 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { motion } from "framer-motion";
-import { getBlog, updateBlog } from "../firebase/firestore";
-import hardcodedBlogs from "../data/Blogs";
+import { 
+  fetchBlogById, 
+  selectCurrentBlog, 
+  selectBlogsLoading, 
+  selectBlogsError,
+  clearCurrentBlog 
+} from "../redux/slices/blogslice";
+import { updateBlog } from "../firebase/firestore";
 import newImage from "../assets/new.jpg";
 import logo from "../assets/logo.png";
 
 const BlogDetails = () => {
   const { id } = useParams();
-  const [blog, setBlog] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const dispatch = useDispatch();
+  
+  // Redux state
+  const blog = useSelector(selectCurrentBlog);
+  const loading = useSelector(selectBlogsLoading);
+  const error = useSelector(selectBlogsError);
+  
+  const [viewsUpdated, setViewsUpdated] = useState(false);
 
   useEffect(() => {
-    const loadBlog = async () => {
-      try {
-        setLoading(true);
-
-        // First, check if it's a hardcoded blog
-        const hardcodedBlog = hardcodedBlogs.find((blog) => blog.id === id);
-
-        if (hardcodedBlog) {
-          // It's a hardcoded blog
-          setBlog(hardcodedBlog);
-          setLoading(false);
-          return;
-        }
-
-        // If not found in hardcoded blogs, try fetching from backend
-        const result = await getBlog(id);
-        if (result.success) {
-          setBlog(result.data);
-          // Increment view count for backend blogs only
-          await updateBlog(id, { views: (result.data.views || 0) + 1 });
-        } else {
-          setError(result.error);
-        }
-      } catch (err) {
-        setError("Failed to fetch blog");
-        console.error("Error fetching blog:", err);
-      } finally {
-        setLoading(false);
-      }
+    // Clear current blog on unmount
+    return () => {
+      dispatch(clearCurrentBlog());
     };
+  }, [dispatch]);
 
-    loadBlog();
-  }, [id]);
+  useEffect(() => {
+    if (id) {
+      dispatch(fetchBlogById(id));
+    }
+  }, [id, dispatch]);
+
+  useEffect(() => {
+    // Update view count for Firebase blogs only (once per visit)
+    if (blog && !blog.isHardcoded && !viewsUpdated && !loading) {
+      const updateViews = async () => {
+        try {
+          await updateBlog(blog.id, { views: (blog.views || 0) + 1 });
+          setViewsUpdated(true);
+        } catch (error) {
+          console.error('Error updating views:', error);
+        }
+      };
+      updateViews();
+    }
+  }, [blog, viewsUpdated, loading]);
 
   const formatDate = (dateField) => {
     if (!dateField) return "Recent";
@@ -207,6 +212,7 @@ const BlogDetails = () => {
                   src={newImage}
                   alt="340 Real Estate Team"
                   className="w-full h-[490px] object-cover rounded-2xl shadow-2xl"
+                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-2xl"></div>
               </div>
@@ -314,6 +320,7 @@ const BlogDetails = () => {
                   src={newImage}
                   alt="Tammy Donnelly - Broker and Owner"
                   className="h-48 w-auto object-contain rounded-lg shadow-lg bg-gray-50"
+                  loading="lazy"
                 />
               </div>
               <div className="flex-1">
@@ -389,6 +396,7 @@ const BlogDetails = () => {
                   src={finalImageSrc}
                   alt={altText}
                   className="max-w-sm w-full h-auto rounded-lg shadow-lg"
+                  loading="lazy"
                 />
               </div>
             );
@@ -458,6 +466,7 @@ const BlogDetails = () => {
             src={blog.coverImage}
             alt={blog.title}
             className="absolute inset-0 w-full h-full object-cover"
+            loading="eager"
           />
         ) : (
           <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-600 to-purple-700"></div>
@@ -537,6 +546,7 @@ const BlogDetails = () => {
                   src={logo} 
                   alt="340 Real Estate Logo" 
                   className="w-10 h-10 object-contain"
+                  loading="lazy"
                 />
               </div>
               <div>

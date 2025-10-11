@@ -17,7 +17,7 @@ import {
 import { FaWhatsapp } from "react-icons/fa";
 import MortgageCalculator from "../components/mortage/MortgageCalculator";
 import agentimage from "../assets/tammy.jpg";
-import { propertyData } from "../data/SalesData";
+import { getPortfolioItems } from "../firebase/firestore";
 
 const PropertyDetail = () => {
   const { id } = useParams();
@@ -27,14 +27,60 @@ const PropertyDetail = () => {
   const [selectedTime, setSelectedTime] = useState("");
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [bookingProperty, setBookingProperty] = useState(null);
+  const [currentProperty, setCurrentProperty] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch property data from Firestore
+  useEffect(() => {
+    const fetchProperty = async () => {
+      try {
+        setLoading(true);
+        // First try residential portfolio
+        let result = await getPortfolioItems('residential');
+        let property = null;
+        
+        if (result.success) {
+          property = result.data.find(p => p.id === id);
+        }
+        
+        // If not found in residential, try commercial
+        if (!property) {
+          result = await getPortfolioItems('commercial');
+          if (result.success) {
+            property = result.data.find(p => p.id === id);
+          }
+        }
+        
+        // If not found in commercial, try land
+        if (!property) {
+          result = await getPortfolioItems('land');
+          if (result.success) {
+            property = result.data.find(p => p.id === id);
+          }
+        }
+        
+        if (property) {
+          setCurrentProperty(property);
+        } else {
+          setError('Property not found');
+        }
+      } catch (err) {
+        setError('Error fetching property: ' + err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchProperty();
+    }
+  }, [id]);
 
   // Determine if this is a combo property (has internal tabs) or single property
   const isComboProperty =
     id === "combo" || id === "stillwater" || id === "ripple";
   const isSingleProperty = id === "doubleVision";
-
-  // Get the current property data
-  const currentProperty = propertyData[id];
 
   // Agent data
   const agent = {
@@ -92,6 +138,43 @@ const PropertyDetail = () => {
       alert("Please select both date and time.");
     }
   };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">Loading property details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <p>Error: {error}</p>
+          </div>
+          <button 
+            onClick={() => navigate('/properties')}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 mr-2"
+          >
+            Back to Properties
+          </button>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // If property not found
   if (!currentProperty) {

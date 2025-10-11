@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import villas from "../../data/Villas";
-import { selectVilla } from "../../redux/slices/villaSlice";
 import { getRentalProperties } from "../../firebase/firestore";
 import logo from "../../assets/logo.png";
 
@@ -14,7 +11,6 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [rentalProperties, setRentalProperties] = useState([]);
   const location = useLocation();
-  const dispatch = useDispatch();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -32,9 +28,14 @@ const Header = () => {
   useEffect(() => {
     const fetchRentalProperties = async () => {
       try {
+        console.log('🏘️ Fetching rental properties for header dropdown...');
         const result = await getRentalProperties({ status: "approved" });
         if (result.success) {
+          console.log('🏘️ Rental properties loaded:', result.data.length, 'properties');
+          console.log('🏘️ Sample rental property:', result.data[0]);
           setRentalProperties(result.data);
+        } else {
+          console.error('❌ Failed to fetch rental properties:', result.error);
         }
       } catch (error) {
         console.error("Error fetching rental properties for header:", error);
@@ -53,22 +54,19 @@ const Header = () => {
     {
       name: "Rentals ↴",
       children: [
-        // Premium Villas
-        // ...villas.map((villa) => ({
-        //   name: villa.name,
-        //   slug: villa.slug,
-        //   path: `/villa-rentals/${villa.slug}`,
-        // })),
+        // Header for Premium Villas
+        { name: "--- Premium Villas ---", path: "#", disabled: true },
         // Agent Listings (will be populated dynamically)
         ...(rentalProperties.length > 0
-          ? [
-              { name: "--- Agent Listings ---", path: "#", disabled: true },
-              ...rentalProperties.map((rental) => ({
-                name: rental.propertyInfo?.name || "Unnamed Property",
-                path: `/rental/${rental.propertyInfo?.slug || rental.id}`,
-              })),
-            ]
-          : []),
+          ? rentalProperties.map((rental, index) => {
+              const rentalName = rental.propertyInfo?.name || `Property ${index + 1}`;
+              const rentalSlug = rental.propertyInfo?.slug || rental.id;
+              return {
+                name: rentalName,
+                path: `/rental/${rentalSlug}`,
+              };
+            })
+          : [{ name: "Loading rental properties...", path: "#", disabled: true }]),
       ],
     },
 
@@ -283,40 +281,34 @@ const Header = () => {
               </span>
               {/* Dropdown */}
               <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg opacity-0 invisible group-hover:visible group-hover:opacity-100 group-hover:translate-y-1 transform transition-all duration-300 z-50 rounded-lg overflow-hidden">
-                {/* Existing Villas Section */}
+                {/* Premium Villas Header */}
                 <div className="bg-gray-50 px-3 py-2 border-b">
                   <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
                     Premium Villas
                   </span>
                 </div>
-                {/* {villas.map((villa) => (
-                  <Link
-                    key={villa.name}
-                    to={`/villa-rentals/${villa.slug}`}
-                    onClick={() => setIsMenuOpen(false)}
-                    className="block px-4 py-2 text-md font-barlow text-blue-800 font-semibold hover:text-blue-600 hover:bg-blue-50 border-b border-gray-100"
-                  >
-                    {villa.name}
-                  </Link>
-                ))} */}
 
-                {/* Rental Properties Section */}
-                {rentalProperties.length > 0 && (
-                  <>
-                    {/* <div className="bg-blue-50 px-3 py-2 border-b">
-                      <span className="text-xs font-semibold text-blue-600 uppercase tracking-wide">Agent Listings</span>
-                    </div> */}
-                    {rentalProperties.map((rental) => (
+                {/* Agent Listings */}
+                {rentalProperties.length > 0 ? (
+                  rentalProperties.map((rental, index) => {
+                    const rentalName = rental.propertyInfo?.name || `Property ${index + 1}`;
+                    const rentalSlug = rental.propertyInfo?.slug || rental.id;
+                    
+                    return (
                       <Link
                         key={rental.id}
-                        to={`/rental/${rental.propertyInfo?.slug || rental.id}`}
+                        to={`/rental/${rentalSlug}`}
                         onClick={() => setIsMenuOpen(false)}
                         className="block px-4 py-2 text-md font-barlow text-blue-800 font-semibold hover:text-blue-600 hover:bg-blue-50 border-b border-gray-100"
                       >
-                        {rental.propertyInfo?.name || "Unnamed Property"}
+                        {rentalName}
                       </Link>
-                    ))}
-                  </>
+                    );
+                  })
+                ) : (
+                  <div className="px-4 py-6 text-center">
+                    <p className="text-gray-500 text-sm">Loading rental properties...</p>
+                  </div>
                 )}
               </div>
             </div>
