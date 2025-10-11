@@ -71,6 +71,7 @@ const Footer = () => {
                 src={logo}
                 alt="340 Real Estate logo"
                 className="w-auto h-20"
+                loading="lazy"
               />
               <h3 className="text-2xl font-bold text-white">340 Real Estate</h3>
             </div>

@@ -2,30 +2,33 @@ import React, { useState, useMemo, useCallback, memo, useEffect } from "react";
 import { FaBed, FaBath, FaSwimmingPool } from "react-icons/fa";
 import { BsHouseDoorFill } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
-import { propertyData } from "../../data/SalesData";
-import { getSaleProperties } from "../../firebase/firestore";
+import { getAllPortfolioItems } from "../../firebase/firestore";
 
-// Transform SalesData to match the expected format - memoized
+// Transform Portfolio data to match the expected format - memoized
 const useProperties = (selectedCategory, propertiesToShow, filteredProperties) => {
-  const [firebaseProperties, setFirebaseProperties] = useState([]);
+  const [portfolioProperties, setPortfolioProperties] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProperties = async () => {
       try {
         setLoading(true);
-        console.log('Fetching Firebase properties...');
-        // Fetch only approved sale properties
-        const result = await getSaleProperties({ status: 'approved' });
-        console.log('Firebase fetch result:', result);
+        console.log('🔄 Fetching Portfolio properties for sale...');
+        
+        // Fetch portfolio items with for-sale status
+        const result = await getAllPortfolioItems({ status: 'for-sale' });
+        console.log('📦 Portfolio fetch result:', result);
+        
         if (result.success) {
-          console.log('Setting Firebase properties:', result.data);
-          setFirebaseProperties(result.data);
+          console.log('✅ Setting Portfolio properties:', result.data);
+          setPortfolioProperties(result.data);
         } else {
-          console.log('Firebase fetch failed:', result.error);
+          console.log('❌ Portfolio fetch failed:', result.error);
+          setPortfolioProperties([]);
         }
       } catch (error) {
-        console.error('Error fetching properties:', error);
+        console.error('💥 Error fetching portfolio properties:', error);
+        setPortfolioProperties([]);
       } finally {
         setLoading(false);
       }
@@ -35,73 +38,62 @@ const useProperties = (selectedCategory, propertiesToShow, filteredProperties) =
   }, []);
 
   return useMemo(() => {
-    console.log('useProperties - firebaseProperties:', firebaseProperties);
-    console.log('useProperties - selectedCategory:', selectedCategory);
-    console.log('useProperties - filteredProperties:', filteredProperties);
+    console.log('🏠 useProperties - portfolioProperties:', portfolioProperties);
+    console.log('🏷️ useProperties - selectedCategory:', selectedCategory);
     
-    // Transform Firebase data to match the expected format
-    const firebaseFormatted = firebaseProperties.map((property) => {
-      console.log('Processing Firebase property:', property);
+    // Transform Portfolio data to match the expected format
+    const portfolioFormatted = portfolioProperties.map((property) => {
+      console.log('🔄 Processing Portfolio property:', property);
       
       return {
         id: property.id,
-        title: property.propertyInfo?.title || property.title,
-        price: property.propertyInfo?.price || property.price,
-        images: property.media?.imageLinks || property.images || [],
-        description: property.description || property.fullDescription,
+        title: property.title,
+        price: typeof property.price === 'string' ? property.price : `$${property.price?.toLocaleString() || 'Price on request'}`,
+        images: property.images || [],
+        description: property.description || 'Beautiful property in St. John',
         features: {
           totalBeds: property.features?.beds || property.beds,
           totalBaths: property.features?.baths || property.baths,
-          pool: property.features?.pool || property.pool,
-          type: property.features?.type || property.type,
+          pool: property.features?.pool || false,
+          type: property.subcategory || property.category,
           properties: 1,
         },
-        category: property.propertyInfo?.category || property.category,
+        category: property.category,
+        subcategory: property.subcategory,
       };
     });
 
-    console.log('useProperties - firebaseFormatted:', firebaseFormatted);
+    console.log('✨ useProperties - portfolioFormatted:', portfolioFormatted);
 
-    // Filter Firebase properties by category if selected
-    let filteredFirebase = firebaseFormatted;
+    // Filter Portfolio properties by category if selected
+    let filteredPortfolio = portfolioFormatted;
     if (selectedCategory) {
-      console.log('Filtering by category:', selectedCategory);
-      console.log('Available Firebase categories:', firebaseFormatted.map(p => p.category));
+      console.log('🔍 Filtering by category:', selectedCategory);
+      console.log('📋 Available Portfolio categories:', portfolioFormatted.map(p => `${p.category}/${p.subcategory}`));
       
-      filteredFirebase = firebaseFormatted.filter(property => {
-        const matches = property.category?.toLowerCase() === selectedCategory.toLowerCase();
-        console.log(`Property "${property.title}" category: "${property.category}" matches "${selectedCategory}": ${matches}`);
+      filteredPortfolio = portfolioFormatted.filter(property => {
+        // Check both category and subcategory for matches
+        const categoryMatch = property.category?.toLowerCase() === selectedCategory.toLowerCase();
+        const subcategoryMatch = property.subcategory?.toLowerCase() === selectedCategory.toLowerCase();
+        const matches = categoryMatch || subcategoryMatch;
+        
+        console.log(`🏠 Property "${property.title}" (${property.category}/${property.subcategory}) matches "${selectedCategory}": ${matches}`);
         return matches;
       });
     }
 
-    console.log('useProperties - filteredFirebase:', filteredFirebase);
+    console.log('🎯 useProperties - filteredPortfolio:', filteredPortfolio);
 
-    // Get local properties (either filtered or limited)
-    const localProperties = filteredProperties || [];
-
-    console.log('useProperties - localProperties:', localProperties);
-
-    // Combine Firebase and local properties
-    const combinedProperties = [...filteredFirebase, ...localProperties];
-
-    console.log('useProperties - combinedProperties:', combinedProperties);
-
-    // If no category is selected and we have Firebase properties, limit the display
-    if (!selectedCategory && combinedProperties.length > propertiesToShow) {
-      const limitedProperties = combinedProperties.slice(0, propertiesToShow);
-      console.log('useProperties - limitedProperties:', limitedProperties);
+    // If no category is selected and we have properties, limit the display
+    if (!selectedCategory && filteredPortfolio.length > propertiesToShow) {
+      const limitedProperties = filteredPortfolio.slice(0, propertiesToShow);
+      console.log('📊 useProperties - limitedProperties:', limitedProperties);
       return limitedProperties;
     }
 
-    // If no properties at all, return local properties as fallback
-    if (combinedProperties.length === 0) {
-      console.log('useProperties - No properties found, using local fallback');
-      return localProperties;
-    }
-
-    return combinedProperties;
-  }, [firebaseProperties, selectedCategory, propertiesToShow, filteredProperties]);
+    // Return filtered portfolio properties
+    return filteredPortfolio;
+  }, [portfolioProperties, selectedCategory, propertiesToShow, filteredProperties]);
 };
 
 const PropertyCard = memo(({
@@ -230,15 +222,15 @@ const PropertyCard = memo(({
 });
 
 const PropertiesForSale = memo(({ selectedCategory, propertiesToShow, filteredProperties }) => {
-  // Use all properties from Firebase and local data
+  // Use all properties from Portfolio backend system
   const properties = useProperties(selectedCategory, propertiesToShow, filteredProperties);
   
-  console.log('PropertiesForSale - properties:', properties);
-  console.log('PropertiesForSale - selectedCategory:', selectedCategory);
-  console.log('PropertiesForSale - filteredProperties:', filteredProperties);
+  console.log('🏠 PropertiesForSale - properties from backend:', properties);
+  console.log('🏷️ PropertiesForSale - selectedCategory:', selectedCategory);
+  console.log('🔍 PropertiesForSale - filteredProperties:', filteredProperties);
   
   // Debug: Show if we have any properties at all
-  console.log('PropertiesForSale - Total properties to display:', properties.length);
+  console.log('📊 PropertiesForSale - Total properties to display:', properties.length);
 
   return (
     <div>
@@ -254,6 +246,7 @@ const PropertiesForSale = memo(({ selectedCategory, propertiesToShow, filteredPr
           <p className="text-gray-500 mt-4 max-w-2xl mx-auto">
             Discover elegant villas with modern upgrades, breathtaking views,
             and exceptional amenities — located in the heart of St. John.
+            <br />
           </p>
         </div>
 

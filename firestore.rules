@@ -62,5 +62,38 @@ service cloud.firestore {
     match /rentals/{rentalId} {
       allow read, write: if request.auth != null;
     }
+    
+    // Agents collection - public read, admin write
+    match /agents/{agentId} {
+      allow read: if true;
+      allow write: if request.auth != null && 
+        (request.auth.token.role == 'admin' || request.auth.token.role == 'agent');
+    }
+    
+    // Portfolio collections - public read, authenticated write
+    match /residentialPortfolio/{itemId} {
+      allow read: if true;
+      allow write: if request.auth != null && 
+        (request.auth.token.role == 'admin' || request.auth.token.role == 'agent');
+    }
+    
+    match /commercialPortfolio/{itemId} {
+      allow read: if true;
+      allow write: if request.auth != null && 
+        (request.auth.token.role == 'admin' || request.auth.token.role == 'agent');
+    }
+    
+    match /landPortfolio/{itemId} {
+      allow read: if true;
+      allow write: if request.auth != null && 
+        (request.auth.token.role == 'admin' || request.auth.token.role == 'agent');
+    }
+    
+    // Villa bookings collection
+    match /villaBookings/{bookingId} {
+      allow read: if request.auth != null && 
+        (request.auth.token.role == 'admin' || request.auth.token.role == 'agent');
+      allow write: if true; // Anyone can submit booking requests
+    }
   }
 }

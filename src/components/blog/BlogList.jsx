@@ -1,8 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { motion } from "framer-motion";
-import { getBlogs } from "../../firebase/firestore";
-import hardcodedBlogs from "../../data/Blogs";
+import { 
+  fetchBlogs, 
+  selectAllBlogs, 
+  selectBlogsLoading, 
+  selectBlogsError,
+  clearError 
+} from "../../redux/slices/blogslice";
 import blog1 from "../../assets/articles/340realestate-intro.jpg";
 import blog2 from "../../assets/articles/Honeymoon-Beach.jpg";
 import blog3 from "../../assets/articles/property-types-stjohn.jpg";
@@ -15,14 +21,14 @@ const heroImages = [
 ];
 
 const BlogList = () => {
-  const [backendBlogs, setBackendBlogs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // Combine backend blogs with hardcoded blogs
-  const allBlogs = [...backendBlogs, ...hardcodedBlogs];
+  // Redux state
+  const allBlogs = useSelector(selectAllBlogs);
+  const loading = useSelector(selectBlogsLoading);
+  const error = useSelector(selectBlogsError);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -32,31 +38,9 @@ const BlogList = () => {
   }, []);
 
   useEffect(() => {
-    fetchBlogs();
-  }, []);
-
-  const fetchBlogs = async () => {
-    try {
-      setLoading(true);
-      const result = await getBlogs(20);
-      if (result.success) {
-        // Filter only published blogs
-        const publishedBlogs = result.data.filter(blog => blog.status === 'published');
-        setBackendBlogs(publishedBlogs);
-      } else {
-        setError(result.error);
-        // If backend fails, we still have hardcoded blogs to show
-        setBackendBlogs([]);
-      }
-    } catch (err) {
-      setError('Failed to fetch blogs');
-      console.error('Error fetching blogs:', err);
-      // If backend fails, we still have hardcoded blogs to show
-      setBackendBlogs([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+    // Fetch blogs from Firebase on component mount
+    dispatch(fetchBlogs(20));
+  }, [dispatch]);
 
   const formatDate = (dateField) => {
     if (!dateField) return 'Recent';
@@ -79,14 +63,19 @@ const BlogList = () => {
   };
 
   const handleBlogClick = (blog) => {
-    // Check if it's a backend blog (has createdAt) or hardcoded blog (has id string)
-    if (blog.createdAt || blog.firebaseId) {
-      // Backend blog - navigate to dynamic route
+    // Check if it's a Firebase blog or hardcoded blog
+    if (blog.createdAt || blog.isHardcoded === false) {
+      // Firebase blog - navigate to dynamic route
       navigate(`/blog/${blog.id || blog.firebaseId}`);
     } else {
-      // Hardcoded blog - navigate to static route
+      // Hardcoded blog - navigate to static route  
       navigate(`/blog/${blog.id}`);
     }
+  };
+
+  const handleRetry = () => {
+    dispatch(clearError());
+    dispatch(fetchBlogs(20));
   };
 
   return (
@@ -122,9 +111,14 @@ const BlogList = () => {
         </div>
       ) : error ? (
         <div className="text-center py-20">
-          <p className="text-red-600 mb-4">{error}</p>
+          <p className="text-red-600 mb-4">
+            {error.includes('Failed to fetch') ? 
+              'Unable to load latest blogs. Showing available content.' : 
+              error
+            }
+          </p>
           <button
-            onClick={fetchBlogs}
+            onClick={handleRetry}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             Try Again
@@ -151,7 +145,9 @@ const BlogList = () => {
                 />
               ) : (
                 <div className="w-full h-48 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
-                  <span className="text-white text-lg font-semibold">{blog.title?.substring(0, 2).toUpperCase()}</span>
+                  <span className="text-white text-lg font-semibold">
+                    {blog.title?.substring(0, 2).toUpperCase()}
+                  </span>
                 </div>
               )}
               <div className="p-6 space-y-3">
@@ -192,11 +188,26 @@ const BlogList = () => {
                   <div className="flex space-x-3 text-xs text-gray-500">
                     <span>👁 {blog.views || 0}</span>
                     <span>❤ {blog.likes || 0}</span>
+                    {blog.isHardcoded === false && (
+                      <span className="bg-green-100 text-green-600 px-1 rounded text-xs">
+                        New
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
             </motion.div>
           ))}
+        </div>
+      )}
+      
+      {/* Show status if there are both Firebase and hardcoded blogs */}
+      {allBlogs.length > 0 && !loading && (
+        <div className="text-center py-8">
+          <p className="text-sm text-gray-500">
+            Showing {allBlogs.length} article{allBlogs.length !== 1 ? 's' : ''}
+            {error && ' (some content may be offline)'}
+          </p>
         </div>
       )}
     </div>

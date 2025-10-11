@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaMapMarkerAlt, FaRulerCombined, FaTree, FaWater } from "react-icons/fa";
 import { BsHouseDoorFill } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
-import { landSoldProperties } from "../../data/landSoldData";
+import { getSoldProperties } from "../../firebase/firestore";
 
 const LandSoldCard = ({
   id,
@@ -151,6 +151,64 @@ const LandSoldCard = ({
 };
 
 const LandSold = () => {
+  const [landSoldProperties, setLandSoldProperties] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchSoldProperties = async () => {
+      try {
+        setLoading(true);
+        const result = await getSoldProperties({ status: 'approved' });
+        
+        if (result.success) {
+          // Filter for land properties only
+          const landProperties = result.data.filter(property => 
+            property.category === 'land' || 
+            property.propertyType === 'land' ||
+            property.subcategory === 'land'
+          );
+          setLandSoldProperties(landProperties);
+        } else {
+          setError(result.error || 'Failed to fetch sold properties');
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSoldProperties();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="pb-20 px-4 lg:px-24 bg-gradient-to-br from-gray-50 to-white">
+        <div className="text-center py-20">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading sold land properties...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="pb-20 px-4 lg:px-24 bg-gradient-to-br from-gray-50 to-white">
+        <div className="text-center py-20">
+          <p className="text-red-600 mb-4">Error loading sold properties: {error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <section className="pb-20 px-4 lg:px-24 bg-gradient-to-br from-gray-50 to-white">
@@ -170,7 +228,7 @@ const LandSold = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {landSoldProperties && landSoldProperties.length > 0 ? (
               landSoldProperties.map((property, index) => (
-                <LandSoldCard key={index} {...property} />
+                <LandSoldCard key={property.id || index} {...property} />
               ))
             ) : (
               <div className="col-span-2 text-center py-8">

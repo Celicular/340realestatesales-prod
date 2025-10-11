@@ -17,7 +17,7 @@ import {
 import { FaWhatsapp } from "react-icons/fa";
 import MortgageCalculator from "../../components/mortage/MortgageCalculator";
 import agentimage from "../../assets/tammy.jpg";
-import { propertyData } from "../../data/SalesData";
+import { getAllPortfolioItems } from "../../firebase/firestore";
 
 const PropertyDetail = () => {
   const { id } = useParams();
@@ -27,16 +27,52 @@ const PropertyDetail = () => {
   const [selectedTime, setSelectedTime] = useState("");
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [activeTab, setActiveTab] = useState("combo");
+  const [currentProperty, setCurrentProperty] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch property from backend
+  useEffect(() => {
+    const fetchProperty = async () => {
+      try {
+        setLoading(true);
+        console.log('🔍 Fetching property with ID:', id);
+        
+        const result = await getAllPortfolioItems();
+        if (result.success) {
+          // Find the property by ID
+          const property = result.data.find(item => item.id === id);
+          if (property) {
+            console.log('✅ Found property:', property);
+            setCurrentProperty(property);
+          } else {
+            console.log('❌ Property not found with ID:', id);
+            setError('Property not found');
+          }
+        } else {
+          console.log('❌ Failed to fetch properties:', result.error);
+          setError('Failed to load property');
+        }
+      } catch (err) {
+        console.error('💥 Error fetching property:', err);
+        setError('Error loading property');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchProperty();
+    }
+  }, [id]);
 
   // Determine if this is a combo property (has internal tabs) or single property
-  const isComboProperty = id === "combo";
-  const isSingleProperty = !isComboProperty;
-
-  // Get the current property data
-  const currentProperty = propertyData[id];
+  const isComboProperty = currentProperty?.subcategory === "combo";
 
   // Get the active property details based on tab
   const getActivePropertyDetails = () => {
+    if (!currentProperty) return null;
+    
     if (!isComboProperty || !currentProperty?.propertyDetails) {
       return currentProperty;
     }
@@ -48,7 +84,7 @@ const PropertyDetail = () => {
         title: stillwaterData?.title || "Still Water Villa",
         description: stillwaterData?.description || currentProperty.description,
         fullDescription: stillwaterData?.fullDescription || currentProperty.fullDescription,
-        images: stillwaterData?.images || currentProperty.images.filter((_, index) => index % 2 === 0),
+        images: stillwaterData?.images || currentProperty.images?.filter((_, index) => index % 2 === 0) || [],
         features: {
           ...currentProperty.features,
           ...stillwaterData?.features,
@@ -137,6 +173,36 @@ const PropertyDetail = () => {
     }
   };
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading property details from backend...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <button
+            onClick={() => navigate("/properties")}
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Back to Properties
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // If property not found
   if (!currentProperty) {
     return (
@@ -146,7 +212,7 @@ const PropertyDetail = () => {
             Property Not Found
           </h2>
           <p className="text-gray-600 mb-6">
-            The requested property could not be found.
+            The requested property could not be found in our backend portfolio.
           </p>
           <button
             onClick={() => navigate("/properties")}

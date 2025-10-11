@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -18,7 +18,7 @@ import {
   Waves,
 } from "lucide-react";
 import { FaWhatsapp, FaMapMarkerAlt, FaRulerCombined, FaTree } from "react-icons/fa";
-import { landProperties } from "../../data/LandSaleData";
+import { getPortfolioItems } from "../../firebase/firestore";
 
 const LandPropertyDetail = () => {
   const { id } = useParams();
@@ -27,9 +27,38 @@ const LandPropertyDetail = () => {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
   const [showBookingModal, setShowBookingModal] = useState(false);
+  const [property, setProperty] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Find the land property by ID
-  const property = landProperties.find((property) => property.id === id);
+  // Fetch land property from Firestore
+  useEffect(() => {
+    const fetchProperty = async () => {
+      try {
+        setLoading(true);
+        const result = await getPortfolioItems('land');
+        
+        if (result.success) {
+          const foundProperty = result.data.find(prop => prop.id === id);
+          if (foundProperty) {
+            setProperty(foundProperty);
+          } else {
+            setError('Property not found');
+          }
+        } else {
+          setError(result.error || 'Failed to fetch property');
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchProperty();
+    }
+  }, [id]);
 
   // Agent data
   const agent = {
@@ -103,6 +132,36 @@ const LandPropertyDetail = () => {
     return 'Location not specified';
   };
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Loading Property...</h2>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Error</h2>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <button
+            onClick={() => navigate("/landproperties")}
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Back to Land Properties
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (!property) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -114,10 +173,10 @@ const LandPropertyDetail = () => {
             The requested land property could not be found.
           </p>
           <button
-            onClick={() => navigate("/properties")}
+            onClick={() => navigate("/landproperties")}
             className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
-            Back to Properties
+            Back to Land Properties
           </button>
         </div>
       </div>

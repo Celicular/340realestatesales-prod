@@ -4,15 +4,19 @@ import { ArrowLeft, MapPin, Mail, Phone } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 // import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { getAgents } from "../firebase/firestore";
 
 import teamhero from "../assets/teamcrop.jpg";
 
-import adonis1 from "../assets/agent/adronis/adronis1.jpg";
-import adonis2 from "../assets/agent/adronis/adronis2.jpg";
-import adonis3 from "../assets/agent/adronis/adronis3.jpg";
-import adonis5 from "../assets/agent/adronis/adronis5.jpg";
-import adonis4 from "../assets/agent/adronis/adronis4.jpg";
+// Tammy's images
+import tammy1 from "../assets/agent/tammy/tammy1.jpg";
+import tammy2 from "../assets/agent/tammy/tammy2.jpg";
+import tammy3 from "../assets/agent/tammy/tammy3.jpg";
+import tammy4 from "../assets/agent/tammy/tammy4.jpg";
+import tammy5 from "../assets/agent/tammy/tammy5.jpg";
+import tammy6 from "../assets/agent/tammy/tammy6.jpg";
 
+// Tina's images
 import tina1 from "../assets/agent/tina/tina1.jpg";
 import tina2 from "../assets/agent/tina/tina2.jpg";
 import tina3 from "../assets/agent/tina/tina3.jpg";
@@ -24,35 +28,62 @@ import tina8 from "../assets/agent/tina/tina8.jpg";
 import tina9 from "../assets/agent/tina/tina9.jpg";
 import tina10 from "../assets/agent/tina/tina10.png";
 
-import tammy1 from "../assets/agent/tammy/tammy1.jpg";
-import tammy2 from "../assets/agent/tammy/tammy2.jpg";
-import tammy3 from "../assets/agent/tammy/tammy3.jpg";
-import tammy4 from "../assets/agent/tammy/tammy4.jpg";
-import tammy5 from "../assets/agent/tammy/tammy5.jpg";
-import tammy6 from "../assets/agent/tammy/tammy6.jpg";
-
-// jenn
+// Jenn's images
 import jenn1 from "../assets/agent/Jenn/jenn1.jpg";
 import jenn2 from "../assets/agent/Jenn/jenn2.jpg";
 import jenn3 from "../assets/agent/Jenn/jenn3.jpg";
 import jenn4 from "../assets/agent/Jenn/jenn4.jpg";
 import jenn5 from "../assets/agent/Jenn/jenn5.jpg";
 
+// Adonis's images
+import adonis1 from "../assets/agent/adronis/adronis1.jpg";
+import adonis2 from "../assets/agent/adronis/adronis2.jpg";
+import adonis3 from "../assets/agent/adronis/adronis3.jpg";
+import adonis4 from "../assets/agent/adronis/adronis4.jpg";
+import adonis5 from "../assets/agent/adronis/adronis5.jpg";
+
 const AgentDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [agent, setAgent] = useState(null);
-  // const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // const nextImage = () => {
-  //   setCurrentImageIndex((prev) => (prev + 1) % agent.images.length);
-  // };
+  useEffect(() => {
+    const fetchAgent = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Fetch all agents from Firestore
+        const result = await getAgents({ status: 'active', sortBy: 'name' });
+        
+        if (result.success) {
+          // Find agent by legacy ID (converted to string) or by Firestore ID
+          const foundAgent = result.data.find(a => 
+            a.legacyId === parseInt(id) || a.id === id
+          );
+          
+          if (foundAgent) {
+            setAgent(foundAgent);
+          } else {
+            setError('Agent not found');
+          }
+        } else {
+          setError(result.error || 'Failed to fetch agent data');
+        }
+      } catch (err) {
+        console.error('Error fetching agent:', err);
+        setError('Failed to load agent information');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // const prevImage = () => {
-  //   setCurrentImageIndex((prev) =>
-  //     prev === 0 ? agent.images.length - 1 : prev - 1
-  //   );
-  // };
+    if (id) {
+      fetchAgent();
+    }
+  }, [id]);
 
   // Agent data with additional images and details
   const agentsData = [
@@ -148,7 +179,7 @@ Jennifer joined 340 Real Estate in 2015 and is very excited to translate her lov
 She currently resides in quiet and peaceful Fish Bay with her contractor husband, Joe Nogueira. 
 
 Her daughter, stepson, and two stepdaughters live in the Carolinas, which is a place still close to her heart. She loves spending time in Miami visiting her mother and, most of all, traveling and exploring the world with her daughter and family.`,
-      image: [tina10],
+      image: tina10,
       images: [
         tina10,
         "https://340realestatestjohn.com/wp-content/uploads/2024/02/Tina-Petitto-sm.jpg",
@@ -400,6 +431,7 @@ Whether you are looking to buy or sell, John would love to put his over 20 years
           src={teamhero}
           alt="St. John"
           className="absolute inset-0 w-full h-full object-cover object-center  scale-105 transition-transform duration-700 ease-in-out"
+          loading="eager"
         />
         <div className="absolute inset-0 bg-black/40 " />
 
@@ -442,8 +474,9 @@ Whether you are looking to buy or sell, John would love to put his over 20 years
                 <div className="aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl border border-gray-200">
                   <img
                     src={agent.images[0]}
-                    alt={`${agent.name} - Professional Photo`}
+                    alt={`${agent.name} - Professional headshot`}
                     className="w-full h-full object-cover"
+                    loading="lazy"
                   />
                 </div>
                 {/* Professional Badge */}
@@ -617,8 +650,9 @@ Whether you are looking to buy or sell, John would love to put his over 20 years
                       <div className="aspect-[4/3] overflow-hidden">
                         <img
                           src={image}
-                          alt={`${agent.name} - Gallery Image ${index + 2}`}
+                          alt={`${agent.name} - Portfolio ${index + 2}`}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          loading="lazy"
                         />
                       </div>
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">

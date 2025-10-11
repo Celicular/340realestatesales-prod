@@ -1,32 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { 
-  Users, 
   Home, 
   ShoppingCart, 
   CheckCircle, 
   Clock, 
-  XCircle, 
   LogOut, 
-  Settings,
-  BarChart3,
   Shield,
-  TrendingUp,
-  Activity,
   FileText,
-  Calendar
+  Calendar,
+  Activity,
+  TrendingUp
 } from 'lucide-react';
-import AgentApproval from '../admin/AgentApproval';
-import RentalApproval from '../admin/RentalApproval';
+import RentalPropertyApproval from '../admin/RentalPropertyApproval';
 import SaleApproval from '../admin/SaleApproval';
 import SoldApproval from '../admin/SoldApproval';
+import PortfolioManagement from '../admin/PortfolioManagement';
+import SystemStatus from '../admin/SystemStatus';
 import BlogManagement from '../blog/BlogManagement';
 import BookingManagement from '../admin/BookingManagement';
+import RentalPropertyForm from '../forms/RentalPropertyForm';
+import AgentMigrationTool from '../admin/AgentMigrationTool';
+import EmailConfiguration from '../admin/EmailConfiguration';
 import { logout, getCurrentUser } from '../../utils/auth';
 import { getRentalProperties, getSaleProperties, getSoldProperties } from '../../firebase/firestore';
 
 const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState('booking-requests');
+  const [activeTab, setActiveTab] = useState('portfolio-management');
   const [stats, setStats] = useState({
     pendingRentals: 0,
     pendingSales: 0,
@@ -34,7 +33,6 @@ const AdminDashboard = () => {
     totalApproved: 0
   });
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
   const currentUser = getCurrentUser();
 
   useEffect(() => {
@@ -74,13 +72,34 @@ const AdminDashboard = () => {
   };
 
   const tabs = [
-    // { 
-    //   id: 'agent-approval', 
-    //   name: 'Agent Approval', 
-    //   component: AgentApproval,
-    //   icon: Users,
-    //   color: 'blue'
-    // },
+    { 
+      id: 'portfolio-management', 
+      name: 'Portfolio Management', 
+      component: PortfolioManagement,
+      icon: Home,
+      color: 'indigo'
+    },
+    { 
+      id: 'agent-migration', 
+      name: 'Agent Management', 
+      component: AgentMigrationTool,
+      icon: Shield,
+      color: 'blue'
+    },
+    { 
+      id: 'email-configuration', 
+      name: 'Email Settings', 
+      component: EmailConfiguration,
+      icon: FileText,
+      color: 'purple'
+    },
+    { 
+      id: 'add-rental-property', 
+      name: 'Add Rental Property', 
+      component: RentalPropertyForm,
+      icon: Home,
+      color: 'green'
+    },
     { 
       id: 'booking-requests', 
       name: 'Booking Requests', 
@@ -98,7 +117,7 @@ const AdminDashboard = () => {
     { 
       id: 'rental-approval', 
       name: 'Rental Approval', 
-      component: RentalApproval,
+      component: RentalPropertyApproval,
       icon: Home,
       color: 'green',
       badge: stats.pendingRentals
@@ -118,21 +137,11 @@ const AdminDashboard = () => {
       icon: CheckCircle,
       color: 'orange',
       badge: stats.pendingSold
-    }
+    },
+
   ];
 
   const ActiveComponent = tabs.find(tab => tab.id === activeTab)?.component;
-
-  const getColorClasses = (color) => {
-    const colors = {
-      blue: 'bg-blue-50 text-blue-700 border-blue-200',
-      green: 'bg-green-50 text-green-700 border-green-200',
-      purple: 'bg-purple-50 text-purple-700 border-purple-200',
-      orange: 'bg-orange-50 text-orange-700 border-orange-200',
-      indigo: 'bg-indigo-50 text-indigo-700 border-indigo-200'
-    };
-    return colors[color] || colors.blue;
-  };
 
   const getActiveColorClasses = (color) => {
     const colors = {
