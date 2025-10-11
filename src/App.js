@@ -3,7 +3,7 @@ import { Routes, Route } from "react-router-dom";
 
 import Header from "./components/Layout/Header";
 import Footer from "./components/Layout/Footer";
-import Breadcrumb from "./components/Layout/Breadcrumb";
+// import Breadcrumb from "./components/Layout/Breadcrumb";
 import ChatbotButton from "./components/Chatbot";
 import ScrollToTop from "./components/ScrollToTop";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
@@ -73,8 +73,7 @@ function App() {
       {/* 🌐 Header */}
       <Header />
       
-      {/* 📍 Breadcrumb Navigation */}
-      <Breadcrumb />
+  // Breadcrumb removed
       
       <ScrollToTop />
       {/* 📄 Main Page Content */}
