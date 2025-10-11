@@ -1,6 +1,6 @@
 # 🏠 340 Real Estate - St. John, USVI
 
-A comprehensive real estate website for 340 Real Estate Company, specializing in properties on St. John, US Virgin Islands. Built with React, Firebase, and modern web technologies.
+A comprehensives real estate website for 340 Real Estate Company, specializing in properties on St. John, US Virgin Islands. Built with React, Firebase, and modern web technologies.
 
 ## 📋 Table of Contents
 
