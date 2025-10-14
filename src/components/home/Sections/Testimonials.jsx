@@ -44,10 +44,10 @@ const Testimonials = () => {
           <div className="flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-16">
             {/* Left - Testimonial Text */}
             <div className="text-white w-full lg:w-1/2 text-center lg:text-left">
-              <p className="text-base md:text-lg leading-relaxed text-white/90 font-['Lato'] mb-6">
-                “{testimonials[currentTestimonial].text}”
+              <p className="text-base md:text-lg leading-relaxed text-white/90 font-serif mb-6">
+                "{testimonials[currentTestimonial].text}"
               </p>
-              <p className="text-lg font-semibold text-white mb-8">
+              <p className="text-lg font-serif font-semibold text-white mb-8">
                 — {testimonials[currentTestimonial].author}
               </p>
 

@@ -25,27 +25,27 @@ const Footer = () => {
                 <div className="w-full h-full rounded-full border-2 border-cruzbay-teal flex items-center justify-center relative">
                   {/* CRUZ BAY Text - Top Arc */}
                   <div className="absolute top-2 left-1/2 transform -translate-x-1/2">
-                    <span className="text-xs font-['Lato'] text-cruzbay-teal uppercase tracking-wider">
+                    <span className="text-xs font-serif text-cruzbay-teal uppercase tracking-wider">
                       340
                     </span>
                   </div>
 
                   {/* REALTY Text - Bottom Arc */}
                   <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2">
-                    <span className="text-xs font-['Lato'] text-cruzbay-teal uppercase tracking-wider">
+                    <span className="text-xs font-serif text-cruzbay-teal uppercase tracking-wider">
                       USVi
                     </span>
                   </div>
 
                   {/* ESTD. and 1988 with Lines */}
                   <div className="absolute left-2 top-1/2 transform -translate-y-1/2">
-                    <span className="text-xs font-['Lato'] text-cruzbay-teal">
+                    <span className="text-xs font-serif text-cruzbay-teal">
                       Real
                     </span>
                     <div className="w-4 h-px bg-cruzbay-teal mt-1"></div>
                   </div>
                   <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
-                    <span className="text-xs font-['Lato'] text-cruzbay-teal">
+                    <span className="text-xs font-serif text-cruzbay-teal">
                       Estate
                     </span>
                     <div className="w-4 h-px bg-cruzbay-teal mt-1"></div>
@@ -64,12 +64,12 @@ const Footer = () => {
                 <div className="flex items-start space-x-3 justify-center md:justify-start">
                   <Mail className="w-5 h-5 text-cruzbay-teal mt-1 flex-shrink-0" />
                   <div>
-                    <p className="text-sm font-['Lato'] text-black uppercase tracking-wider mb-1">
+                    <p className="text-sm font-serif text-black uppercase tracking-wider mb-1">
                       EMAIL
                     </p>
                     <a
                       href="mailto:340realestateco@gmail.com"
-                      className="text-sm font-['Lato'] text-black underline hover:text-cruzbay-teal transition-colors"
+                      className="text-sm font-serif text-black underline hover:text-cruzbay-teal transition-colors"
                     >
                       340realestateco@gmail.com
                     </a>
@@ -80,13 +80,13 @@ const Footer = () => {
                 <div className="flex items-start space-x-3 justify-center md:justify-start">
                   <MapPin className="w-5 h-5 text-cruzbay-teal mt-1 flex-shrink-0" />
                   <div>
-                    <p className="text-sm font-['Lato'] text-black uppercase tracking-wider mb-1">
+                    <p className="text-sm font-serif text-black uppercase tracking-wider mb-1">
                       ADDRESS
                     </p>
-                    <p className="text-sm font-['Lato'] text-black">
+                    <p className="text-sm font-serif text-black">
                       340 Real Estate Company, PO Box 766,{" "}
                     </p>
-                    <p className="text-sm font-['Lato'] text-black">
+                    <p className="text-sm font-serif text-black">
                       St John, VI 00831
                     </p>
                   </div>
@@ -99,12 +99,12 @@ const Footer = () => {
                 <div className="flex items-start space-x-3 justify-center md:justify-start">
                   <Phone className="w-5 h-5 text-cruzbay-teal mt-1 flex-shrink-0" />
                   <div>
-                    <p className="text-sm font-['Lato'] text-black uppercase tracking-wider mb-1">
+                    <p className="text-sm font-serif text-black uppercase tracking-wider mb-1">
                       PHONE NUMBER
                     </p>
                     <a
                       href="tel:+1 340-643-6068"
-                      className="text-sm font-['Lato'] text-black underline hover:text-cruzbay-teal transition-colors"
+                      className="text-sm font-serif text-black underline hover:text-cruzbay-teal transition-colors"
                     >
                       340-643-6068
                     </a>
@@ -119,7 +119,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
           {/* Disclaimer Text */}
           <div className="lg:col-span-2 text-center lg:text-left">
-            <p className="text-xs font-['Lato'] text-black leading-relaxed">
+            <p className="text-xs font-serif text-black leading-relaxed">
               All information is deemed reliable but not guaranteed and should
               be independently reviewed and verified.
             </p>
@@ -133,7 +133,7 @@ const Footer = () => {
         <div className="flex justify-center space-x-4">
           {/* Facebook */}
           <div className="w-10 h-10 bg-cruzbay-beige rounded-full flex items-center justify-center cursor-pointer hover:bg-cruzbay-beige-dark transition-colors">
-            <span className="text-white font-bold text-lg">f</span>
+            <span className="text-white font-serif font-bold text-lg">f</span>
           </div>
 
           {/* Instagram */}
@@ -149,7 +149,7 @@ const Footer = () => {
 
           {/* Google */}
           <div className="w-10 h-10 bg-cruzbay-beige rounded-full flex items-center justify-center cursor-pointer hover:bg-cruzbay-beige-dark transition-colors">
-            <span className="text-white font-bold text-lg">G</span>
+            <span className="text-white font-serif font-bold text-lg">G</span>
           </div>
         </div>
       </div>

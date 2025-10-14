@@ -61,17 +61,17 @@ const HeroSection = () => {
       {/* Content */}
       <div className="relative z-10 text-center text-white px-4 sm:px-6 lg:px-8">
         <div className="container-custom">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 leading-tight font-['Lato']">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-light mb-4 leading-tight tracking-wide">
             ST JOHN, USVI
           </h1>
 
-          <p className="text-lg sm:text-xl mb-12 max-w-4xl mx-auto text-white leading-relaxed font-medium font-['Lato']">
+          <p className="text-lg sm:text-xl mb-12 max-w-4xl mx-auto text-white leading-relaxed font-serif">
             VIRGIN ISLANDS REAL ESTATE SPECIALISTS
           </p>
 
           {/* CTA Button */}
           <div className="flex justify-center items-center">
-            <button className="border-2 border-white text-white font-medium text-base px-8 py-4 hover:bg-white hover:text-black transition-all duration-300 rounded-none font-['Lato']">
+            <button className="border-2 border-white text-white font-serif font-medium text-base px-8 py-4 hover:bg-white hover:text-black transition-all duration-300 rounded-none tracking-wide uppercase">
               SEARCH PROPERTIES
             </button>
           </div>

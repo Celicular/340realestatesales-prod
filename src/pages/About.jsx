@@ -34,7 +34,7 @@ const About = () => {
       />
       
       <AboutHero />
-      <OwnershipSection />
+      {/* <OwnershipSection /> */}
       <CondosInfoGrid />
       <StJohnMap />
       <LandSubdivisions />

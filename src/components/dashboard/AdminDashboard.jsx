@@ -11,14 +11,14 @@ import {
   Activity,
   TrendingUp
 } from 'lucide-react';
-import RentalPropertyApproval from '../admin/RentalPropertyApproval';
+// import RentalPropertyApproval from '../admin/RentalPropertyApproval';
 import SaleApproval from '../admin/SaleApproval';
 import SoldApproval from '../admin/SoldApproval';
 import PortfolioManagement from '../admin/PortfolioManagement';
-import SystemStatus from '../admin/SystemStatus';
+// import SystemStatus from '../admin/SystemStatus';
 import BlogManagement from '../blog/BlogManagement';
 import BookingManagement from '../admin/BookingManagement';
-import RentalPropertyForm from '../forms/RentalPropertyForm';
+// import RentalPropertyForm from '../forms/RentalPropertyForm';
 import AgentMigrationTool from '../admin/AgentMigrationTool';
 import EmailConfiguration from '../admin/EmailConfiguration';
 import { logout, getCurrentUser } from '../../utils/auth';
@@ -93,13 +93,13 @@ const AdminDashboard = () => {
       icon: FileText,
       color: 'purple'
     },
-    { 
-      id: 'add-rental-property', 
-      name: 'Add Rental Property', 
-      component: RentalPropertyForm,
-      icon: Home,
-      color: 'green'
-    },
+    // { 
+    //   id: 'add-rental-property', 
+    //   name: 'Add Rental Property', 
+    //   component: RentalPropertyForm,
+    //   icon: Home,
+    //   color: 'green'
+    // },
     { 
       id: 'booking-requests', 
       name: 'Booking Requests', 
@@ -114,14 +114,14 @@ const AdminDashboard = () => {
       icon: FileText,
       color: 'indigo'
     },
-    { 
-      id: 'rental-approval', 
-      name: 'Rental Approval', 
-      component: RentalPropertyApproval,
-      icon: Home,
-      color: 'green',
-      badge: stats.pendingRentals
-    },
+    // { 
+    //   id: 'rental-approval', 
+    //   name: 'Rental Approval', 
+    //   component: RentalPropertyApproval,
+    //   icon: Home,
+    //   color: 'green',
+    //   badge: stats.pendingRentals
+    // },
     { 
       id: 'sale-approval', 
       name: 'Sale Approval', 
@@ -200,8 +200,8 @@ const AdminDashboard = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          {/* <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Pending Rentals</p>
@@ -215,7 +215,7 @@ const AdminDashboard = () => {
               <Clock className="h-4 w-4 mr-1" />
               <span>Awaiting approval</span>
             </div>
-          </div>
+          </div> */}
 
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">

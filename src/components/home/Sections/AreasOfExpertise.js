@@ -34,18 +34,18 @@ const AreasOfExpertise = () => {
                 </h2>
                 
                 {/* Sub-heading */}
-                <p className="text-xl font-['Lato'] text-white uppercase tracking-wider mb-6 leading-relaxed">
+                <p className="text-xl font-serif text-white uppercase tracking-wider mb-6 leading-relaxed">
                   BROWSE VARIOUS PARTS OF ST JOHN AND THE SURROUNDING ISLANDS
                 </p>
                 
                 {/* Description */}
-                <p className="text-lg font-['Lato'] text-white/90 leading-relaxed mb-10">
+                <p className="text-lg font-serif text-white/90 leading-relaxed mb-10">
                   These neighborhoods have plenty of beautiful properties to offer. Browse through available listings in the community.
                 </p>
                 
                 {/* Call-to-Action Button */}
                 <div className="text-center">
-                  <button className="bg-white text-cruzbay-beige font-semibold px-10 py-4 rounded-lg hover:bg-gray-100 transition-colors duration-300 font-['Lato'] text-lg">
+                  <button className="bg-white text-cruzbay-beige font-serif font-semibold px-10 py-4 rounded-lg hover:bg-gray-100 transition-colors duration-300 text-lg tracking-wide uppercase">
                     LEARN MORE
                   </button>
                 </div>

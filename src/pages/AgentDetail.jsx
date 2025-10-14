@@ -59,18 +59,30 @@ const AgentDetail = () => {
         const result = await getAgents({ status: 'active', sortBy: 'name' });
         
         if (result.success) {
-          // Find agent by legacy ID (converted to string) or by Firestore ID
+          // Find agent by Firestore ID or by legacy ID (converted to string)
           const foundAgent = result.data.find(a => 
-            a.legacyId === parseInt(id) || a.id === id
+            a.id === id || a.legacyId === id
           );
           
           if (foundAgent) {
             setAgent(foundAgent);
           } else {
-            setError('Agent not found');
+            // Fallback to local agentsData for name-based IDs
+            const localAgent = agentsData.find(a => a.id === id);
+            if (localAgent) {
+              setAgent(localAgent);
+            } else {
+              setError('Agent not found');
+            }
           }
         } else {
-          setError(result.error || 'Failed to fetch agent data');
+          // Fallback to local agentsData if Firestore fails
+          const localAgent = agentsData.find(a => a.id === id);
+          if (localAgent) {
+            setAgent(localAgent);
+          } else {
+            setError(result.error || 'Failed to fetch agent data');
+          }
         }
       } catch (err) {
         console.error('Error fetching agent:', err);
@@ -88,7 +100,7 @@ const AgentDetail = () => {
   // Agent data with additional images and details
   const agentsData = [
     {
-      id: 1,
+      id: "tammy-donnelly",
       name: "Tammy Donnelly",
       title: "Broker / Owner / ABR®",
       bio: "Tammy Donnelly has lived on St. John since 1978. Her first retail job was in 1979 – 1981 here at the 340 Real Estate Company. She has been a licensed real estate agent since 1981 and has been the broker/owner of 340 Real Estate Company since 1985.",
@@ -134,7 +146,7 @@ Tammy has gained the respect of customers and clients who recognize her dedicati
       location: "Cruz Bay, St. John",
     },
     {
-      id: 2,
+      id: "jennifer-doran",
       name: "Jennifer Doran",
       title: "Sales Associate",
       bio: "Jennifer arrived on St. John in the mid 80's, just in time to celebrate her 18th birthday! Jennifer has been a licensed real estate agent since 1990.",
@@ -168,7 +180,7 @@ Jennifer joined 340 Real Estate in 2015 and is very excited to translate her lov
       location: "Coral Bay, St. John",
     },
     {
-      id: 3,
+      id: "tina-petitto",
       name: "Tina Petitto",
       title: "Sales Associate",
       bio: "Tina Petitto has lived on St John since 2004, when she left her then position as Director of Finance to pursue her passion for real estate.",
@@ -209,7 +221,7 @@ Her daughter, stepson, and two stepdaughters live in the Carolinas, which is a p
       location: "Cruz Bay, St. John",
     },
     {
-      id: 4,
+      id: "rosanne-ramos-lloyd",
       name: "Rosanne Ramos Lloyd",
       title: "Sales Associate",
       bio: "Rosanne Ramos Lloyd is the newest sales agent to join 340 Real Estate Company. Born and raised in the Virgin Islands, she brings local expertise and fresh perspective.",
@@ -253,7 +265,7 @@ Beyond ADA Compliance`,
       location: "St. John, USVI",
     },
     {
-      id: 5,
+      id: "jenn-manes",
       name: "Jenn Manes",
       title: "Sales Associate",
       bio: "Jenn Manes is the newest realtor to join 340 Real Estate Co. She has blogged about St. John real estate and brings digital marketing expertise.",
@@ -291,7 +303,7 @@ If you’d like to know more about the happenings in St. John, please check out 
       location: "St. John, USVI",
     },
     {
-      id: 6,
+      id: "adonis-morton",
       name: "Adonis Morton",
       title: "Sales Associate",
       bio: "Born, raised and educated on ST Thomas, Adonis moved to St John 20 years ago after meeting and marrying his wife.",
@@ -322,7 +334,7 @@ If you’d like to know more about the happenings in St. John, please check out 
       location: "St. John, USVI",
     },
     {
-      id: 7,
+      id: "mary-moroney",
       name: "Mary Moroney",
       title: "Sales Associate",
       bio: "Mary Moroney hails from New England, born and raised in Connecticut she moved north to Maine in her early twenties.",
@@ -349,7 +361,7 @@ Their home is masonry, poured concrete with wood jalousie windows and doors. Alt
       location: "St. John, USVI",
     },
     {
-      id: 8,
+      id: "john-mccann",
       name: "John McCann",
       title: "Broker Associate",
       bio: "Born in Hawaii, John has always had island living in his blood. Life leads him from Hawaii to various tropical destinations.",
@@ -375,7 +387,7 @@ Whether you are looking to buy or sell, John would love to put his over 20 years
       location: "St. John, USVI",
     },
     {
-      id: 9,
+      id: "mark-shekleton",
       name: "Mark Shekleton",
       title: "Sales Associate",
       bio: "Mark Shekleton arrived on St. John in 1979 and has been a full-time resident since. Mark started his real estate career in the early 1980s.",
@@ -402,7 +414,7 @@ Whether you are looking to buy or sell, John would love to put his over 20 years
   ];
 
   useEffect(() => {
-    const foundAgent = agentsData.find((a) => a.id === parseInt(id));
+    const foundAgent = agentsData.find((a) => a.id === id);
     setAgent(foundAgent);
   }, [id]);
 

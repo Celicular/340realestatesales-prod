@@ -7,7 +7,7 @@ import aboutstHero from "../../../assets/abouthero.jpg";
 const AgentsSection = () => {
   const agents = [
     {
-      id: 1,
+      id: "tammy-donnelly",
       name: "Tammy Donnelly",
       title: "Broker/Owner/ABR®",
       bio: "Tammy Donnelly has lived on St. John since 1978. Her first retail job was in 1979 – 1981 here at the ..",
@@ -17,17 +17,17 @@ const AgentsSection = () => {
       phone: "+1 340-643-6068",
     },
     {
-      id: 2,
+      id: "jennifer-doran",
       name: "Jennifer Doran",
       title: "Sales Associate",
-      bio: "Jennifer arrived on St. John in the mid 80’s, just in time to celebrate her 18th birthday! Jennifer .",
+      bio: "Jennifer arrived on St. John in the mid 80's, just in time to celebrate her 18th birthday! Jennifer .",
       image:
         "https://340realestatestjohn.com/wp-content/uploads/2024/02/Jennifer-Doran-home-334x500-1-150x150.jpg",
       email: "jdoran.340realestate@gmail.com",
       phone: "+1 340-998-0006",
     },
     {
-      id: 3,
+      id: "tina-petitto",
       name: "Tina Petitto",
       title: "Sales Associate",
       bio: "Tina Petitto has lived on St John since 2004, when she left her then position as Director of Finance",
@@ -36,7 +36,7 @@ const AgentsSection = () => {
       phone: "+1 305-299-4411",
     },
     {
-      id: 4,
+      id: "rosanne-ramos-lloyd",
       name: "Rosanne Ramos Lloyd",
       title: "Sales Associate",
       bio: "Rosanne Ramos Lloyd is the newest sales agent to join 340 Real Estate Company. Born and raised in ...",
@@ -46,7 +46,7 @@ const AgentsSection = () => {
       phone: "+1 401-996-6751",
     },
     {
-      id: 5,
+      id: "jenn-manes",
       name: "Jenn Manes",
       title: "Sales Associate",
       bio: "Jenn Manes is the newest realtor to join 340 Real Estate Co. She has blogged about St. John real ...",
@@ -56,7 +56,7 @@ const AgentsSection = () => {
       phone: "+1 203-376-3786",
     },
     {
-      id: 6,
+      id: "adonis-morton",
       name: "Adonis Morton",
       title: "Sales Associate",
       bio: "Born, raised and educated on ST Thomas, Adonis moved to St John 20 years ago after meeting and ...",
@@ -66,7 +66,7 @@ const AgentsSection = () => {
       phone: "+1 340-690-0338",
     },
     {
-      id: 7,
+      id: "mary-moroney",
       name: "Mary Moroney",
       title: "Sales Associate",
       bio: "Mary Moroney hails from New England, born and raised in Connecticut she moved north to Maine in ..",
@@ -76,7 +76,7 @@ const AgentsSection = () => {
       phone: "+1 340-244-6664",
     },
     {
-      id: 8,
+      id: "john-mccann",
       name: "John McCann",
       title: "Broker Associate",
       bio: "Born in Hawaii, John has always had island living in his blood. Life leads him from Hawaii to ...",
@@ -86,7 +86,7 @@ const AgentsSection = () => {
       phone: "+1 340-998-0423",
     },
     {
-      id: 9,
+      id: "mark-shekleton",
       name: "Mark Shekleton",
       title: "Sales Associate",
       bio: "Mark Shekleton arrived on St. John in 1979 and has been a full-time resident since. Mark started a .",
@@ -121,7 +121,7 @@ const AgentsSection = () => {
     </section>
     <section id="agents" className="py-16 lg:py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
+        {/* <div className="text-center mb-16">
           <h2 className="text-4xl font-serif font-light text-gray-800 tracking-wide mb-6">
             Meet Our Team
           </h2>
@@ -129,7 +129,7 @@ const AgentsSection = () => {
             Our experienced team of real estate professionals is dedicated to
             helping you find your perfect piece of paradise.
           </p>
-        </div>
+        </div> */}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {agents.map((agent) => (
@@ -139,7 +139,7 @@ const AgentsSection = () => {
               className="relative group cursor-pointer overflow-hidden"
             >
               {/* Agent Portrait Image */}
-              <div className="relative w-full h-100 overflow-hidden">
+              <div className="relative w-full h-80 overflow-hidden">
                 <img
                   src={agent.image}
                   alt={agent.name}
@@ -165,12 +165,12 @@ const AgentsSection = () => {
             <h3 className="text-3xl lg:text-4xl font-serif font-light text-gray-800 tracking-wide mb-6">
               Ready to Work with Our Team?
             </h3>
-            <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed font-serif">
               Let us help you find your dream property in St. John
             </p>
             <button
               onClick={handleContactClick}
-              className="px-8 py-4 bg-gray-800 text-white font-medium tracking-wide uppercase hover:bg-gray-700 transition-all duration-300"
+              className="px-8 py-4 bg-gray-800 text-white font-serif font-medium tracking-wide uppercase hover:bg-gray-700 transition-all duration-300"
             >
               Contact Our Team
             </button>

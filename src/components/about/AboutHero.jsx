@@ -20,11 +20,11 @@ const AboutHero = () => {
           transition={{ duration: 1 }}
           className="relative z-10 h-full flex flex-col justify-center items-center text-center px-4"
         >
-          <h1 className="text-white text-3xl md:text-5xl font-bold tracking-wide mb-4">
+          <h1 className="text-white text-3xl md:text-5xl font-serif font-light tracking-wide mb-4">
             About St. John, Virgin Islands
           </h1>
           <div className="h-1 w-32 bg-gradient-to-r from-tropical-500 to-blue-400 rounded-full mb-4"></div>
-          <p className="text-white text-lg md:text-2xl max-w-2xl font-light">
+          <p className="text-white text-lg md:text-2xl max-w-2xl font-serif font-light">
             Discover St. John: A Journey Through History, Nature, and Island
             Charm
           </p>

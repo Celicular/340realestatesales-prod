@@ -93,7 +93,7 @@ const Header = () => {
           <nav className="hidden lg:flex items-center space-x-8">
             <div className="relative group">
               <button
-                className={`flex items-center space-x-1 font-medium transition-colors duration-300 ${
+                className={`flex items-center space-x-1 font-serif font-medium transition-colors duration-300 ${
                   isScrolled
                     ? "text-gray-700 hover:text-cruzbay-teal"
                     : "text-white hover:text-cruzbay-coral"
@@ -105,15 +105,15 @@ const Header = () => {
               <div className="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
                 <Link
                   to="/properties"
-                  className="block px-4 py-2 text-gray-700 hover:bg-cruzbay-teal hover:text-white rounded-t-lg transition-colors"
+                  className="block px-4 py-2 text-gray-700 hover:bg-cruzbay-teal hover:text-black rounded-t-lg transition-colors"
                 >
-                  Buy Property
+                  Property
                 </Link>
                 <Link
                   to="/contact"
-                  className="block px-4 py-2 text-gray-700 hover:bg-cruzbay-teal hover:text-white transition-colors"
+                  className="block px-4 py-2 text-gray-700 hover:bg-cruzbay-teal hover:text-black transition-colors"
                 >
-                  Sell Property
+                  Land Property
                 </Link>
                 {/* <Link
                   to="/properties"
@@ -123,25 +123,27 @@ const Header = () => {
                 </Link> */}
               </div>
             </div>
+           
+           
             <Link
               to="/about"
-              className={`font-medium transition-colors duration-300 ${
-                isScrolled
-                  ? "text-gray-700 hover:text-cruzbay-teal"
-                  : "text-white hover:text-cruzbay-coral"
-              }`}
-            >
-              About Us
-            </Link>
-            <Link
-              to="/about-340-realestate-team"
-              className={`font-medium transition-colors duration-300 ${
+              className={`font-serif font-medium transition-colors duration-300 ${
                 isScrolled
                   ? "text-gray-700 hover:text-cruzbay-teal"
                   : "text-white hover:text-cruzbay-coral"
               }`}
             >
               About St John
+            </Link>
+            <Link
+              to="/about-340-realestate-team"
+              className={`font-serif font-medium transition-colors duration-300 ${
+                isScrolled
+                  ? "text-gray-700 hover:text-cruzbay-teal"
+                  : "text-white hover:text-cruzbay-coral"
+              }`}a
+            >
+              About Us
             </Link>
           </nav>
 
@@ -153,7 +155,7 @@ const Header = () => {
               className="h-12 w-12 object-contain"
             /> */}
             <h1
-              className={`text-2xl font-bold transition-colors duration-300 ${
+              className={`text-2xl font-serif font-bold transition-colors duration-300 ${
                 isScrolled ? "text-cruzbay-teal" : "text-white"
               }`}
             >
@@ -165,7 +167,7 @@ const Header = () => {
           <div className="flex items-center space-x-6">
             <Link
               to="/saleshistory"
-              className={`hidden lg:block font-medium transition-colors duration-300 ${
+              className={`hidden lg:block font-serif font-medium transition-colors duration-300 ${
                 isScrolled
                   ? "text-gray-700 hover:text-cruzbay-teal"
                   : "text-white hover:text-cruzbay-coral"
@@ -175,7 +177,7 @@ const Header = () => {
             </Link>
             <Link
               to="/contact"
-              className={`hidden lg:block font-medium transition-colors duration-300 ${
+              className={`hidden lg:block font-serif font-medium transition-colors duration-300 ${
                 isScrolled
                   ? "text-gray-700 hover:text-cruzbay-teal"
                   : "text-white hover:text-cruzbay-coral"
@@ -185,7 +187,7 @@ const Header = () => {
             </Link>
             <a
               href="tel:+13406436068"
-              className={`hidden lg:block font-medium transition-colors duration-300 ${
+              className={`hidden lg:block font-serif font-medium transition-colors duration-300 ${
                 isScrolled
                   ? "text-cruzbay-teal hover:text-cruzbay-teal-dark"
                   : "text-white hover:text-cruzbay-coral"
@@ -355,42 +357,42 @@ const Header = () => {
               <Link
                 to="/properties"
                 onClick={toggleMenu}
-                className="py-2 text-gray-700 hover:text-cruzbay-teal font-medium transition-colors"
+                className="py-2 text-gray-700 hover:text-cruzbay-teal font-serif font-medium transition-colors"
               >
                 Services
               </Link>
               <Link
                 to="/about"
                 onClick={toggleMenu}
-                className="py-2 text-gray-700 hover:text-cruzbay-teal font-medium transition-colors"
+                className="py-2 text-gray-700 hover:text-cruzbay-teal font-serif font-medium transition-colors"
               >
                 About Us
               </Link>
               <Link
                 to="/about-340-realestate-team"
                 onClick={toggleMenu}
-                className="py-2 text-gray-700 hover:text-cruzbay-teal font-medium transition-colors"
+                className="py-2 text-gray-700 hover:text-cruzbay-teal font-serif font-medium transition-colors"
               >
                 About St John
               </Link>
               <Link
                 to="/saleshistory"
                 onClick={toggleMenu}
-                className="py-2 text-gray-700 hover:text-cruzbay-teal font-medium transition-colors"
+                className="py-2 text-gray-700 hover:text-cruzbay-teal font-serif font-medium transition-colors"
               >
                 Sales History
               </Link>
               <Link
                 to="/contact"
                 onClick={toggleMenu}
-                className="py-2 text-gray-700 hover:text-cruzbay-teal font-medium transition-colors"
+                className="py-2 text-gray-700 hover:text-cruzbay-teal font-serif font-medium transition-colors"
               >
                 Contact Us
               </Link>
               <a
                 href="tel:+13406436068"
                 onClick={toggleMenu}
-                className="mt-2 py-2 px-4 bg-cruzbay-teal text-white text-center rounded-lg hover:bg-cruzbay-teal-dark font-medium transition-colors"
+                className="mt-2 py-2 px-4 bg-cruzbay-teal text-white text-center rounded-lg hover:bg-cruzbay-teal-dark font-serif font-medium transition-colors"
               >
                 +1 340-643-6068
               </a>
