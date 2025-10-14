@@ -4,7 +4,7 @@ import AboutStJohnTeam from "./../components/aboutstjohnteam.jsx/AboutStJohnTeam
 
 const AboutRealEstate = () => {
   return (
-    <div className="App relative scroll-smooth">
+    <div className="App relative scroll-smooth p-3">
       <AboutStJohnTeam />
       <AboutSection />
       <div className="bg-[#ede4de]">

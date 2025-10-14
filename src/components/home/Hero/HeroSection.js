@@ -1,178 +1,79 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Facebook, Instagram, Youtube } from "lucide-react";
-import { FaXTwitter } from "react-icons/fa6";
-import { FaWhatsapp } from "react-icons/fa";
-import hero1 from "../../../assets/homehero/hero1.jpeg";
-import hero2 from "../../../assets/homehero/hero2.jpg";
-import hero3 from "../../../assets/homehero/hero3.jpg";
-import hero4 from "../../../assets/homehero/hero4.jpg";
 
 const HeroSection = () => {
-  const [currentVideo, setCurrentVideo] = useState(0);
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
 
-  const [currentImage, setCurrentImage] = useState(0);
-
-  // const heroVideos = [
-  //   "https://videos.pexels.com/video-files/3773486/3773486-hd_1920_1080_30fps.mp4",
-  //   "https://videos.pexels.com/video-files/7578550/7578550-uhd_2560_1440_30fps.mp4",
-  //   "https://videos.pexels.com/video-files/4770380/4770380-hd_1920_1080_30fps.mp4",
-  // ];
-
-  const heroImages = [
-    // "/images/hero1.jpeg",
-    // "/images/hero2.jpg",
-    // "/images/hero3.jpg",
-    hero1,
-    hero2,
-    hero3,
-    hero4,
+  // Simple array of video URLs
+  const videoUrls = [
+    "https://videos.pexels.com/video-files/3773486/3773486-hd_1920_1080_30fps.mp4",
+    "https://videos.pexels.com/video-files/7578550/7578550-uhd_2560_1440_30fps.mp4",
+    "https://videos.pexels.com/video-files/4770380/4770380-hd_1920_1080_30fps.mp4",
   ];
 
+  // Function to change video
+  const changeVideo = () => {
+    setCurrentVideoIndex((prevIndex) => (prevIndex + 1) % videoUrls.length);
+  };
+
+  // Auto-change video every 10 seconds
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentImage((prev) => (prev + 1) % heroImages.length);
-    }, 7000); // 7 seconds per image
+    const interval = setInterval(changeVideo, 10000);
     return () => clearInterval(interval);
   }, []);
 
-  //video
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     setCurrentVideo((prev) => (prev + 1) % heroVideos.length);
-  //   }, 10000);
-  //   return () => clearInterval(interval);
-  // }, []);
-
-  const socialLinks = [
-    {
-      icon: Facebook,
-      href: "https://www.facebook.com",
-      label: "Facebook",
-    },
-    {
-      icon: Instagram,
-      href: "https://www.instagram.com/",
-      label: "Instagram",
-    },
-    {
-      icon: FaXTwitter,
-      href: "https://x.com",
-      label: "Twitter",
-    },
-    {
-      icon: FaWhatsapp,
-      href: "https://wa.me/",
-      label: "Whatsapp",
-    },
-    {
-      icon: Youtube,
-      href: "https://www.youtube.com",
-      label: "YouTube",
-    },
-  ];
-
   return (
-    <section id="home" className="relative h-screen overflow-hidden">
-      {/* Background Image Carousel */}
-      <div className="absolute inset-0 z-0">
-        {heroImages.map((image, index) => (
-          <img
+    <section
+      id="home"
+      className="relative min-h-screen  mt-3 mx-3 flex items-center justify-center overflow-hidden"
+    >
+      {/* Video Background */}
+      <video
+        key={currentVideoIndex}
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
+        onEnded={changeVideo}
+      >
+        <source src={videoUrls[currentVideoIndex]} type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+
+      {/* Dark overlay */}
+      <div className="absolute inset-0 bg-black/40"></div>
+
+      {/* Video Navigation Dots */}
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 flex space-x-2">
+        {videoUrls.map((_, index) => (
+          <button
             key={index}
-            src={image}
-            alt={`hero-${index}`}
-            className={`absolute w-full h-full object-cover transition-opacity duration-1000 ${
-              currentImage === index ? "opacity-100 z-10" : "opacity-0 z-0"
+            onClick={() => setCurrentVideoIndex(index)}
+            className={`w-3 h-3 rounded-full transition-all duration-300 ${
+              index === currentVideoIndex
+                ? "bg-white scale-125"
+                : "bg-white/50 hover:bg-white/75"
             }`}
           />
         ))}
-        {/* Optional overlay */}
-        <div className="absolute inset-0 bg-black/40 z-20 pointer-events-none" />
       </div>
 
-      {/* Background Video Carousel just comment out as of now buddy  */}
-
-      {/* <div className="absolute inset-0 z-0">
-        {heroVideos.map((video, index) => (
-          <video
-            key={index}
-            src={video}
-            autoPlay
-            muted
-            loop
-            playsInline
-            className={`absolute w-full h-full object-cover transition-opacity duration-1000 ${
-              currentVideo === index ? "opacity-100 z-10" : "opacity-0 z-0"
-            }`}
-          />
-        ))}
-       
-        <div className="absolute inset-0 bg-black/40 z-20 pointer-events-none" />
-      </div> */}
-
-      {/* Social Icons */}
-      <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-50 flex flex-col gap-4 pointer-events-auto">
-        {socialLinks.map((social, idx) => (
-          <a
-            key={idx}
-            href={social.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={social.label}
-            className="group p-3 bg-white/20 backdrop-blur-md rounded-full hover:bg-white/30 transition-all duration-300 hover:scale-110 z-50 cursor-pointer relative pointer-events-auto"
-            style={{ pointerEvents: "auto" }}
-          >
-            {React.createElement(social.icon, {
-              size: 24,
-              className:
-                "text-white group-hover:text-blue-300 transition pointer-events-none",
-            })}
-          </a>
-        ))}
-      </div>
-
-      {/* Hero Content */}
-      <div className="relative z-30 flex items-center justify-center h-full px-6 text-center text-white">
-        <div className="max-w-4xl">
-          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-serif font-bold mb-6 drop-shadow-md animate-fade-in">
-            Discover Your Paradise
+      {/* Content */}
+      <div className="relative z-10 text-center text-white px-4 sm:px-6 lg:px-8">
+        <div className="container-custom">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 leading-tight font-['Lato']">
+            ST JOHN, USVI
           </h1>
-          <p className="text-xl sm:text-2xl lg:text-3xl mb-10 font-light animate-slide-up">
-            Luxury Real Estate in St. John, USVI
-          </p>
-          
-          {/* Search MLS CTA Button */}
-          <div className="animate-fade-in delay-300">
-            <Link
-              to="/mls"
-              className="inline-flex items-center px-8 py-4 bg-white/10 hover:bg-white/20 text-white font-semibold text-lg rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 backdrop-blur-md border border-white/30 hover:border-white/50"
-            >
-              <svg 
-                className="w-6 h-6 mr-3" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" 
-                />
-              </svg>
-              Search MLS Properties
-            </Link>
-          </div>
-          
-          {/* <SearchForm /> */}
-        </div>
-      </div>
 
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-30">
-        <div className="animate-bounce">
-          <div className="w-6 h-10 border-2 border-white rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-white rounded-full mt-2 animate-pulse" />
+          <p className="text-lg sm:text-xl mb-12 max-w-4xl mx-auto text-white leading-relaxed font-medium font-['Lato']">
+            VIRGIN ISLANDS REAL ESTATE SPECIALISTS
+          </p>
+
+          {/* CTA Button */}
+          <div className="flex justify-center items-center">
+            <button className="border-2 border-white text-white font-medium text-base px-8 py-4 hover:bg-white hover:text-black transition-all duration-300 rounded-none font-['Lato']">
+              SEARCH PROPERTIES
+            </button>
           </div>
         </div>
       </div>

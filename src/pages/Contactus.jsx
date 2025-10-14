@@ -5,7 +5,7 @@ import SEOHead from "../components/SEO/SEOHead";
 
 const Contactus = () => {
   return (
-    <div className="App relative scroll-smooth">
+    <div className="App relative scroll-smooth p-3">
       <SEOHead
         title="Contact Us | 340 Real Estate St. John"
         description="Contact 340 Real Estate for all your St. John, USVI property needs. Expert real estate agents ready to help you buy, sell, or rent in paradise."

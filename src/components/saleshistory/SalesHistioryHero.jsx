@@ -6,7 +6,7 @@ const SalesHistoryHero = () => {
   return (
     <div>
       {/* 🖼 Hero Section with Overlay */}
-      <section className="relative h-[65vh] md:h-[80vh] w-full overflow-hidden">
+      <section className="relative h-[55vh] md:h-[65vh] w-full overflow-hidden">
         <img
           src={saleshistoryhero}
           alt="St. John"
@@ -21,13 +21,13 @@ const SalesHistoryHero = () => {
           className="relative z-10 h-full flex flex-col justify-center items-center text-center px-4"
         >
           <h1 className="text-white text-3xl md:text-5xl font-bold tracking-wide mb-4">
-            History St. John, Virgin Islands
+           Sales History
           </h1>
-          <div className="h-1 w-32 bg-gradient-to-r from-tropical-500 to-blue-400 rounded-full mb-4"></div>
-          <p className="text-white text-lg md:text-2xl max-w-2xl font-light">
+          <div className="h-1 w-32 bg-gradient-to-r from-tropical-500 to-blue-400 rounded-full"></div>
+          {/* <p className="text-white text-lg md:text-2xl max-w-2xl font-light">
             Offering residential, condos, land & commercial real estate on St.
             John in the US Virgin Islands
-          </p>
+          </p> */}
         </motion.div>
       </section>
     </div>

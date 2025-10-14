@@ -1,454 +1,420 @@
-# 340 Real Estate St. John - Complete Code Index
+# 🏠 340 Real Estate - Complete Code Index
 
 ## 📋 Project Overview
-**Project Name:** 340 Real Estate  
-**Type:** React-based Real Estate Website  
-**Location:** St. John, USVI  
-**Tech Stack:** React 19, Firebase, Redux Toolkit, Tailwind CSS, React Router v7
+**340 Real Estate** is a modern React-based real estate website for St. John, USVI. Built with React 19, Firebase backend, Redux state management, and Tailwind CSS styling.
 
 ---
 
-## 🏗️ Project Structure
+## 🏗️ Architecture & Tech Stack
 
-### 📁 Root Directory
+### **Core Technologies**
+- **Frontend**: React 19.1.1, React Router DOM 7.8.1
+- **Styling**: Tailwind CSS 4.1.12, PostCSS
+- **State Management**: Redux Toolkit 2.8.2
+- **Backend**: Firebase 12.1.0 (Firestore, Auth, Storage)
+- **Analytics**: React GA4, Google Analytics
+- **Build Tool**: Create React App 5.0.1
+
+### **Key Dependencies**
+- **UI/UX**: Lucide React (icons), Framer Motion (animations)
+- **Forms**: React DatePicker, React Date Range
+- **Charts**: Chart.js, Recharts
+- **3D Graphics**: Three.js, React Three Fiber
+- **Email**: EmailJS
+- **Testing**: React Testing Library, Jest
+
+---
+
+## 📁 Project Structure
+
 ```
-340realestatestjohn/
-├── build/                    # Production build output
-├── public/                   # Static assets
-├── src/                      # Source code
-├── node_modules/             # Dependencies
-├── package.json              # Project configuration
-├── tailwind.config.js        # Tailwind CSS configuration
-├── postcss.config.js         # PostCSS configuration
-├── vercel.json              # Vercel deployment config
-└── README.md                # Project documentation
+340realestate-sale-new/
+├── 📁 public/                    # Static assets
+│   ├── 📁 images/               # Hero images, logos
+│   ├── 📁 icon/                 # App icons, favicons
+│   └── 📄 index.html            # Main HTML template
+├── 📁 src/                      # Source code
+│   ├── 📁 components/           # React components
+│   ├── 📁 pages/                # Page components
+│   ├── 📁 firebase/             # Firebase configuration
+│   ├── 📁 redux/                # State management
+│   ├── 📁 data/                 # Static data files
+│   ├── 📁 assets/               # Images, media files
+│   ├── 📁 services/             # External services
+│   ├── 📁 utils/                # Utility functions
+│   ├── 📁 scripts/              # Build scripts
+│   ├── 📄 App.js                # Main app component
+│   └── 📄 index.js              # App entry point
+├── 📄 package.json              # Dependencies & scripts
+├── 📄 tailwind.config.js        # Tailwind configuration
+└── 📄 vercel.json               # Deployment config
 ```
 
 ---
 
-## 🎯 Core Application Files
+## 🧩 Component Architecture
 
-### 📄 Main Entry Points
-- **`src/index.js`** - Application entry point with React 19, Redux store, and Google Analytics
-- **`src/App.js`** - Main application component with routing and lazy loading
-- **`src/App.css`** - Global application styles
-- **`src/index.css`** - Base CSS styles
+### **Layout Components** (`src/components/Layout/`)
+- **`Header.js`** - Main navigation, mobile menu, authentication
+- **`Footer.js`** - Company info, contact details, social links
+- **`Breadcrumb.jsx`** - Navigation breadcrumbs
 
-### 🔧 Configuration Files
-- **`package.json`** - Dependencies and scripts
-- **`tailwind.config.js`** - Tailwind CSS configuration
-- **`postcss.config.js`** - PostCSS configuration
-- **`vercel.json`** - Vercel deployment settings
-
----
-
-## 🧩 Components Directory (`src/components/`)
-
-### 🏠 Layout Components
-- **`Layout/Header.js`** - Main navigation header
-- **`Layout/Footer.js`** - Site footer
-- **`ScrollToTop.jsx`** - Scroll to top functionality
-
-### 🏡 Home Page Components (`home/`)
-- **`Hero/HeroSection.js`** - Main hero section
-- **`Hero/SearchForm.js`** - Property search form
-- **`Sections/AboutSection.js`** - About section
-- **`Sections/AgentsSection.js`** - Agents showcase
-- **`Sections/AnniverserySection.js`** - Anniversary celebration
+### **Home Page Components** (`src/components/home/`)
+- **`Hero/HeroSection.js`** - Landing hero with search form
+- **`Sections/AboutSection.js`** - Company introduction
+- **`Sections/Testimonials.jsx`** - Customer testimonials
+- **`Sections/FeaturedProperties.js`** - Property showcase
+- **`Sections/NewListings.jsx`** - Latest property listings
+- **`Sections/AgentsSection.js`** - Team member profiles
+- **`Sections/ServiceSection.jsx`** - Service offerings
+- **`Sections/AreasOfExpertise.js`** - Market expertise
+- **`Sections/BrowseByLifestyle.js`** - Lifestyle categories
+- **`Sections/GallerySection.js`** - Image galleries
 - **`Sections/ContactSection.js`** - Contact information
-- **`Sections/GallerySection.js`** - Image gallery
-- **`Sections/HeroLogos.js`** - Partner logos
-- **`Sections/RentalsSection.js`** - Villa rentals
-- **`Sections/TeamSection.js`** - Team members
+- **`Sections/MLSSearchSection.jsx`** - MLS search interface
+- **`Sections/RentalsSection.js`** - Rental properties
+- **`Sections/TeamSection.js`** - Team overview
+- **`Sections/AnniverserySection.js`** - Company milestones
 
-### 🏘️ About Page Components (`about/`)
-- **`AboutHero.jsx`** - About page hero
-- **`CondosInfoGrid.jsx`** - Condo information grid
-- **`LandSubdivisions.jsx`** - Land subdivision details
-- **`OwnershipSection.jsx`** - Property ownership info
-- **`StJohnMap.jsx`** - Interactive St. John map
-
-### 🏢 About Us Components (`aboutus/`)
-- **`AboutUsHero.jsx`** - About us hero section
-
-### 👥 Team Components (`aboutstjohnteam.jsx/`)
-- **`AboutStJohnTeam.jsx`** - Team information
-
-### 🔐 Authentication Components (`auth/`)
-- **`ProtectedRoute.jsx`** - Route protection for authenticated users
-
-### 📝 Blog Components (`blog/`)
-- **`BlogList.jsx`** - Blog listing page
-
-### 📞 Contact Components (`contact/`)
-- **`ContactDetail.jsx`** - Contact details
-- **`ContactHero.jsx`** - Contact page hero
-
-### 🎯 Incentive Components (`incentive/`)
-- **`ConnectWithUs.jsx`** - Connect with us section
-- **`EDCIncentives.jsx`** - EDC incentives information
-- **`InsentiveHero.jsx`** - Incentives page hero
-
-### 🏞️ Land Components (`land/`)
-- **`LandHero.jsx`** - Land properties hero
-- **`LandProperty.jsx`** - Land property listing
-- **`LandPropertyDetail.jsx`** - Individual land property details
-
-### 🏞️ Land Sold Components (`landsold/`)
-- **`LandSold.jsx`** - Sold land properties listing
-- **`LandSoldDetail.jsx`** - Individual sold land property details
-
-### 🔐 Login Components (`login/`)
-- **`Login.jsx`** - User login form
-- **`Register.jsx`** - User registration form
-
-### 🏠 Property Components (`properties/`)
-- **`PropertiesForSale.jsx`** - Properties for sale listing
-- **`PropertiesHero.jsx`** - Properties page hero
+### **Property Components** (`src/components/properties/`)
+- **`PropertiesHero.jsx`** - Property listing page header
+- **`PropertiesForSale.jsx`** - Property grid display
 - **`PropertyDetail.jsx`** - Individual property details
 
-### 📊 Sales History Components (`saleshistory/`)
-- **`SalesHistioryHero.jsx`** - Sales history hero
-- **`TabHistory.jsx`** - Tabbed interface for sales history
-- **`tab/AboutStJohnTab.jsx`** - About St. John tab
-- **`tab/HomeTab.jsx`** - Home tab
-- **`tab/SalesHistoryTab.jsx`** - Sales history tab
-- **`tab/SearchMLS.jsx`** - MLS search tab
-- **`tab/TestimonialsTab.jsx`** - Testimonials tab
-- **`tab/VillaRentalsTab.jsx`** - Villa rentals tab
+### **Sales History Components** (`src/components/saleshistory/`)
+- **`SalesHistioryHero.jsx`** - Sales history page header
+- **`TabHistory.jsx`** - Tab navigation wrapper
+- **`NumbersSection.jsx`** - Sales statistics display
+- **`tab/SalesHistoryTab.jsx`** - Main sales data table
+- **`tab/AboutStJohnTab.jsx`** - St. John information
+- **`tab/HomeTab.jsx`** - Home buying guide
+- **`tab/TestimonialsTab.jsx`** - Customer reviews
+- **`tab/VillaRentalsTab.jsx`** - Villa rental information
+- **`tab/SearchMLS.jsx`** - MLS search interface
 
-### 🏠 Sold Property Components (`soldproperty/`)
-- **`SoldProperty.jsx`** - Sold properties listing
-- **`SoldPropertyDetail.jsx`** - Individual sold property details
+### **Admin Components** (`src/components/admin/`)
+- **`AdminDashboard.jsx`** - Admin control panel
+- **`PortfolioManagement.jsx`** - Property portfolio management
+- **`BlogManagement.jsx`** - Content management
+- **`BookingManagement.jsx`** - Booking system
+- **`EmailConfiguration.jsx`** - Email settings
+- **`SystemStatus.jsx`** - System monitoring
 
-### 💬 Testimonial Components (`testimonials/`)
-- **`ElfsightReviews.jsx`** - External reviews integration
-- **`ReviewsSection.jsx`** - Reviews section
-- **`TestimonialHero.jsx`** - Testimonials page hero
-- **`index.js`** - Testimonials module exports
+### **Forms** (`src/components/forms/`)
+- **`PropertySale.jsx`** - Property listing form
+- **`PropertySold.jsx`** - Sold property form
+- **`RentalForm.jsx`** - Rental listing form
+- **`LandSale.jsx`** - Land listing form
+- **`LandSold.jsx`** - Sold land form
 
-### 🏢 Admin Components (`admin/`)
-- **`AgentApproval.jsx`** - Agent approval management
-- **`RentalApproval.jsx`** - Rental approval management
-- **`SaleApproval.jsx`** - Sale approval management
-- **`SoldApproval.jsx`** - Sold property approval management
-
-### 📊 Dashboard Components (`dashboard/`)
-- **`AdminDashboard.jsx`** - Admin dashboard
-- **`AgentDashboard.jsx`** - Agent dashboard
-
-### 📝 Form Components (`forms/`)
-- **`LandSale.jsx`** - Land sale form
-- **`LandSold.jsx`** - Land sold form
-- **`PropertySale.jsx`** - Property sale form
-- **`PropertySold.jsx`** - Property sold form
-- **`RentalForm.jsx`** - Rental property form
-
-### 🔍 MLS Components (`mls/`)
-- **`SearchMlsMain.jsx`** - Main MLS search interface
-
-### 🏦 Mortgage Components (`mortage/`)
-- **`MortgageCalculator.jsx`** - Mortgage calculator
-
-### 🎬 Attraction Components (`attraction/`)
-- **`DualVideoPlayer.jsx`** - Dual video player for attractions
-
-### 🐛 Debug Components (`debug/`)
-- **`RegistrationTest.jsx`** - Registration testing component
-
-### 🤖 Utility Components
-- **`AnalyticsTracker.jsx`** - Google Analytics tracking
-- **`Chatbot.js`** - Chatbot integration
+### **Authentication** (`src/components/auth/`)
+- **`ProtectedRoute.jsx`** - Route protection wrapper
 
 ---
 
-## 📄 Pages Directory (`src/pages/`)
+## 📄 Page Components (`src/pages/`)
 
-### 🏠 Main Pages
-- **`Home.jsx`** - Homepage
-- **`About.jsx`** - About page
-- **`AboutUs.jsx`** - About us page
-- **`AboutRealEstate.jsx`** - About 340 Real Estate team
-- **`Contactus.jsx`** - Contact page
-- **`Testimonial.jsx`** - Testimonials page
+### **Main Pages**
+- **`Home.jsx`** - Landing page with hero, features, testimonials
+- **`About.jsx`** - Company information and team
+- **`AboutUs.jsx`** - Detailed company history
+- **`AboutRealEstate.jsx`** - Real estate market info
+- **`Contactus.jsx`** - Contact form and information
+- **`Properties.jsx`** - Property listings page
+- **`LandProperties.jsx`** - Land listings page
 
-### 🏡 Property Pages
-- **`Properties.jsx`** - Properties listing
+### **Property Detail Pages**
 - **`PropertyDetail.jsx`** - Individual property details
 - **`VillaDetail.jsx`** - Villa rental details
 - **`RentalDetail.jsx`** - Rental property details
-- **`LandProperties.jsx`** - Land properties listing
+- **`AgentDetail.jsx`** - Agent profile page
 
-### 📊 Data Pages
-- **`SalesHistory.jsx`** - Sales history and analytics
+### **Content Pages**
+- **`BlogDetails.jsx`** - Individual blog post
+- **`Testimonial.jsx`** - Customer testimonials
+- **`Attraction.jsx`** - Local attractions
+- **`SalesHistory.jsx`** - Sales data and statistics
 - **`Mls.jsx`** - MLS search page
 
-### 👥 Agent Pages
-- **`AgentDetail.jsx`** - Individual agent details
-
-### 📝 Content Pages
-- **`BlogDetails.jsx`** - Individual blog post
-- **`Attraction.jsx`** - Local attractions
-- **`Insentive.jsx`** - Incentives and programs
-
-### 📋 Legal Pages
-- **`TermsOfUse.jsx`** - Terms of use
+### **Legal Pages**
+- **`TermsOfUse.jsx`** - Terms of service
 - **`PrivacyPolicy.jsx`** - Privacy policy
+
+### **Utility Pages**
+- **`DebugPage.jsx`** - Development debugging tools
+- **`Insentive.jsx`** - Incentive programs
 
 ---
 
 ## 🔥 Firebase Integration (`src/firebase/`)
 
-### 🔧 Configuration
-- **`config.js`** - Firebase configuration with environment variables
-- **`index.js`** - Firebase module exports
-- **`README.md`** - Firebase setup documentation
+### **Configuration**
+- **`config.js`** - Firebase app initialization, environment validation
+- **`index.js`** - Main Firebase exports
 
-### 🔐 Authentication
-- **`auth.js`** - Authentication utilities and functions
+### **Services**
+- **`auth.js`** - User authentication (login, register, logout)
+- **`firestore.js`** - Database operations (properties, blogs, users)
+- **`storage.js`** - File upload and management
 
-### 🗄️ Database
-- **`firestore.js`** - Firestore database operations
-
-### 📁 Storage
-- **`storage.js`** - Firebase Storage operations
-
----
-
-## 🗃️ Data Directory (`src/data/`)
-
-### 📊 Static Data Files
-- **`Blogs.js`** - Blog posts data
-- **`LandSaleData.js`** - Land sale properties data
-- **`landSoldData.js`** - Sold land properties data
-- **`SalesData.js`** - Sales history data
-- **`SoldPropertydata.js`** - Sold properties data
-- **`Villas.js`** - Villa rental data
+### **Collections**
+- **Properties** - Real estate listings
+- **Rental Properties** - Rental listings
+- **Users** - User accounts and profiles
+- **Blogs** - Content management
+- **Contacts** - Contact form submissions
+- **Reviews** - Customer testimonials
+- **Agents** - Agent profiles
+- **Portfolio** - Property portfolios
 
 ---
 
-## 🔧 Redux State Management (`src/redux/`)
+## 🔄 State Management (`src/redux/`)
 
-### 🏪 Store Configuration
-- **`store.js`** - Redux store configuration with villa and blog reducers
+### **Store Configuration**
+- **`store.js`** - Redux store setup with multiple reducers
 
-### 📦 Slices (`slices/`)
-- **`villaSlice.js`** - Villa state management
-- **`blogslice.js`** - Blog state management
+### **Slices**
+- **`blogslice.js`** - Blog state management (Firebase + local data)
+- **`villaSlice.js`** - Villa rental state and booking management
+
+### **State Structure**
+```javascript
+{
+  blogs: {
+    hardcodedBlogs: [],     // Local blog data
+    firebaseBlogs: [],      // Firebase blog data
+    allBlogs: [],           // Combined blogs
+    currentBlog: null,      // Selected blog
+    loading: false,         // Loading state
+    error: null             // Error handling
+  },
+  villa: {
+    villas: [],             // Villa listings
+    selectedVilla: null,    // Selected villa
+    bookingDetails: {},     // Booking information
+    loading: false,         // Loading state
+    error: null             // Error handling
+  }
+}
+```
 
 ---
 
-## 🛠️ Utilities (`src/utils/`)
+## 📊 Data Management (`src/data/`)
 
-### 🔐 Authentication Utilities
-- **`auth.js`** - Authentication helper functions
+### **Static Data Files**
+- **`SalesData.js`** - Property sales history and statistics
+- **`LandSaleData.js`** - Land sale information
+- **`Blogs.js`** - Blog posts and content
 
-### 🐛 Debug Utilities
+### **Data Structure Examples**
+```javascript
+// Property Data
+{
+  id: "unique-id",
+  title: "Property Title",
+  price: 500000,
+  type: "house|condo|land",
+  status: "for-sale|sold|rental",
+  images: ["url1", "url2"],
+  location: "St. John, USVI",
+  amenities: ["pool", "beach"],
+  description: "Property description",
+  agent: "agent-id",
+  createdAt: "timestamp",
+  updatedAt: "timestamp"
+}
+
+// Blog Data
+{
+  id: "blog-id",
+  title: "Blog Title",
+  content: "Blog content",
+  excerpt: "Short description",
+  image: "featured-image-url",
+  category: "real-estate",
+  tags: ["buying", "selling"],
+  author: "Author Name",
+  publishedAt: "timestamp",
+  status: "published|draft"
+}
+```
+
+---
+
+## 🛠️ Utility Functions (`src/utils/`)
+
+- **`auth.js`** - Authentication utilities
 - **`debugAuth.js`** - Authentication debugging
 - **`debugFirebase.js`** - Firebase debugging
+- **`seoUtils.js`** - SEO optimization utilities
+- **`sitemapGenerator.js`** - Sitemap generation
+- **`sitemapUtils.js`** - Sitemap utilities
 
 ---
 
-## 📁 Public Assets (`public/`)
+## 📧 Services (`src/services/`)
 
-### 🖼️ Images
-- **`images/`** - Static images (hero images, logos)
-- **`icon/`** - Icons and favicons
-- **`avatar.jpeg`** - Default avatar image
-
-### 📄 Static Files
-- **`index.html`** - Main HTML template
-- **`manifest.json`** - PWA manifest
-- **`robots.txt`** - SEO robots file
-- **`favicon.ico`** - Site favicon
+- **`emailService.js`** - EmailJS integration for contact forms
 
 ---
 
-## 🎨 Assets Directory (`src/assets/`)
+## 🔧 Scripts (`src/scripts/`)
 
-### 🖼️ Image Assets
-- **`abouthero.jpg`** - About page hero image
-- **`contacthero.jpg`** - Contact page hero image
-- **`galleryhero.jpg`** - Gallery hero image
-- **`logo.png`** - Main logo
-- **`avatar.jpeg`** - Default avatar
-
-### 👥 Agent Photos (`agent/`)
-- **`adronis/`** - Adronis agent photos (5 images)
-- **`Jenn/`** - Jenn agent photos (5 images)
-- **`tammy/`** - Tammy agent photos (6 images)
-- **`tina/`** - Tina agent photos (10 images)
-
-### 📰 Article Images (`articles/`)
-- 30+ article and blog post images covering:
-  - Home buying tips
-  - Property management
-  - Local events
-  - Mortgage information
-  - Real estate guides
-
-### 🖼️ Gallery Images (`gallery/`)
-- **`about1-4.JPG`** - About section images
-- **`attraction1-4.jpg`** - Local attraction images
-- **`mls1-5.jpg`** - MLS interface images
-- **`saleshistory1-4.jpg`** - Sales history images
-
-### 🏠 Hero Images
-- **`herosale/`** - Sale property hero images (12 webp files)
-- **`homehero/`** - Homepage hero images (4 jpeg/jpg files)
-
-### 🏢 Villa Images (`villa/`)
-- 329+ villa rental images (205 jpg, 60 webp, 46 jpeg files)
-
-### 🎬 Video Assets (`video/`)
-- **`Untitled-design-4.mp4`** - Design video
-- **`videos.mp4`** - General videos
-
-### 🏷️ Tab Icons (`tab/`)
-- Various tab icons for navigation (PNG files)
-
-### 💬 Testimonial Images (`testimonials/`)
-- **`testi1-3.jpg`** - Customer testimonial photos
+- **`migrateBlogsToFirestore.js`** - Blog migration to Firebase
+- **`runMigration.js`** - Migration runner
+- **`seedPortfolio.js`** - Portfolio data seeding
+- **`seedPortfolioNode.js`** - Node.js portfolio seeding
 
 ---
 
-## 🚀 Key Features
+## 🎨 Styling & Assets
 
-### 🏠 Real Estate Features
-- Property listings (sale, rental, land)
-- MLS integration
-- Sales history tracking
-- Agent profiles
-- Villa rental management
+### **Tailwind Configuration**
+- Custom color palette with `cruzbay-teal`, `cruzbay-beige`
+- Responsive breakpoints
+- Custom utility classes
 
-### 🔐 User Management
-- User authentication (Firebase Auth)
-- Role-based access (Admin, Agent, User)
-- Protected routes
-- User registration/login
-
-### 📊 Analytics & Tracking
-- Google Analytics 4 integration
-- Page view tracking
-- User behavior analytics
-
-### 🎨 UI/UX Features
-- Responsive design (Tailwind CSS)
-- Lazy loading for performance
-- Smooth scrolling
-- Interactive maps
-- Image galleries
-- Video players
-
-### 🤖 Interactive Features
-- Chatbot integration
-- Contact forms
-- Property search
-- Mortgage calculator
-- Date pickers
+### **Asset Organization** (`src/assets/`)
+- **`articles/`** - Blog post images (25+ articles)
+- **`gallery/`** - Property and location photos
+- **`villa/`** - Villa rental images (329+ files)
+- **`agent/`** - Agent profile photos
+- **`testimonials/`** - Customer photos
+- **`logo/`** - Brand logos and icons
 
 ---
 
-## 📦 Dependencies
+## 🚀 Routing Structure
 
-### 🎯 Core Dependencies
-- **React 19.1.1** - UI framework
-- **React Router DOM 7.8.1** - Client-side routing
-- **Redux Toolkit 2.8.2** - State management
-- **Firebase 12.1.0** - Backend services
+### **Public Routes**
+- `/` - Home page
+- `/about` - Company information
+- `/properties` - Property listings
+- `/contact` - Contact page
+- `/blogs` - Blog listing
+- `/blog/:id` - Individual blog post
+- `/saleshistory` - Sales data
+- `/mls` - MLS search
 
-### 🎨 UI & Styling
-- **Tailwind CSS 4.1.12** - Utility-first CSS
-- **Framer Motion 12.23.12** - Animation library
-- **Lucide React 0.540.0** - Icon library
-- **React Icons 5.5.0** - Icon components
+### **Property Routes**
+- `/property/:id` - Property details
+- `/villa-rentals/:slug` - Villa rentals
+- `/rental/:slug` - Rental properties
+- `/landproperties` - Land listings
 
-### 📊 Data Visualization
-- **Chart.js 4.5.0** - Charting library
-- **React Chart.js 2 5.3.0** - React Chart.js wrapper
-- **Recharts 3.1.2** - Composable charting library
+### **Agent Routes**
+- `/agent/:id` - Agent profiles
+- `/about-340-realestate-team` - Team information
 
-### 🛠️ Development Tools
-- **React Scripts 5.0.1** - Build tools
-- **PostCSS 8.5.6** - CSS processing
-- **Autoprefixer 10.4.21** - CSS vendor prefixes
+### **Protected Routes** (Admin/Agent)
+- `/admin/admindashboard` - Admin dashboard
+- `/agent/agentdashboard` - Agent dashboard
+- `/agent/rentals` - Rental management
 
-### 📧 Communication
-- **EmailJS 4.4.1** - Email service integration
-
-### 🔒 Security
-- **Crypto-JS 4.2.0** - Cryptographic functions
-
-### 📅 Date Handling
-- **React Date Range 2.0.1** - Date range picker
-- **React Datepicker 8.7.0** - Date picker component
-
-### 🎮 3D Graphics
-- **Three.js 0.179.1** - 3D graphics library
-- **React Three Fiber 9.3.0** - React Three.js renderer
-- **React Three Drei 10.7.3** - Useful helpers for R3F
+### **Auth Routes**
+- `/login` - User login
+- `/register` - User registration
 
 ---
 
-## 🌐 Environment Configuration
+## 🔍 Key Features
 
-### 🔧 Required Environment Variables
-- `REACT_APP_FIREBASE_API_KEY`
-- `REACT_APP_FIREBASE_AUTH_DOMAIN`
-- `REACT_APP_FIREBASE_PROJECT_ID`
-- `REACT_APP_FIREBASE_STORAGE_BUCKET`
-- `REACT_APP_FIREBASE_MESSAGING_SENDER_ID`
-- `REACT_APP_FIREBASE_APP_ID`
-- `REACT_APP_FIREBASE_MEASUREMENT_ID`
+### **Property Management**
+- ✅ Property listings with image galleries
+- ✅ Advanced search and filtering
+- ✅ MLS integration
+- ✅ Rental property management
+- ✅ Land sale listings
 
-### 📊 Analytics
-- Google Analytics 4 tracking ID: `G-XRKGZZK5YK`
+### **Content Management**
+- ✅ Blog system with SEO optimization
+- ✅ Image galleries and media management
+- ✅ Testimonials and reviews
+- ✅ Team member profiles
 
----
+### **User Experience**
+- ✅ Responsive design (mobile-first)
+- ✅ Fast loading with lazy loading
+- ✅ SEO optimized pages
+- ✅ Google Analytics integration
+- ✅ Contact forms with EmailJS
 
-## 🚀 Deployment
-
-### ☁️ Vercel Configuration
-- **`vercel.json`** - Vercel deployment settings
-- Production build with `CI=false` flag
-
-### 📦 Build Process
-- **Development:** `npm start`
-- **Production:** `npm run build`
-- **Testing:** `npm test`
-
----
-
-## 📝 Notes
-
-### 🎯 Project Focus
-This is a comprehensive real estate website for St. John, USVI, featuring:
-- Property listings and management
-- Agent profiles and dashboards
-- Sales history and analytics
-- Villa rental management
-- User authentication and role-based access
-- MLS integration
-- Interactive maps and galleries
-
-### 🔧 Technical Highlights
-- Modern React 19 with hooks and functional components
-- Firebase backend integration
-- Redux Toolkit for state management
-- Tailwind CSS for styling
-- Lazy loading for performance optimization
-- Comprehensive image and video asset management
-- Mobile-responsive design
-
-### 📊 Data Management
-- Static data files for initial content
-- Firebase Firestore for dynamic content
-- Redux for client-side state management
-- Local storage for user preferences
+### **Admin Features**
+- ✅ Property portfolio management
+- ✅ Blog content management
+- ✅ Booking system
+- ✅ Email configuration
+- ✅ System monitoring
 
 ---
 
-*Last Updated: $(date)*
-*Total Files Indexed: 200+*
-*Lines of Code: 10,000+*
+## 🔧 Development Tools
 
+### **Scripts Available**
+```bash
+npm start          # Development server
+npm run build      # Production build
+npm test           # Run tests
+npm run eject      # Eject from CRA
+```
+
+### **Environment Variables**
+```env
+# Firebase Configuration
+REACT_APP_FIREBASE_API_KEY=
+REACT_APP_FIREBASE_AUTH_DOMAIN=
+REACT_APP_FIREBASE_PROJECT_ID=
+REACT_APP_FIREBASE_STORAGE_BUCKET=
+REACT_APP_FIREBASE_MESSAGING_SENDER_ID=
+REACT_APP_FIREBASE_APP_ID=
+REACT_APP_FIREBASE_MEASUREMENT_ID=
+```
+
+---
+
+## 📈 Performance Optimizations
+
+- **Lazy Loading**: Pages loaded on demand
+- **Image Optimization**: WebP format for better performance
+- **Code Splitting**: Route-based code splitting
+- **Redux State**: Efficient state management
+- **Firebase Caching**: Optimized database queries
+- **SEO**: Meta tags, structured data, sitemaps
+
+---
+
+## 🛡️ Security Features
+
+- **Firebase Security Rules**: Database and storage protection
+- **Protected Routes**: Role-based access control
+- **Environment Variables**: Secure configuration
+- **Input Validation**: Form validation and sanitization
+- **HTTPS**: Secure data transmission
+
+---
+
+## 📱 Responsive Design
+
+- **Mobile First**: Optimized for mobile devices
+- **Breakpoints**: sm (640px), md (768px), lg (1024px), xl (1280px)
+- **Touch Friendly**: Mobile-optimized interactions
+- **Progressive Enhancement**: Works without JavaScript
+
+---
+
+## 🔄 Deployment
+
+- **Platform**: Vercel (configured in `vercel.json`)
+- **Build**: Automated builds on git push
+- **Environment**: Production and staging environments
+- **CDN**: Global content delivery
+- **SSL**: Automatic HTTPS certificates
+
+---
+
+*Last Updated: December 2024*
+*Version: 1.0.0*
+*Total Components: 100+*
+*Total Pages: 20+*

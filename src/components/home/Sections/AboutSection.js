@@ -1,91 +1,46 @@
 import React from "react";
-import team from "../../../assets/team.jpeg";
 
-const AboutSection = () => {
+export default function AboutSection() {
   return (
-    <section id="about" className="py-16 lg:py-24 bg-[#ede4de]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          {/* Left Column - Team Photo */}
-          <div className="order-2 lg:order-1">
-            <div className="relative">
-              <div className="absolute -inset-4 bg-gradient-to-r from-tropical-400 to-caribbean-400 rounded-2xl opacity-20 blur-xl"></div>
+    <div className="">
+      <section className="min-h-[400px] md:min-h-[500px] lg:h-[70vh] w-full bg-[#406C6E] py-8 sm:py-12 md:py-16 lg:py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl w-full grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-10 lg:gap-12 items-center mx-auto">
+            {/* Left: Image */}
+            <div className="flex justify-center order-1 md:order-1">
               <img
-                src={team}
-                alt="340 Real Estate Team"
-                className="relative rounded-2xl shadow-2xl w-full h-96 lg:h-[500px] object-cover"
+                src="https://www.340realestate.com/static/media/team.9b5bbec2ccab6d8c134c.jpeg"
+                alt="Our Team"
+                className="w-full max-w-sm sm:max-w-md md:max-w-lg h-64 sm:h-72 md:h-80 lg:h-96 object-cover rounded-sm shadow-lg"
               />
             </div>
-          </div>
 
-          {/* Right Column - Content */}
-          <div className="order-1 lg:order-2">
-            <div className="space-y-6">
-              <h2 className="text-3xl lg:text-4xl text-gray-900">
-                Discover Your Slice of Paradise with 340 Real Estate St. John
+            {/* Right: Text Content */}
+            <div className="text-white text-center md:text-left order-2 md:order-2 px-4 sm:px-6 md:px-0">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif tracking-wide mb-3 sm:mb-4 md:mb-6">
+                GET TO KNOW US
               </h2>
-              <p className="text-lg font-medium text-tropical-600">
-                Residential Homes, Land & Condos for Every Budget!
+              <p className="text-xs sm:text-sm md:text-base leading-relaxed mb-6 sm:mb-8 text-gray-100">
+                Have you ever found yourself daydreaming about staying forever
+                after the most relaxing vacation of your life—sunbathing on a
+                tropical beach or taking a once-in-a-lifetime sabbatical in a
+                remote island paradise? That dream of owning a piece of "the
+                rock" may be closer than you think.
               </p>
 
-              <div className="space-y-4 text-gray-600 leading-relaxed">
-                <p>
-                  Have you ever found yourself daydreaming about staying forever
-                  after the most relaxing vacation of your life—sunbathing on a
-                  tropical beach or taking a once-in-a-lifetime sabbatical in a
-                  remote island paradise? That dream of owning a piece of "the
-                  rock" may be closer than you think.
-                </p>
-
-                <div className="space-y-3">
-                  <h3 className="text-xl font-semibold text-gray-900">
-                    Why St. John?
-                  </h3>
-                  <p>
-                    St. John is a gem rich in history, culture, and natural
-                    beauty. Home to the renowned Virgin Islands National
-                    Park—established in 1956 through the efforts of Laurance
-                    Rockefeller—the park now encompasses 7,200 acres of land and
-                    an additional 5,600 acres of underwater beauty. This
-                    accounts for roughly 80% of the island remaining pristine
-                    and undeveloped, including world-famous white-sand beaches.
-                  </p>
-                  <p>
-                    This small but captivating island draws visitors from all
-                    over the world. Whether you're into hiking, snorkeling,
-                    diving, surfing, or just soaking up the Caribbean sun, St.
-                    John offers something for everyone.
-                  </p>
-                </div>
+              {/* Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center md:justify-start">
+                <button className="w-full sm:w-auto px-6 sm:px-8 py-2 sm:py-3 bg-white text-[#406C6E] border border-white font-semibold text-sm sm:text-base tracking-wide hover:bg-opacity-90 transition-all duration-300">
+                  MEET THE TEAM
+                </button>
+                <button className="w-full sm:w-auto px-6 sm:px-8 py-2 sm:py-3 text-white border border-white font-semibold text-sm sm:text-base tracking-wide hover:bg-white hover:text-[#406C6E] transition-all duration-300">
+                  CONTACT US
+                </button>
               </div>
-
-              {/* Stats */}
-              {/* <div className="grid grid-cols-3 gap-6 pt-6">
-                <div className="text-center">
-                  <div className="text-2xl lg:text-3xl font-bold text-tropical-600">
-                    7,200
-                  </div>
-                  <div className="text-sm text-gray-600">Acres of Land</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl lg:text-3xl font-bold text-tropical-600">
-                    5,600
-                  </div>
-                  <div className="text-sm text-gray-600">Underwater Acres</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl lg:text-3xl font-bold text-tropical-600">
-                    80%
-                  </div>
-                  <div className="text-sm text-gray-600">Protected Land</div>
-                </div>
-              </div> */}
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   );
-};
-
-export default AboutSection;
+}

@@ -8,7 +8,7 @@ import SEOHead from "../components/SEO/SEOHead";
 
 const About = () => {
   return (
-    <div className="App relative scroll-smooth">
+    <div className="App relative scroll-smooth p-3">
       <SEOHead
         title="About St. John Real Estate | 340 Real Estate Guide"
         description="Learn about real estate ownership, condos, and land subdivisions in St. John, USVI. Comprehensive guide to buying property in the U.S. Virgin Islands."

@@ -4,7 +4,7 @@ import ReviewsSection from "./../components/testimonials/ReviewsSection";
 
 const Testimonial = () => {
   return (
-    <div className="App relative scroll-smooth">
+    <div className="App relative scroll-smooth p-3">
       <TestimonialHero />
       <ReviewsSection />
     </div>

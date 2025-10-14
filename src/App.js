@@ -8,6 +8,7 @@ import ChatbotButton from "./components/Chatbot";
 import ScrollToTop from "./components/ScrollToTop";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import AnalyticsTracker from "./components/AnalyticsTracker";
+import AgentsSection from "./components/home/Sections/AgentsSection";
 
 // Lazy load pages for better performance
 const Home = lazy(() => import("./pages/Home"));
@@ -72,9 +73,7 @@ function App() {
     <div className="App relative scroll-smooth">
       {/* 🌐 Header */}
       <Header />
-      
- 
-      
+
       <ScrollToTop />
       {/* 📄 Main Page Content */}
       <main>
@@ -101,6 +100,7 @@ function App() {
               path="/about-340-realestate-team"
               element={<AboutRealEstate />}
             />
+            <Route path="/meetourteam" element={<AgentsSection/>}/>
             <Route path="/agent/:id" element={<AgentDetail />} />
             <Route path="/property/:id" element={<PropertyDetail />} />
             <Route path="/soldproperty/:id" element={<SoldPropertyDetail />} />
@@ -150,7 +150,7 @@ function App() {
       <Footer />
 
       {/* Chatbot Floating Button & Modal */}
-      <ChatbotButton />
+      {/* <ChatbotButton /> */}
     </div>
   );
 }

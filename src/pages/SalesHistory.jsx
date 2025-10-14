@@ -4,8 +4,8 @@ import TabHistory from "./../components/saleshistory/TabHistory";
 
 const SalesHistory = () => {
   return (
-    <div className="App relative scroll-smooth">
-      <SalesHistoryHero />|
+    <div className="App relative scroll-smooth p-4">
+      <SalesHistoryHero />
       <TabHistory />
     </div>
   );

@@ -43,40 +43,55 @@ const ReviewCard = ({ review }) => {
 
   return (
     <motion.div
-      className="bg-white p-6 rounded-xl shadow-md border hover:shadow-lg transition"
+      className="bg-white p-8 rounded-none shadow-none border-0 hover:shadow-none transition"
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <h3 className="text-lg font-semibold mb-1 text-indigo-600">
-        {review.title}
-      </h3>
-      <div className="flex items-center mb-2">
-        {[1, 2, 3, 4, 5].map((i) => (
-          <svg
-            key={i}
-            className={`w-5 h-5 ${
-              i <= review.rating ? "text-yellow-400" : "text-gray-300"
-            }`}
-            fill="currentColor"
-            viewBox="0 0 20 20"
+      {/* Header with Profile Icon and Name */}
+      <div className="flex items-center mb-8">
+        {/* Profile Icon with Palm Tree */}
+        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mr-6">
+          <svg 
+            className="w-8 h-8 text-teal-600" 
+            fill="currentColor" 
+            viewBox="0 0 24 24"
           >
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.548 4.755h5.007c.969 0 1.371 1.24.588 1.81l-4.055 2.947 1.548 4.755c.3.921-.755 1.688-1.538 1.118L12 17.347l-4.055 2.947-1.548-4.755-4.055-2.947c-.783-.57-.38-1.81.588-1.81h5.007L9.049 2.927z" />
+            {/* Palm Tree Trunk */}
+            <rect x="11" y="14" width="2" height="8" fill="currentColor"/>
+            {/* Palm Tree Fronds */}
+            <path d="M12 2C8 2 5 5 5 9c0 1.5.5 2.8 1.3 3.8L12 16l5.7-3.2c.8-1 1.3-2.3 1.3-3.8 0-4-3-7-7-7z" fill="currentColor"/>
+            <path d="M12 4c-2.8 0-5 2.2-5 5 0 1.2.4 2.3 1.1 3.2L12 14l3.9-1.8c.7-.9 1.1-2 1.1-3.2 0-2.8-2.2-5-5-5z" fill="currentColor"/>
           </svg>
-        ))}
+        </div>
+        
+        {/* Reviewer Name */}
+        <h3 className="text-2xl font-serif font-light text-gray-800 tracking-wide uppercase">
+          {review.name}
+        </h3>
       </div>
-      <p className="text-gray-600 text-sm whitespace-pre-line mb-2">
-        {displayed}
-        {isLong && (
-          <button
-            onClick={toggle}
-            className="ml-1 inline-flex items-center text-sm font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 hover:text-indigo-700 px-2 py-0.5 rounded transition duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-300"
-          >
-            {expanded ? "Show Less" : "Show More"}
-          </button>
-        )}
-      </p>
-      <p className="text-sm font-medium text-gray-500">— {review.name}</p>
+
+      {/* Review Text */}
+      <div className="mb-6">
+        <p className="text-gray-800 text-base leading-relaxed font-sans whitespace-pre-line">
+          {displayed}
+          {isLong && (
+            <button
+              onClick={toggle}
+              className="ml-1 inline-flex items-center text-sm font-medium text-gray-800 underline hover:text-gray-600 transition duration-200 focus:outline-none"
+            >
+              {expanded ? "SHOW LESS" : "READ MORE"}
+              <svg 
+                className="ml-1 w-3 h-3" 
+                fill="currentColor" 
+                viewBox="0 0 20 20"
+              >
+                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </button>
+          )}
+        </p>
+      </div>
     </motion.div>
   );
 };
@@ -210,12 +225,35 @@ const ReviewsSection = () => {
   });
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const reviewsPerPage = 3;
 
   // Combine static reviews with Firebase reviews
   const allReviews = [...initialReviews, ...firebaseReviews];
   console.log('All reviews (static + Firebase):', allReviews);
   console.log('Static reviews count:', initialReviews.length);
   console.log('Firebase reviews count:', firebaseReviews.length);
+
+  // Pagination calculations
+  const totalPages = Math.ceil(allReviews.length / reviewsPerPage);
+  const startIndex = (currentPage - 1) * reviewsPerPage;
+  const endIndex = startIndex + reviewsPerPage;
+  const currentReviews = allReviews.slice(startIndex, endIndex);
+
+  // Pagination handlers
+  const goToPage = (page) => {
+    setCurrentPage(page);
+  };
+
+  const goToPreviousPage = () => {
+    setCurrentPage(prev => Math.max(prev - 1, 1));
+  };
+
+  const goToNextPage = () => {
+    setCurrentPage(prev => Math.min(prev + 1, totalPages));
+  };
 
   // Subscribe to real-time reviews
   useEffect(() => {
@@ -227,6 +265,11 @@ const ReviewsSection = () => {
 
     return () => unsubscribe();
   }, []);
+
+  // Reset to first page when reviews change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [allReviews.length]);
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -258,28 +301,99 @@ const ReviewsSection = () => {
   };
 
   return (
-    <section className="bg-gradient-to-br from-white via-gray-50 to-white py-20 px-6">
-      <div className="max-w-6xl mx-auto">
+    <section className="bg-white py-20 px-6">
+      <div className="max-w-4xl mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-4xl font-extrabold text-center mb-12 text-[#3c6a72]"
+          className="text-4xl font-serif font-light text-center mb-16 text-gray-800 tracking-wide"
         >
           What Our Clients Say
         </motion.h2>
         <motion.div
-          className="flex flex-col gap-y-6 w-full mx-auto px-2 sm:px-4"
+          className="flex flex-col gap-y-12 w-full mx-auto"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
           transition={{ staggerChildren: 0.15 }}
         >
-          {allReviews.map((review, idx) => (
-            <ReviewCard key={review.id || `static-${idx}`} review={review} />
+          {currentReviews.map((review, idx) => (
+            <ReviewCard key={review.id || `static-${startIndex + idx}`} review={review} />
           ))}
         </motion.div>
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <motion.div
+            className="flex items-center justify-center mt-12 space-x-4"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            {/* Previous Button */}
+            <button
+              onClick={goToPreviousPage}
+              disabled={currentPage === 1}
+              className={`px-4 py-2 rounded-md transition duration-200 ${
+                currentPage === 1
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+              }`}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+
+            {/* Page Numbers */}
+            <div className="flex space-x-2">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => goToPage(page)}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition duration-200 ${
+                    currentPage === page
+                      ? "bg-teal-600 text-white"
+                      : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
+
+            {/* Next Button */}
+            <button
+              onClick={goToNextPage}
+              disabled={currentPage === totalPages}
+              className={`px-4 py-2 rounded-md transition duration-200 ${
+                currentPage === totalPages
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+              }`}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </motion.div>
+        )}
+
+        {/* Page Info */}
+        {totalPages > 1 && (
+          <motion.p
+            className="text-center text-sm text-gray-500 mt-4"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            Showing {startIndex + 1}-{Math.min(endIndex, allReviews.length)} of {allReviews.length} reviews
+          </motion.p>
+        )}
 
         {/* Form */}
         <div className="mt-20 max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-md border">

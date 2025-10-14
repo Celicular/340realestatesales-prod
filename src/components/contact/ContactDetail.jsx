@@ -1,21 +1,30 @@
 import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { Mail, MapPin, Phone, Loader2, CheckCircle, AlertCircle } from "lucide-react";
+import { Loader2, CheckCircle, AlertCircle } from "lucide-react";
 import { sendContactFormEmail } from '../../services/emailService';
+import team from "../../assets/team.jpeg"
 
 const ContactDetail = () => {
   const formRef = useRef();
   const [formData, setFormData] = useState({
     user_name: "",
     user_email: "",
-    subject: "",
-    message: "",
+    phone: "",
+    homes: false,
+    land: false,
+    condos: false,
+    timeshares: false,
+    commercial: false,
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState(null); // 'success', 'error', or null
+  const [submitStatus, setSubmitStatus] = useState(null);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value, type, checked } = e.target;
+    setFormData({ 
+      ...formData, 
+      [name]: type === 'checkbox' ? checked : value 
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -31,10 +40,13 @@ const ContactDetail = () => {
         setFormData({
           user_name: "",
           user_email: "",
-          subject: "",
-          message: "",
+          phone: "",
+          homes: false,
+          land: false,
+          condos: false,
+          timeshares: false,
+          commercial: false,
         });
-        // Reset form
         if (formRef.current) {
           formRef.current.reset();
         }
@@ -54,169 +66,185 @@ const ContactDetail = () => {
   };
 
   return (
-    <section className="py-16 px-4 md:px-10 bg-brand-light" id="contact">
-      <motion.div
-        className="max-w-6xl mx-auto bg-gradient-to-r from-brand-light via-white to-brand-light rounded-2xl shadow-2xl overflow-hidden grid md:grid-cols-2 border "
-        initial={{ opacity: 0, y: 60 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7 }}
-      >
-        {/* Left Contact Info Section */}
-        <div className=" text-brand-dark p-10 flex flex-col justify-center space-y-6">
-          <h2 className="text-4xl font-bold text-brand-dark">Contact Us</h2>
-          <p className="text-lg text-brand-dark/80">
-            Reach Out for Villa Rentals: Contact Us Today!
+    <section className="py-16 px-4 bg-white">
+      <div className="max-w-6xl mx-auto">
+        {/* Header Section */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-serif font-light text-gray-800 uppercase tracking-wider mb-4">
+            SUBMIT A MESSAGE
+          </h1>
+          <p className="text-base font-sans text-gray-700 max-w-2xl mx-auto">
+            Complete the following information to receive your instant email notices of new St John listings & price reductions.
           </p>
-
-          <div className="space-y-4 text-brand-dark">
-            <div className="flex items-start gap-3">
-              <MapPin className="text-[#25525a] mt-1" />
-              <p>
-                340 Real Estate Company Property, Sales, and Management
-                <br />
-                St John, US Virgin Islands
-              </p>
-            </div>
-            <div className="flex items-start gap-3">
-              <Phone className="text-[#25525a] mt-1" />
-              <p>
-                <a href="tel:3406436068" className="hover:underline">
-                  340-643-6068
-                </a>{" "}
-                /{" "}
-                <a href="tel:3407794478" className="hover:underline">
-                  340-779-4478
-                </a>
-              </p>
-            </div>
-            <div className="flex items-start gap-3">
-              <Mail className="text-[#25525a] mt-1" />
-              <a
-                href="mailto:340realestateco@gmail.com"
-                className="hover:underline"
-              >
-                340realestateco@gmail.com
-              </a>
-            </div>
-          </div>
         </div>
 
-        {/* Right Contact Form */}
-        <form ref={formRef} onSubmit={handleSubmit} className="p-10 space-y-6">
-          {/* Success/Error Messages */}
-          {submitStatus === 'success' && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-md flex items-center gap-2"
-            >
-              <CheckCircle className="w-5 h-5" />
-              <span>Message sent successfully! We'll get back to you soon.</span>
-              <button
-                type="button"
-                onClick={resetStatus}
-                className="ml-auto text-green-600 hover:text-green-800"
-              >
-                ×
-              </button>
-            </motion.div>
-          )}
+        {/* Main Content - Two Columns */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+          {/* Left Column - Image */}
+          <div className="order-2 lg:order-1">
+            <div className="relative">
+              <img
+                src={team}
+                alt="Five women on a beach"
+                className="w-full h-auto rounded-lg shadow-lg"
+              />
+            </div>
+          </div>
 
-          {submitStatus === 'error' && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-md flex items-center gap-2"
-            >
-              <AlertCircle className="w-5 h-5" />
-              <span>Failed to send message. Please try again.</span>
-              <button
-                type="button"
-                onClick={resetStatus}
-                className="ml-auto text-red-600 hover:text-red-800"
-              >
-                ×
-              </button>
-            </motion.div>
-          )}
+          {/* Right Column - Contact Form */}
+          <div className="order-1 lg:order-2">
+            <form ref={formRef} onSubmit={handleSubmit} className="space-y-8">
+              {/* Success/Error Messages */}
+              {submitStatus === 'success' && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-md flex items-center gap-2"
+                >
+                  <CheckCircle className="w-5 h-5" />
+                  <span>Message sent successfully! We'll get back to you soon.</span>
+                  <button
+                    type="button"
+                    onClick={resetStatus}
+                    className="ml-auto text-green-600 hover:text-green-800"
+                  >
+                    ×
+                  </button>
+                </motion.div>
+              )}
 
-          <div>
-            <label className="block text-brand-dark mb-1 font-medium">
-              Your Name
-            </label>
-            <input
-              type="text"
-              name="user_name"
-              required
-              value={formData.user_name}
-              onChange={handleChange}
-              className="w-full bg-brand-light border border-[#25525a] px-4 py-3 rounded-md text-brand-dark placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-accent"
-              placeholder="Enter your full name"
-              disabled={isLoading}
-            />
+              {submitStatus === 'error' && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-md flex items-center gap-2"
+                >
+                  <AlertCircle className="w-5 h-5" />
+                  <span>Failed to send message. Please try again.</span>
+                  <button
+                    type="button"
+                    onClick={resetStatus}
+                    className="ml-auto text-red-600 hover:text-red-800"
+                  >
+                    ×
+                  </button>
+                </motion.div>
+              )}
+
+              {/* Form Fields */}
+              <div className="space-y-6">
+                {/* Full Name */}
+                <div>
+                  <label className="block text-sm font-sans text-gray-800 mb-2">
+                    Full Name *
+                  </label>
+                  <div className="relative">
+                    <div className="absolute bottom-0 left-0 w-full h-px bg-gray-300"></div>
+                    <input
+                      type="text"
+                      name="user_name"
+                      required
+                      value={formData.user_name}
+                      onChange={handleChange}
+                      className="w-full bg-transparent border-0 border-b border-gray-300 px-0 py-3 text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-gray-500 transition-colors"
+                      placeholder=""
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label className="block text-sm font-sans text-gray-800 mb-2">
+                    Email *
+                  </label>
+                  <div className="relative">
+                    <div className="absolute bottom-0 left-0 w-full h-px bg-gray-300"></div>
+                    <input
+                      type="email"
+                      name="user_email"
+                      required
+                      value={formData.user_email}
+                      onChange={handleChange}
+                      className="w-full bg-transparent border-0 border-b border-gray-300 px-0 py-3 text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-gray-500 transition-colors"
+                      placeholder=""
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
+
+                {/* Phone */}
+                <div>
+                  <label className="block text-sm font-sans text-gray-800 mb-2">
+                    Phone
+                  </label>
+                  <div className="relative">
+                    <div className="absolute bottom-0 left-0 w-full h-px bg-gray-300"></div>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      className="w-full bg-transparent border-0 border-b border-gray-300 px-0 py-3 text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-gray-500 transition-colors"
+                      placeholder=""
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Checkbox Section */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-sans text-gray-800 font-medium">
+                  Please send me info on:
+                </h3>
+                
+                <div className="space-y-3">
+                  {[
+                    { name: 'homes', label: 'Homes for Sale' },
+                    { name: 'land', label: 'Land for Sale' },
+                    { name: 'condos', label: 'Condos for Sale' },
+                    { name: 'timeshares', label: 'Timeshares for Sale' },
+                    { name: 'commercial', label: 'Commercial Opportunities' }
+                  ].map((option) => (
+                    <label key={option.name} className="flex items-center space-x-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        name={option.name}
+                        checked={formData[option.name]}
+                        onChange={handleChange}
+                        className="w-4 h-4 text-gray-600 border-gray-300 rounded focus:ring-gray-500"
+                        disabled={isLoading}
+                      />
+                      <span className="text-sm font-sans text-gray-800">
+                        {option.label}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <motion.button
+                type="submit"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                disabled={isLoading}
+                className="w-full bg-gray-800 text-white font-sans text-sm py-3 px-6 hover:bg-gray-700 transition-colors duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  'Submit'
+                )}
+              </motion.button>
+            </form>
           </div>
-          <div>
-            <label className="block text-brand-dark mb-1 font-medium">
-              Your Email
-            </label>
-            <input
-              type="email"
-              name="user_email"
-              required
-              value={formData.user_email}
-              onChange={handleChange}
-              className="w-full bg-brand-light border border-[#25525a] px-4 py-3 rounded-md text-brand-dark placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-accent"
-              placeholder="your@email.com"
-              disabled={isLoading}
-            />
-          </div>
-          <div>
-            <label className="block text-brand-dark mb-1 font-medium">
-              Subject
-            </label>
-            <input
-              type="text"
-              name="subject"
-              required
-              value={formData.subject}
-              onChange={handleChange}
-              className="w-full bg-brand-light border border-[#25525a] px-4 py-3 rounded-md text-brand-dark placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-accent"
-              placeholder="Subject of your message"
-              disabled={isLoading}
-            />
-          </div>
-          <div>
-            <label className="block text-brand-dark mb-1 font-medium">
-              Message
-            </label>
-            <textarea
-              name="message"
-              rows="4"
-              value={formData.message}
-              onChange={handleChange}
-              className="w-full bg-brand-light border border-[#25525a] px-4 py-3 rounded-md text-brand-dark placeholder:text-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-brand-accent"
-              placeholder="Write your message here..."
-              disabled={isLoading}
-            />
-          </div>
-          <motion.button
-            type="submit"
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.97 }}
-            disabled={isLoading}
-            className="bg-[#25525a] text-white font-semibold px-6 py-3 rounded-md shadow-md hover:shadow-lg transition duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[48px]"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                Sending...
-              </>
-            ) : (
-              'Send Message'
-            )}
-          </motion.button>
-        </form>
-      </motion.div>
+        </div>
+      </div>
     </section>
   );
 };
