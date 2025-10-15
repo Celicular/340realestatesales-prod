@@ -23,10 +23,7 @@ const InsentiveHero = () => {
             Incentives
           </h1>
           <div className="h-1 w-32 bg-gradient-to-r from-tropical-500 to-blue-400 rounded-full mb-4"></div>
-          <p className="text-white text-lg md:text-2xl max-w-2xl font-light">
-            Discover St. John: A Journey Through History, Nature, and Island
-            Charm
-          </p>
+         
         </motion.div>
       </section>
     </div>

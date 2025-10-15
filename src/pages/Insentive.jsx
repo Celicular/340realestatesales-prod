@@ -5,7 +5,7 @@ import EDCIncentives from "./../components/incentive/EDCIncentives";
 
 const Insentive = () => {
   return (
-    <div className="App relative scroll-smooth">
+    <div className="App relative scroll-smooth p-3">
       <InsentiveHero />|
       <ConnectWithUs />
       <EDCIncentives />

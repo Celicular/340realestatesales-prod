@@ -79,7 +79,7 @@ const BlogList = () => {
   };
 
   return (
-    <div>
+    <div className="p-3">
       {/* Hero Slideshow */}
       <div className="relative h-[80vh] w-full overflow-hidden">
         {heroImages.map((img, idx) => (
@@ -97,9 +97,7 @@ const BlogList = () => {
           <h1 className="text-4xl md:text-6xl text-white font-bold mb-4">
             Welcome to Our Blog
           </h1>
-          <p className="text-white text-lg md:text-xl max-w-2xl">
-            Explore insights, stories, and beautiful moments from paradise.
-          </p>
+         
         </div>
       </div>
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, ChevronDown } from "lucide-react";
+import logowritten from "../../assets/340realestate.png"
 // import logo from "../assets/logo.png"; // Ensure you have a logo image in the specified path
 
 const Header = () => {
@@ -31,17 +32,17 @@ const Header = () => {
       name: "Property Search ↴",
       children: [
         { name: "Residential", path: "/properties" },
-        {
-          name: "Commercial ↴",
-          children: [
-            { name: "For Sales", disabled: true },
+        // {
+        //   name: "Commercial ↴",
+        //   children: [
+        //     { name: "For Sales", disabled: true },
             
-            // {
-            //   name: "Recent Sales",
-            //   path: "https://my.flexmls.com/TamelaDonnelly/search/email_links/20250816153528152858000000/listings",
-            // },
-          ],
-        },
+        //     {
+        //       name: "Recent Sales",
+        //       path: "https://my.flexmls.com/TamelaDonnelly/search/email_links/20250816153528152858000000/listings",
+        //     },
+        //   ],
+        // },
         { name: "Land", path: "/landproperties" },
       ],
     },
@@ -87,7 +88,7 @@ const Header = () => {
         isScrolled ? "bg-white shadow-lg py-2" : "bg-transparent py-4"
       }`}
     >
-      <div className="container mx-auto px-4 lg:px-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
           {/* Left Navigation */}
           <nav className="hidden lg:flex items-center space-x-8">
@@ -149,18 +150,18 @@ const Header = () => {
 
           {/* Center Logo */}
           <Link to="/" className="flex items-center space-x-3">
-            {/* <img
-              src={logo}
+            <img
+              src={logowritten}
               alt="340 Real Estate Logo"
-              className="h-12 w-12 object-contain"
-            /> */}
-            <h1
+              className="h-16 w-auto object-contain"
+            />
+            {/* <h1
               className={`text-2xl font-serif font-bold transition-colors duration-300 ${
                 isScrolled ? "text-cruzbay-teal" : "text-white"
               }`}
             >
               340 Real Estate
-            </h1>
+            </h1> */}
           </Link>
 
           {/* Right Navigation */}
@@ -187,7 +188,7 @@ const Header = () => {
             </Link>
             <a
               href="tel:+13406436068"
-              className={`hidden lg:block font-serif font-medium transition-colors duration-300 ${
+              className={`hidden lg:block font-lato font-medium transition-colors duration-300 ${
                 isScrolled
                   ? "text-cruzbay-teal hover:text-cruzbay-teal-dark"
                   : "text-white hover:text-cruzbay-coral"
@@ -225,9 +226,14 @@ const Header = () => {
           <div className="fixed top-0 right-0 h-full w-[85vw] sm:w-[22rem] max-w-full bg-[#fefaf6]/80 backdrop-blur-2xl shadow-[0_0_30px_rgba(0,0,0,0.2)] z-[100] flex flex-col animate-slide-in border-l border-[#e5dcd0]">
             {/* Drawer Header */}
             <div className="flex items-center justify-between px-6 py-6 border-b border-[#e7d8ca]">
-              <span className="text-2xl font-mont text-[#2d1f15] tracking-wide">
+              {/* <span className="text-2xl font-mont text-[#2d1f15] tracking-wide">
                 340 Real Estate
-              </span>
+              </span> */}
+               <img
+              src={logowritten}
+              alt="340 Real Estate Logo"
+              className="h-16 w-auto object-contain"
+            />
               <button
                 onClick={() => setIsMenuOpen(false)}
                 className="p-2 rounded-full hover:bg-[#f1e8dd] transition duration-300 shadow-md border border-[#ddd]"
