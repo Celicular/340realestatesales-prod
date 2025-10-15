@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom"
 
 export default function AboutSection() {
   return (
@@ -30,12 +31,16 @@ export default function AboutSection() {
 
               {/* Buttons */}
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center md:justify-start">
+                <Link to="/meetourteam">
                 <button className="w-full sm:w-auto px-6 sm:px-8 py-2 sm:py-3 bg-white text-[#406C6E] border border-white font-serif font-semibold text-sm sm:text-base tracking-wide hover:bg-opacity-90 transition-all duration-300 uppercase">
                   MEET THE TEAM
                 </button>
+                </Link>
+                <Link to="/contact">
                 <button className="w-full sm:w-auto px-6 sm:px-8 py-2 sm:py-3 text-white border border-white font-serif font-semibold text-sm sm:text-base tracking-wide hover:bg-white hover:text-[#406C6E] transition-all duration-300 uppercase">
                   CONTACT US
                 </button>
+                </Link>
               </div>
             </div>
           </div>

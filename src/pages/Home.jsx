@@ -43,9 +43,10 @@ function Home() {
         <ServicesSection />
         <AboutSection />
         <Testimonials />
-        <AreasOfExpertise />
+      
         <FeaturedProperties />
         <NewListings />
+        <AreasOfExpertise />
         <BrowseByLifestyle />
 
         {/* <TeamSection />

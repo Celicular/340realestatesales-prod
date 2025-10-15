@@ -105,13 +105,9 @@ const AgentDetail = () => {
       title: "Broker / Owner / ABR®",
       bio: "Tammy Donnelly has lived on St. John since 1978. Her first retail job was in 1979 – 1981 here at the 340 Real Estate Company. She has been a licensed real estate agent since 1981 and has been the broker/owner of 340 Real Estate Company since 1985.",
       fullBio: `Tammy Donnelly has lived on St. John since 1978. Her first retail job was in 1979 – 1981 here at the Dockshop.
-
 Prior to earning her real estate brokers license in 2000, Tammy worked for many years as a restaurant manager and a vacation rental home manager on St. John. She is also the former owner/builder of the “Tennis Villa” and has experience in the construction and development field.
-
 Tammy has served on the St John Board of Realtors for seven years; two terms as President, a Board member of the Fish Bay Owners Association, Past President of the St. John Antilles Parent Association, and current Board member of the Friends of the Park. She supports many other community organizations including (St John Cancer Fund, Friends of the Park, Love City Pan Dragons, the ACC and more) and environmental organizations here and abroad.
-
 Tammy and her husband Jeff another longtime island resident reside in Fish Bay. Jeff is the owner of Jolly Dog and Zemi Designs stores located in Isola Shoppes in Coral Bay.
-
 Tammy has gained the respect of customers and clients who recognize her dedication, hard work, honesty and knowledge in real estate. Tammy prides herself on providing excellent customer service.`,
       image:
         "https://340realestatestjohn.com/wp-content/uploads/2024/02/Tammy-Donnelly-About.jpg",
@@ -185,11 +181,8 @@ Jennifer joined 340 Real Estate in 2015 and is very excited to translate her lov
       title: "Sales Associate",
       bio: "Tina Petitto has lived on St John since 2004, when she left her then position as Director of Finance to pursue her passion for real estate.",
       fullBio: `Tina Petitto has lived on St John since 2004, when she left her then position as Director of Finance for the Sales and Marketing Division of Hearst Publications in Charlotte, NC. She spent her childhood until the age of 21 living in the Middle East and SE Asia. Time away from home was spent at boarding school, college and the Graduate School at Villanova University.
-
  In the late 80’s she was introduced to St John by her still best friend from High School. After a short two year stay, and many return visits, she moved back with her family. Tina is a Finance and Accounting Manager for many St John businesses, owns several rental properties, and has recently become more formally involved in the world of Real Estate. 
-
 She currently resides in quiet and peaceful Fish Bay with her contractor husband, Joe Nogueira. 
-
 Her daughter, stepson, and two stepdaughters live in the Carolinas, which is a place still close to her heart. She loves spending time in Miami visiting her mother and, most of all, traveling and exploring the world with her daughter and family.`,
       image: tina10,
       images: [
@@ -226,19 +219,12 @@ Her daughter, stepson, and two stepdaughters live in the Carolinas, which is a p
       title: "Sales Associate",
       bio: "Rosanne Ramos Lloyd is the newest sales agent to join 340 Real Estate Company. Born and raised in the Virgin Islands, she brings local expertise and fresh perspective.",
       fullBio: `Rosanne Ramos Lloyd is the newest sales agent to join 340 Real Estate Company. Born and raised in Houston Texas, Rosanne started what would become a lifelong Residential Design career with a Bachelor’s Degree in Architecture from the University of Houston in 1997. After five years working as a designer in the office of Natalye Appel + Associates Architects LLC, she left Houston for Rhode Island School of Design to complete her Masters in Industrial Design. After graduating, Rosanne taught in the Undergraduate ID program at RISD and started her own design practice, Inclusion By Design LLC. During her time in Rhode Island, Rosanne was introduced to St. John when she met the owner of Maho Bay Camps, Stanley Selengut, in New York. Stanley’s interest in Rosanne’s work was routed in her commitment inclusive design, and then grew to impact the development, and later renovation, of Concordia Eco-Resort.
-
 Rosanne met her future husband Wayne on St. John in 2004 while working on “Building a Destination for All, 2005;” an awareness raising initiative for the tourism industry to develop an island wide physical infrastructure accessible for all ages and abilities, specifically aging populations and persons with disabilities. In January 2010 Rosanne moved full time to St John, married Wayne and continued her design work.
-
 Rosanne has 23 years of professional experience working directly with homeowners on residential design, construction administration and owner representation. Rosanne is owner of Antares Property & Hospitality LLC, serving St. John homeowners with management and marketing of short-term villa rentals. Subsequently, she and her husband opened Island Host, a full-service concierge located in the Isola Shops Building in Coral Bay.
-
 Since 2005, Rosanne has donated her professional expertise on the Francis Bay Accessible Trail, and Cinnamon Bay Accessible Trail through Friends of the Virgin Islands National Park and has taken commissioned work with FVINP, including a comprehensive accessibility study of the park’s beaches and trail system, as well as a Trail Ratings Project. Rosanne is an active member of FVINP advisory council.
-
 Prior to 340 and Antares, Rosanne was principal of Inclusion By Design LLC, an interdisciplinary design practice committed to creating built environments, products, systems, and graphic information for people across all ages and abilities. Her hands-on, collaborative style of research, analysis, and design is a result of her multidisciplinary training in Architecture and Industrial Design combined with her 23 years of professional experience. Rosanne’s work history is diverse in industry and scope. Her greatest talent is for understanding the multiplicity in human experience and using that knowledge to ensure user-centered solutions. Her capabilities range from lead designer, project manager, and primary consultant to construction administrator.
-
 Under Rosanne’s direction, Inclusion By Design became an established leader in the field of inclusive strategy for both public and private projects. Her passion and commitment to socially responsible and sustainable design remains a significant part of her life’s work. The confidence that is displayed in her work comes from understanding the impact her design will have on people’s lives and receiving that knowledge as an obligation and responsibility to demonstrate discipline and accountability in everything she does. Rosanne has been invited to speak at national and international forums, from Nevada to Florida and from Brazil to Mozambique, about these issues and to showcase her work.
-
 Her gift is in listening and understanding to the wants, needs and tastes of her clients. Her expertise is in knowing how design impacts usability and the satisfaction of each individual client.
-
 Focus
 Real Estate / Property Management
 Home Design, Addition & Renovation
