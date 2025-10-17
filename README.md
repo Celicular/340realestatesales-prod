@@ -1,4 +1,4 @@
-# 340 Real Estate Sale - St. John, USVI.
+# 340 Real Estate Sale - St. John, USVI
 
 A modern, responsive real estate website for 340 Real Estate Company, specializing in luxury properties in St. John, U.S. Virgin Islands.
 
