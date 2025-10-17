@@ -75,10 +75,10 @@ const OwnershipSection = () => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent z-10" />
               <div className="absolute inset-0 flex flex-col items-center justify-end text-center p-6 md:p-10 z-20">
-                <h2 className="text-white text-2xl md:text-4xl font-bold mb-4 drop-shadow-lg">
+                <h2 className="text-white text-2xl md:text-4xl font-alumni font-bold mb-4 drop-shadow-lg">
                   {slides[index].title}
                 </h2>
-                <p className="text-white whitespace-pre-line text-sm md:text-base leading-relaxed max-w-3xl drop-shadow-md">
+                <p className="text-white whitespace-pre-line text-sm md:text-base leading-relaxed max-w-3xl drop-shadow-md font-noto">
                   {slides[index].content}
                 </p>
               </div>
@@ -94,14 +94,14 @@ const OwnershipSection = () => {
               className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-gray-800 text-white hover:bg-gray-700 hover:scale-105 transition-all duration-300 shadow-md"
             >
               <FaArrowLeft className="text-sm" />
-              <span className="text-sm font-medium">Previous</span>
+              <span className="text-sm font-alumni font-medium">Previous</span>
             </button>
 
             <button
               onClick={nextSlide}
               className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-gray-800 text-white hover:bg-gray-700 hover:scale-105 transition-all duration-300 shadow-md"
             >
-              <span className="text-sm font-medium">Next</span>
+              <span className="text-sm font-alumni font-medium">Next</span>
               <FaArrowRight className="text-sm" />
             </button>
           </div>

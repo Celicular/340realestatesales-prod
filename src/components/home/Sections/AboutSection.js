@@ -18,10 +18,10 @@ export default function AboutSection() {
 
             {/* Right: Text Content */}
             <div className="text-white text-center md:text-left order-2 md:order-2 px-4 sm:px-6 md:px-0">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif tracking-wide mb-3 sm:mb-4 md:mb-6">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-alumni tracking-wide mb-3 sm:mb-4 md:mb-6">
                 GET TO KNOW US
               </h2>
-              <p className="text-xs sm:text-sm md:text-base leading-relaxed mb-6 sm:mb-8 text-gray-100 font-serif">
+              <p className="text-xs sm:text-sm md:text-base leading-relaxed mb-6 sm:mb-8 text-gray-100 font-noto">
                 Have you ever found yourself daydreaming about staying forever
                 after the most relaxing vacation of your life—sunbathing on a
                 tropical beach or taking a once-in-a-lifetime sabbatical in a
@@ -32,12 +32,12 @@ export default function AboutSection() {
               {/* Buttons */}
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center md:justify-start">
                 <Link to="/meetourteam">
-                <button className="w-full sm:w-auto px-6 sm:px-8 py-2 sm:py-3 bg-white text-[#406C6E] border border-white font-serif font-semibold text-sm sm:text-base tracking-wide hover:bg-opacity-90 transition-all duration-300 uppercase">
+                <button className="w-full sm:w-auto px-6 sm:px-8 py-2 sm:py-3 bg-white text-[#406C6E] border border-white font-alumni font-semibold text-sm sm:text-base tracking-wide hover:bg-opacity-90 transition-all duration-300 uppercase">
                   MEET THE TEAM
                 </button>
                 </Link>
                 <Link to="/contact">
-                <button className="w-full sm:w-auto px-6 sm:px-8 py-2 sm:py-3 text-white border border-white font-serif font-semibold text-sm sm:text-base tracking-wide hover:bg-white hover:text-[#406C6E] transition-all duration-300 uppercase">
+                <button className="w-full sm:w-auto px-6 sm:px-8 py-2 sm:py-3 text-white border border-white font-alumni font-semibold text-sm sm:text-base tracking-wide hover:bg-white hover:text-[#406C6E] transition-all duration-300 uppercase">
                   CONTACT US
                 </button>
                 </Link>

@@ -20,7 +20,7 @@ const TestimonialHero = () => {
           transition={{ duration: 1 }}
           className="relative z-10 h-full flex flex-col justify-center items-center text-center px-4"
         >
-          <h1 className="text-white uppercase text-3xl md:text-5xl font-bold tracking-wide mb-4">
+          <h1 className="text-white uppercase text-3xl md:text-5xl font-alumni font-bold tracking-wide mb-4">
             Testimonial
           </h1>          
         </motion.div>

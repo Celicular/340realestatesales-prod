@@ -374,10 +374,10 @@ const PropertyDetail = () => {
                 <div className="space-y-6">
                   {/* Header */}
                   <div>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                    <h1 className="text-3xl font-alumni font-bold text-gray-900 mb-2">
                       {activeProperty.title}
                     </h1>
-                    <div className="flex items-center gap-4 text-gray-600">
+                    <div className="flex items-center gap-4 text-gray-600 font-noto">
                       <div className="flex items-center gap-1">
                         <MapPin size={16} />
                         <span>{activeProperty.location}</span>
@@ -387,7 +387,7 @@ const PropertyDetail = () => {
 
                   {/* Price */}
                   <div className="flex items-center gap-4">
-                    <span className="text-3xl font-bold text-green-600">
+                    <span className="text-3xl font-alumni font-bold text-green-600">
                       {activeProperty.price}
                     </span>
                   </div>

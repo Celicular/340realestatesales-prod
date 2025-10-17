@@ -19,7 +19,7 @@ const InsentiveHero = () => {
           transition={{ duration: 1 }}
           className="relative z-10 h-full flex flex-col justify-center items-center text-center px-4"
         >
-          <h1 className="text-white text-3xl md:text-5xl font-bold tracking-wide mb-4">
+          <h1 className="text-white text-3xl md:text-5xl font-alumni font-bold tracking-wide mb-4">
             Incentives
           </h1>
           <div className="h-1 w-32 bg-gradient-to-r from-tropical-500 to-blue-400 rounded-full mb-4"></div>

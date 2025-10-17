@@ -98,7 +98,7 @@ const CondosInfoGrid = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
           viewport={{ once: true }}
-          className="text-3xl md:text-4xl font-bold text-center text-[#3c6a72] mb-12"
+          className="text-3xl md:text-4xl font-alumni font-bold text-center text-[#3c6a72] mb-12"
         >
           About the Different Areas of St. John – Condos
         </motion.h2>
@@ -115,9 +115,9 @@ const CondosInfoGrid = () => {
             >
               <div className="flex items-center gap-3 mb-3 text-[#3c6a72]">
                 <FaMapMarkerAlt className="text-lg" />
-                <h3 className="text-xl font-semibold">{condo.name}</h3>
+                <h3 className="text-xl font-alumni font-semibold">{condo.name}</h3>
               </div>
-              <p className="text-[#3c6a72] text-sm leading-relaxed">
+              <p className="text-[#3c6a72] text-sm leading-relaxed font-noto">
                 {condo.description}
               </p>
             </motion.div>

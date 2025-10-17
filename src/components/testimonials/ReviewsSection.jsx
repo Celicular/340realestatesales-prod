@@ -308,7 +308,7 @@ const ReviewsSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-4xl font-serif font-light text-center mb-16 text-gray-800 tracking-wide"
+          className="text-4xl font-alumni font-light text-center mb-16 text-gray-800 tracking-wide"
         >
           What Our Clients Say
         </motion.h2>

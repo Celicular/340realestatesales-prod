@@ -86,7 +86,7 @@ const BlogForm = ({ onSuccess, onCancel }) => {
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg">
-      <h2 className="text-2xl font-bold mb-6">Create New Blog</h2>
+      <h2 className="text-2xl font-alumni font-bold mb-6">Create New Blog</h2>
       
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
@@ -96,7 +96,7 @@ const BlogForm = ({ onSuccess, onCancel }) => {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-alumni font-medium text-gray-700 mb-1">
             Title *
           </label>
           <input
@@ -105,7 +105,7 @@ const BlogForm = ({ onSuccess, onCancel }) => {
             value={formData.title}
             onChange={handleChange}
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-noto"
             placeholder="Enter blog title"
           />
         </div>

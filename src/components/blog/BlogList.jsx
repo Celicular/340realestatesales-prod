@@ -94,7 +94,7 @@ const BlogList = () => {
           />
         ))}
         <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col justify-center items-center text-center px-6">
-          <h1 className="text-4xl md:text-6xl text-white font-bold mb-4">
+          <h1 className="text-4xl md:text-6xl text-white font-alumni font-bold mb-4">
             Welcome to Our Blog
           </h1>
          
@@ -149,23 +149,40 @@ const BlogList = () => {
                 </div>
               )}
               <div className="p-6 space-y-3">
-                <div className="flex justify-between items-start">
-                  <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                    {blog.category || 'Real Estate'}
-                  </span>
-                  <span className="text-xs text-gray-500">
-                    {formatDate(blog.createdAt || blog.publishedAt)}
-                  </span>
-                </div>
-                <h2 className="text-xl font-bold text-gray-800 line-clamp-2">
+                <h2 className="text-xl font-alumni font-bold text-gray-800 line-clamp-2">
                   {blog.title}
                 </h2>
+                <p className="text-sm text-gray-600 font-noto line-clamp-3">
+                  {blog.excerpt || blog.content?.substring(0, 150) + '...'}
+                </p>
+                <div className="flex items-center justify-between text-xs text-gray-500 font-noto">
+                  <span>
+                    {formatDate(blog.createdAt || blog.date)}
+                  </span>
+                  <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded">
+                    {blog.category || 'General'}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center pt-2">
+                  <span className="text-xs text-gray-500 font-noto">
+                    By {blog.author?.name || blog.author || 'Admin'}
+                  </span>
+                  <div className="flex space-x-3 text-xs text-gray-500 font-noto">
+                    <span>👁 {blog.views || 0}</span>
+                    <span>❤ {blog.likes || 0}</span>
+                    {blog.isHardcoded === false && (
+                      <span className="bg-green-100 text-green-600 px-1 rounded text-xs">
+                        New
+                      </span>
+                    )}
+                  </div>
+                </div>
                 {blog.subtitle && (
-                  <p className="text-sm text-gray-600 line-clamp-1">
+                  <p className="text-sm text-gray-600 line-clamp-1 font-noto">
                     {blog.subtitle}
                   </p>
                 )}
-                <p className="text-gray-600 text-sm line-clamp-3">
+                <p className="text-gray-600 text-sm line-clamp-3 font-noto">
                   {blog.description}
                 </p>
                 <div className="pt-2">
@@ -174,7 +191,7 @@ const BlogList = () => {
                       e.stopPropagation();
                       handleBlogClick(blog);
                     }}
-                    className="text-blue-600 hover:text-blue-800 text-sm font-medium hover:underline transition-colors duration-200"
+                    className="text-blue-600 hover:text-blue-800 text-sm font-noto font-medium hover:underline transition-colors duration-200"
                   >
                     Read more →
                   </button>

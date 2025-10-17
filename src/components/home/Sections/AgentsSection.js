@@ -162,15 +162,15 @@ const AgentsSection = () => {
         {/* CTA Section */}
         <div className="text-center mt-20">
           <div className="bg-white border border-gray-200 p-12 lg:p-16">
-            <h3 className="text-3xl lg:text-4xl font-serif font-light text-gray-800 tracking-wide mb-6">
+            <h3 className="text-3xl lg:text-4xl font-alumni font-light text-gray-800 tracking-wide mb-6">
               Ready to Work with Our Team?
             </h3>
-            <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed font-serif">
+            <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed font-noto">
               Let us help you find your dream property in St. John
             </p>
             <button
               onClick={handleContactClick}
-              className="px-8 py-4 bg-gray-800 text-white font-serif font-medium tracking-wide uppercase hover:bg-gray-700 transition-all duration-300"
+              className="px-8 py-4 bg-gray-800 text-white font-alumni font-medium tracking-wide uppercase hover:bg-gray-700 transition-all duration-300"
             >
               Contact Our Team
             </button>

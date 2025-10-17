@@ -20,11 +20,11 @@ const AboutHero = () => {
           transition={{ duration: 1 }}
           className="relative z-10 h-full flex flex-col justify-center items-center text-center px-4"
         >
-          <h1 className="text-white text-3xl md:text-5xl font-serif font-light tracking-wide mb-4">
+          <h1 className="text-white text-3xl md:text-5xl font-alumni font-light tracking-wide mb-4">
             About St. John, Virgin Islands
           </h1>
           <div className="h-1 w-32 bg-gradient-to-r from-tropical-500 to-blue-400 rounded-full mb-4"></div>
-          <p className="text-white text-lg md:text-2xl max-w-2xl font-serif font-light">
+          <p className="text-white text-lg md:text-2xl max-w-2xl font-noto font-light">
             Discover St. John: A Journey Through History, Nature, and Island
             Charm
           </p>
@@ -53,10 +53,10 @@ const AboutHero = () => {
             transition={{ duration: 0.6 }}
             className="text-center"
           >
-            <h2 className="text-3xl md:text-4xl font-semibold text-gray-800 mb-2">
+            <h2 className="text-3xl md:text-4xl font-alumni font-semibold text-gray-800 mb-2">
               St. John, Virgin Islands Real Estate
             </h2>
-            <p className="text-gray-500 text-lg">
+            <p className="text-gray-500 text-lg font-noto">
               A Historical Journey and Modern Paradise
             </p>
           </motion.div>
@@ -97,14 +97,14 @@ const AboutHero = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.3, duration: 0.6 }}
-            className="space-y-6 text-gray-800 leading-relaxed"
+            className="space-y-6 text-gray-800 leading-relaxed font-noto"
           >
-            <h3 className="text-2xl font-semibold text-tropical-600">
+            <h3 className="text-2xl font-alumni font-semibold text-tropical-600">
               A Historical Journey and Modern Paradise
             </h3>
             <p>
               St. John became part of the United States in 1917 when it was
-              purchased from Denmark. However, it wasn’t until the 1930s that
+              purchased from Denmark. However, it wasn't until the 1930s that
               word of this tropical paradise began to reach mainland America.
               This marked the beginning of a tourism era that would eventually
               blossom into a thriving industry.
@@ -117,12 +117,12 @@ const AboutHero = () => {
               land.
             </p>
             <p>
-              Rockefeller’s donation was accepted by Secretary of the Interior
+              Rockefeller's donation was accepted by Secretary of the Interior
               Fred Seaton, who declared:
               <em className="text-gray-600">
-                “The government will take care of this sacred soil—these green
+                "The government will take care of this sacred soil—these green
                 hills, valleys, and flaming miles. Take good, proper,
-                Christ-like care!”
+                Christ-like care!"
               </em>
             </p>
             <p>
@@ -138,13 +138,13 @@ const AboutHero = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.4, duration: 0.6 }}
-            className="space-y-6 text-gray-800 leading-relaxed"
+            className="space-y-6 text-gray-800 leading-relaxed font-noto"
           >
-            <h3 className="text-2xl font-semibold text-tropical-600">
+            <h3 className="text-2xl font-alumni font-semibold text-tropical-600">
               Modern-Day St. John: Accessible, Accommodating, and Awe-Inspiring
             </h3>
             <p>
-              One of the best parts? U.S. citizens don’t need a passport to
+              One of the best parts? U.S. citizens don't need a passport to
               visit. Whether you prefer rustic campgrounds or luxury resorts,
               St. John offers accommodations for every traveler.
             </p>
@@ -154,7 +154,7 @@ const AboutHero = () => {
               and the world.
             </p>
             <p>
-              Today, St. John is more than just a tropical escape—it’s a shining
+              Today, St. John is more than just a tropical escape—it's a shining
               example of nature preserved, history honored, and paradise made
               accessible to all.
             </p>

@@ -70,10 +70,10 @@ const ContactDetail = () => {
       <div className="max-w-6xl mx-auto">
         {/* Header Section */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-serif font-light text-gray-800 uppercase tracking-wider mb-4">
+          <h1 className="text-4xl font-alumni font-light text-gray-800 uppercase tracking-wider mb-4">
             SUBMIT A MESSAGE
           </h1>
-          <p className="text-base font-sans text-gray-700 max-w-2xl mx-auto">
+          <p className="text-base font-noto text-gray-700 max-w-2xl mx-auto">
             Complete the following information to receive your instant email notices of new St John listings & price reductions.
           </p>
         </div>
@@ -135,7 +135,7 @@ const ContactDetail = () => {
               <div className="space-y-6">
                 {/* Full Name */}
                 <div>
-                  <label className="block text-sm font-sans text-gray-800 mb-2">
+                  <label className="block text-sm font-noto text-gray-800 mb-2">
                     Full Name *
                   </label>
                   <div className="relative">
@@ -146,7 +146,7 @@ const ContactDetail = () => {
                       required
                       value={formData.user_name}
                       onChange={handleChange}
-                      className="w-full bg-transparent border-0 border-b border-gray-300 px-0 py-3 text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-gray-500 transition-colors"
+                      className="w-full bg-transparent border-0 border-b border-gray-300 px-0 py-3 text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-gray-500 transition-colors font-noto"
                       placeholder=""
                       disabled={isLoading}
                     />
@@ -155,7 +155,7 @@ const ContactDetail = () => {
 
                 {/* Email */}
                 <div>
-                  <label className="block text-sm font-sans text-gray-800 mb-2">
+                  <label className="block text-sm font-noto text-gray-800 mb-2">
                     Email *
                   </label>
                   <div className="relative">
@@ -166,7 +166,7 @@ const ContactDetail = () => {
                       required
                       value={formData.user_email}
                       onChange={handleChange}
-                      className="w-full bg-transparent border-0 border-b border-gray-300 px-0 py-3 text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-gray-500 transition-colors"
+                      className="w-full bg-transparent border-0 border-b border-gray-300 px-0 py-3 text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-gray-500 transition-colors font-noto"
                       placeholder=""
                       disabled={isLoading}
                     />
@@ -175,7 +175,7 @@ const ContactDetail = () => {
 
                 {/* Phone */}
                 <div>
-                  <label className="block text-sm font-sans text-gray-800 mb-2">
+                  <label className="block text-sm font-noto text-gray-800 mb-2">
                     Phone
                   </label>
                   <div className="relative">
@@ -185,7 +185,7 @@ const ContactDetail = () => {
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
-                      className="w-full bg-transparent border-0 border-b border-gray-300 px-0 py-3 text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-gray-500 transition-colors"
+                      className="w-full bg-transparent border-0 border-b border-gray-300 px-0 py-3 text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-gray-500 transition-colors font-noto"
                       placeholder=""
                       disabled={isLoading}
                     />
@@ -195,7 +195,7 @@ const ContactDetail = () => {
 
               {/* Checkbox Section */}
               <div className="space-y-4">
-                <h3 className="text-sm font-sans text-gray-800 font-medium">
+                <h3 className="text-sm font-noto text-gray-800 font-medium">
                   Please send me info on:
                 </h3>
                 
@@ -216,7 +216,7 @@ const ContactDetail = () => {
                         className="w-4 h-4 text-gray-600 border-gray-300 rounded focus:ring-gray-500"
                         disabled={isLoading}
                       />
-                      <span className="text-sm font-sans text-gray-800">
+                      <span className="text-sm font-noto text-gray-800">
                         {option.label}
                       </span>
                     </label>
@@ -230,7 +230,7 @@ const ContactDetail = () => {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 disabled={isLoading}
-                className="w-full bg-gray-800 text-white font-sans text-sm py-3 px-6 hover:bg-gray-700 transition-colors duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full bg-gray-800 text-white font-noto text-sm py-3 px-6 hover:bg-gray-700 transition-colors duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isLoading ? (
                   <>

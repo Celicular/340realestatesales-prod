@@ -9,13 +9,13 @@ const Accordion = ({ title, children }) => {
     <div className="border border-gray-200 rounded-lg overflow-hidden shadow-sm bg-white transition-all duration-300">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between w-full px-6 py-4 bg-tropical-100 hover:bg-tropical-200 text-left text-gray-800 font-medium text-lg"
+        className="flex items-center justify-between w-full px-6 py-4 bg-tropical-100 hover:bg-tropical-200 text-left text-gray-800 font-alumni font-medium text-lg"
       >
         <span>{title}</span>
         {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
       </button>
       <div
-        className={`px-6 py-4 text-gray-700 text-[0.975rem] leading-relaxed bg-white transition-all duration-300 ${
+        className={`px-6 py-4 text-gray-700 text-[0.975rem] leading-relaxed bg-white transition-all duration-300 font-noto ${
           isOpen ? "block" : "hidden"
         }`}
       >
@@ -33,10 +33,10 @@ const EDCIncentives = () => {
     <section className="bg-gray-50 py-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-800">
+          <h2 className="text-3xl sm:text-4xl font-alumni font-bold text-gray-800">
             U.S. Virgin Islands Economic & Tax Incentives
           </h2>
-          <p className="mt-4 text-gray-600 max-w-3xl mx-auto text-base sm:text-lg">
+          <p className="mt-4 text-gray-600 max-w-3xl mx-auto text-base sm:text-lg font-noto">
             Explore a variety of exclusive programs designed to drive growth,
             attract investment, and maximize your business potential in the
             USVI.
@@ -141,7 +141,7 @@ const EDCIncentives = () => {
         <div className="text-center mt-12">
           <button
             onClick={handleContactClick}
-            className="inline-block px-8 py-3 bg-tropical-600 hover:bg-tropical-700 text-white text-lg font-semibold rounded-lg shadow-lg transition"
+            className="inline-block px-8 py-3 bg-tropical-600 hover:bg-tropical-700 text-white text-lg font-noto font-semibold rounded-lg shadow-lg transition"
           >
             Contact Us to Learn More
           </button>

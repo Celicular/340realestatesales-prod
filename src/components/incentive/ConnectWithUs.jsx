@@ -27,11 +27,11 @@ const ConnectWithUs = () => {
           viewport={{ once: true }}
           className="bg-gray-50 p-8 md:p-10 rounded-2xl shadow-lg"
         >
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
+          <h2 className="text-2xl md:text-3xl font-alumni font-bold text-gray-800 mb-2">
             Connect With Us
           </h2>
-          <p className="text-gray-600 mb-6">
-            Need help with your real estate needs? Fill out the form and we’ll
+          <p className="text-gray-600 mb-6 font-noto">
+            Need help with your real estate needs? Fill out the form and we'll
             get in touch with you as soon as possible.
           </p>
 
@@ -40,38 +40,38 @@ const ConnectWithUs = () => {
               <input
                 type="text"
                 placeholder="First Name"
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-tropical-500"
+                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-tropical-500 font-noto"
               />
               <input
                 type="text"
                 placeholder="Last Name"
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-tropical-500"
+                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-tropical-500 font-noto"
               />
             </div>
 
             <input
               type="email"
               placeholder="Email"
-              className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-tropical-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-tropical-500 font-noto"
             />
 
             <input
               type="tel"
               placeholder="Phone Number"
-              className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-tropical-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-tropical-500 font-noto"
             />
 
             <textarea
               placeholder="Message"
               rows="5"
-              className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-tropical-500 resize-none"
+              className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-tropical-500 resize-none font-noto"
             />
 
             <motion.button
               whileTap={{ scale: 0.97 }}
               whileHover={{ scale: 1.02 }}
               type="submit"
-              className="bg-tropical-600 hover:bg-tropical-700 transition text-white px-6 py-3 rounded-md font-medium shadow"
+              className="bg-tropical-600 hover:bg-tropical-700 transition text-white px-6 py-3 rounded-md font-noto font-medium shadow"
             >
               Send Message
             </motion.button>

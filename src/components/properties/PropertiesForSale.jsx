@@ -160,16 +160,16 @@ const PropertyCard = memo(({
           <div className="flex items-center gap-2 mb-2">
            
           </div>
-          <h2 className="text-2xl font-semibold text-gray-800">{title}</h2>
+          <h2 className="text-2xl font-alumni font-semibold text-gray-800">{title}</h2>
           <div className="flex items-center gap-2 mt-1">
-            <p className="text-2xl text-emerald-600 font-bold">{price}</p>
+            <p className="text-2xl text-emerald-600 font-alumni font-bold">{price}</p>
          
           </div>
         </div>
-        <p className="text-gray-600 text-sm leading-relaxed line-clamp-4">{description}</p>
+        <p className="text-gray-600 text-sm leading-relaxed line-clamp-4 font-noto">{description}</p>
 
         {/* Combined Features */}
-        <div className="flex flex-wrap gap-4 mt-2 text-gray-700 text-sm">
+        <div className="flex flex-wrap gap-4 mt-2 text-gray-700 text-sm font-noto">
           {features.totalBeds && (
             <span className="flex items-center gap-2">
               <FaBed /> {features.totalBeds} Total Beds
@@ -195,17 +195,17 @@ const PropertyCard = memo(({
         {/* Individual Property Details */}
         {propertyDetails && (
           <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-            <h4 className="font-semibold text-gray-800 mb-3">
+            <h4 className="font-alumni font-semibold text-gray-800 mb-3">
               Package Includes:
             </h4>
             <div className="space-y-3">
               {propertyDetails.map((property, index) => (
                 <div key={index} className="border-l-4 border-blue-500 pl-3">
-                  <h5 className="font-medium text-gray-800">{property.name}</h5>
-                  <p className="text-xs text-gray-600 mt-1">
+                  <h5 className="font-alumni font-medium text-gray-800">{property.name}</h5>
+                  <p className="text-xs text-gray-600 mt-1 font-noto">
                     {property.description}
                   </p>
-                  <div className="flex gap-3 mt-2 text-xs text-gray-500">
+                  <div className="flex gap-3 mt-2 text-xs text-gray-500 font-noto">
                     <span>{property.beds} beds</span>
                     <span>{property.baths} baths</span>
                     <span>{property.type}</span>
@@ -238,12 +238,12 @@ const PropertiesForSale = memo(({ selectedCategory, propertiesToShow, filteredPr
         {/* 🏠 Header */}
         <div className="text-center mb-16">
           <h1
-            className="text-4xl md:text-5xl font-bold text-gray-800"
+            className="text-4xl md:text-5xl font-alumni font-bold text-gray-800"
           >
             Featured Properties For Sale
           </h1>
           <div className="w-24 h-1 bg-gradient-to-r from-green-400 to-blue-500 mx-auto mt-4 rounded-full" />
-          <p className="text-gray-500 mt-4 max-w-2xl mx-auto">
+          <p className="text-gray-500 mt-4 max-w-2xl mx-auto font-noto">
             Discover elegant villas with modern upgrades, breathtaking views,
             and exceptional amenities — located in the heart of St. John.
             <br />

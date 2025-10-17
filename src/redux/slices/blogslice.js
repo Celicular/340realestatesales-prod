@@ -4,11 +4,11 @@ import blogsData from "../../data/Blogs";
 
 // Async thunk for fetching blogs from Firestore
 export const fetchBlogs = createAsyncThunk(
-  'blogs/fetchBlogs',
+  "blogs/fetchBlogs",
   async (limitCount = 20) => {
     const result = await getBlogs(limitCount);
     if (result.success) {
-      return result.data.filter(blog => blog.status === 'published');
+      return result.data.filter((blog) => blog.status === "published");
     }
     throw new Error(result.error);
   }
@@ -16,14 +16,14 @@ export const fetchBlogs = createAsyncThunk(
 
 // Async thunk for fetching a single blog
 export const fetchBlogById = createAsyncThunk(
-  'blogs/fetchBlogById',
+  "blogs/fetchBlogById",
   async (blogId) => {
     // First check if it's a hardcoded blog
-    const hardcodedBlog = blogsData.find(blog => blog.id === blogId);
+    const hardcodedBlog = blogsData.find((blog) => blog.id === blogId);
     if (hardcodedBlog) {
       return { ...hardcodedBlog, isHardcoded: true };
     }
-    
+
     // Try Firestore
     const result = await getBlog(blogId);
     if (result.success) {
@@ -43,7 +43,7 @@ const blogSlice = createSlice({
     currentBlog: null,
     loading: false,
     error: null,
-    lastFetch: null
+    lastFetch: null,
   },
   reducers: {
     clearCurrentBlog: (state) => {
@@ -60,9 +60,12 @@ const blogSlice = createSlice({
     // Update blog in local state
     updateBlogInState: (state, action) => {
       const { id, updates } = action.payload;
-      const blogIndex = state.firebaseBlogs.findIndex(blog => blog.id === id);
+      const blogIndex = state.firebaseBlogs.findIndex((blog) => blog.id === id);
       if (blogIndex !== -1) {
-        state.firebaseBlogs[blogIndex] = { ...state.firebaseBlogs[blogIndex], ...updates };
+        state.firebaseBlogs[blogIndex] = {
+          ...state.firebaseBlogs[blogIndex],
+          ...updates,
+        };
         state.allBlogs = [...state.firebaseBlogs, ...state.hardcodedBlogs];
       }
       if (state.currentBlog && state.currentBlog.id === id) {
@@ -72,9 +75,11 @@ const blogSlice = createSlice({
     // Remove blog from local state
     removeBlogFromState: (state, action) => {
       const blogId = action.payload;
-      state.firebaseBlogs = state.firebaseBlogs.filter(blog => blog.id !== blogId);
+      state.firebaseBlogs = state.firebaseBlogs.filter(
+        (blog) => blog.id !== blogId
+      );
       state.allBlogs = [...state.firebaseBlogs, ...state.hardcodedBlogs];
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -112,12 +117,12 @@ const blogSlice = createSlice({
   },
 });
 
-export const { 
-  clearCurrentBlog, 
-  clearError, 
-  addBlog, 
-  updateBlogInState, 
-  removeBlogFromState 
+export const {
+  clearCurrentBlog,
+  clearError,
+  addBlog,
+  updateBlogInState,
+  removeBlogFromState,
 } = blogSlice.actions;
 
 // Selectors

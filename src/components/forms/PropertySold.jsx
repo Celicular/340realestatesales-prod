@@ -218,21 +218,21 @@ const PropertySold = () => {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto">
         <div className="p-6">
-          <h2 className="text-2xl font-bold text-brand-dark mb-6">Sold Property Form</h2>
+          <h2 className="text-2xl font-alumni font-bold text-brand-dark mb-6">Sold Property Form</h2>
           
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information */}
             <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
+              <h3 className="text-lg font-alumni font-semibold text-gray-900 mb-4">Basic Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Property Title</label>
+                  <label className="block text-sm font-alumni font-medium text-gray-700 mb-2">Property Title</label>
                   <input
                     type="text"
                     name="title"
                     value={formData.title}
                     onChange={handleInputChange}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-dark focus:border-brand-dark"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-dark focus:border-brand-dark font-noto"
                     required
                   />
                 </div>

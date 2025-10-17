@@ -1,3 +1,15 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Alumni+Sans+SC:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Duployan:wght@400;700&display=swap');
+
+/* Define CSS variables for fonts */
+:root {
+  --font-alumni: 'Alumni Sans SC', sans-serif;
+  --font-noto: 'Noto Sans Duployan', sans-serif;
+}
+
+
+
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

@@ -58,10 +58,16 @@ module.exports = {
       },
 
       fontFamily: {
+        alumni: "var(--font-alumni)",
+        noto: "var(--font-noto)",
+        // Legacy fonts for backward compatibility
         barlow: ["lato", "sans-serif"],
         gilda: ["Gilda Display", "serif"],
         mont: ["Montserrat", "sans-serif"],
         "barlow-cond": ["Barlow Condensed", "sans-serif"],
+        // Default fonts
+        sans: ["var(--font-noto)", "system-ui", "sans-serif"],
+        serif: ["var(--font-alumni)", "serif"],
       },
 
       animation: {

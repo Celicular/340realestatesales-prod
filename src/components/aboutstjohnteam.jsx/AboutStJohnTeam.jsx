@@ -12,7 +12,7 @@ const AboutStJohnTeam = () => {
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center text-center text-white px-4">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-alumni font-bold mb-2">
             The 340 Real Estate Team
           </h1>
         </div>

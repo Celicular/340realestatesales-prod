@@ -11,21 +11,21 @@ const Footer = () => {
           <div className="mb-8 md:mb-0">
             {/* <h1 className="text-xl font-serif font-light tracking-wide">340 Real Estate</h1> */}
             <img src={ logowritten} alt="340 Real Estate" className="w-auto h-16 object-contain" />
-            <p className="mt-4 text-lg font-['Lato'] font-light">GET IN TOUCH</p>
-            <div className="mt-4 space-y-2 text-sm font-['Lato'] font-light pl-24">
+            <p className="mt-4 text-lg font-alumni font-light">GET IN TOUCH</p>
+            <div className="mt-4 space-y-2 text-sm font-noto font-light pl-24">
               <div className="flex items-center space-x-2">
                 <Mail className="w-4 h-4 text-gray-600" />
                 <div>
-                  <p className="font-['Lato'] font-semibold">EMAIL</p>
-                  <p className="font-['Lato']">340realestateco@gmail.com</p>
+                  <p className="font-alumni font-semibold">EMAIL</p>
+                  <p className="font-noto">340realestateco@gmail.com</p>
                 </div>
               </div>
               <div className="flex items-center space-x-2">
                 <MapPin className="w-4 h-4 text-gray-600" />
                 <div>
-                  <p className="font-['Lato'] font-semibold">ADDRESS</p>
-                  <p className="font-['Lato']">340 Real Estate Company,</p>
-                  <p className="font-['Lato']">ST JOHN VI 00831</p>
+                  <p className="font-alumni font-semibold">ADDRESS</p>
+                  <p className="font-noto">340 Real Estate Company,</p>
+                  <p className="font-noto">ST JOHN VI 00831</p>
                 </div>
               </div>
             </div>
@@ -36,8 +36,8 @@ const Footer = () => {
           <div className="flex items-center space-x-2">
             <Phone className="w-4 h-4 text-gray-600" />
             <div>
-              <p className="font-['Lato'] font-semibold text-sm">PHONE NUMBER</p>
-              <p className="font-['Lato'] text-sm">+1 340-643-6068</p>
+              <p className="font-alumni font-semibold text-sm">PHONE NUMBER</p>
+              <p className="font-noto text-sm">+1 340-643-6068</p>
             </div>
           </div>
         </div>
@@ -56,7 +56,7 @@ const Footer = () => {
         
         {/* Disclaimer Text */}
         <div className="flex-1 mx-6">
-          <p className="text-xs font-['Lato'] text-gray-500 text-center md:text-left leading-relaxed">
+          <p className="text-xs font-noto text-gray-500 text-center md:text-left leading-relaxed">
             Information on this site is believed to be accurate but not guaranteed. 340 Real Estate Co LLC is a member of the St. John Board of Realtors, St Thomas Board of Realtors and the Multiple Listing Service.
           </p>
         </div>
