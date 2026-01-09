@@ -2,13 +2,20 @@ import React, { useState, useMemo, useCallback, useEffect } from "react";
 import PropertiesHero from "./../components/properties/PropertiesHero";
 import PropertiesForSale from "../components/properties/PropertiesForSale";
 import SoldProperty from "../components/soldproperty/SoldProperty";
-import { Home, DollarSign, CheckCircle, Crown, Building, TreePine } from "lucide-react";
+import {
+  Home,
+  DollarSign,
+  CheckCircle,
+  Crown,
+  Building,
+  TreePine,
+} from "lucide-react";
 import { getPortfolioItems } from "../firebase/firestore";
 import SEOHead from "../components/SEO/SEOHead";
 
 const Properties = () => {
   const [mainTab, setMainTab] = useState("sale");
-  const [subTab, setSubTab] = useState("house");
+  const [subTab, setSubTab] = useState("");
   const [propertiesToShow, setPropertiesToShow] = useState(2); // Number to slice
   const [propertyData, setPropertyData] = useState({});
   const [loading, setLoading] = useState(true);
@@ -19,7 +26,7 @@ const Properties = () => {
     const fetchProperties = async () => {
       try {
         setLoading(true);
-        const result = await getPortfolioItems('residential');
+        const result = await getPortfolioItems("residential");
         if (result.success) {
           // Convert array to object format for compatibility
           const dataObject = {};
@@ -28,10 +35,10 @@ const Properties = () => {
           });
           setPropertyData(dataObject);
         } else {
-          setError(result.error || 'Failed to fetch properties');
+          setError(result.error || "Failed to fetch properties");
         }
       } catch (err) {
-        setError('Error fetching properties: ' + err.message);
+        setError("Error fetching properties: " + err.message);
       } finally {
         setLoading(false);
       }
@@ -43,7 +50,7 @@ const Properties = () => {
   // Memoize property types to avoid recalculation
   const propertyTypes = useMemo(() => {
     const types = new Set();
-    Object.values(propertyData).forEach(property => {
+    Object.values(propertyData).forEach((property) => {
       if (property.propertyType) {
         types.add(property.propertyType);
       }
@@ -51,13 +58,22 @@ const Properties = () => {
     return Array.from(types).sort();
   }, [propertyData]);
 
+  // Auto-set subTab to first property type when data loads
+  useEffect(() => {
+    if (propertyTypes.length > 0 && !subTab) {
+      setSubTab(propertyTypes[0]);
+    }
+  }, [propertyTypes]);
+
   // Memoize filtered properties to avoid recalculation on every render
   const filteredProperties = useMemo(() => {
     if (mainTab === "sale") {
       if (subTab) {
         // Filter by specific property type if sub-tab is selected
         return Object.entries(propertyData)
-          .filter(([key, property]) => property.propertyType === subTab)
+          .filter(
+            ([key, property]) => property.images && property.images.length > 0
+          )
           .slice(0, propertiesToShow)
           .map(([id, property]) => ({
             id,
@@ -77,6 +93,9 @@ const Properties = () => {
       } else {
         // Show limited properties when no sub-tab is selected
         return Object.entries(propertyData)
+          .filter(
+            ([key, property]) => property.images && property.images.length > 0
+          )
           .slice(0, propertiesToShow)
           .map(([id, property]) => ({
             id,
@@ -100,11 +119,13 @@ const Properties = () => {
 
   const renderContent = () => {
     if (mainTab === "sale") {
-      return <PropertiesForSale 
-        selectedCategory={subTab} 
-        propertiesToShow={propertiesToShow}
-        filteredProperties={filteredProperties}
-      />;
+      return (
+        <PropertiesForSale
+          selectedCategory={subTab}
+          propertiesToShow={propertiesToShow}
+          filteredProperties={filteredProperties}
+        />
+      );
     }
     if (mainTab === "sold") {
       return <SoldProperty />;
@@ -129,50 +150,51 @@ const Properties = () => {
   // Memoize sub tabs with enhanced property type support
   const subTabs = useMemo(() => {
     if (mainTab === "sale") {
-      const tabs = propertyTypes.map(propertyType => {
+      const tabs = propertyTypes.map((propertyType) => {
         // Enhanced icon mapping for different property types
         let icon = Building; // default
-        let label = propertyType.charAt(0).toUpperCase() + propertyType.slice(1);
-        
-        switch(propertyType.toLowerCase()) {
-          case 'villa':
+        let label =
+          propertyType.charAt(0).toUpperCase() + propertyType.slice(1);
+
+        switch (propertyType.toLowerCase()) {
+          case "villa":
             icon = Crown;
             break;
-          case 'combo':
+          case "combo":
             icon = Building;
-            label = 'Combo Properties';
+            label = "Combo Properties";
             break;
-          case 'cottage':
+          case "cottage":
             icon = Home;
             break;
-          case 'house':
+          case "house":
             icon = Home;
             break;
-          case 'condo':
+          case "condo":
             icon = Building;
-            label = 'Condominiums';
+            label = "Condominiums";
             break;
-          case 'apartment':
+          case "apartment":
             icon = Building;
             break;
-          case 'townhouse':
+          case "townhouse":
             icon = Building;
-            label = 'Town Houses';
+            label = "Town Houses";
             break;
-          case 'land':
+          case "land":
             icon = TreePine;
             break;
           default:
             icon = Building;
         }
-        
+
         return {
           id: propertyType,
           label: label,
           icon: icon,
         };
       });
-      
+
       // Return only the property type tabs (no "All Properties" tab)
       return tabs;
     }
@@ -207,8 +229,8 @@ const Properties = () => {
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             <p>Error loading properties: {error}</p>
           </div>
-          <button 
-            onClick={() => window.location.reload()} 
+          <button
+            onClick={() => window.location.reload()}
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           >
             Retry
@@ -228,67 +250,66 @@ const Properties = () => {
         structuredData={{
           "@context": "https://schema.org",
           "@type": "RealEstateAgent",
-          "name": "340 Real Estate St. John",
-          "description": "Luxury properties for sale in St. John, U.S. Virgin Islands",
-          "url": "https://340realestate.com/properties",
-          "address": {
+          name: "340 Real Estate St. John",
+          description:
+            "Luxury properties for sale in St. John, U.S. Virgin Islands",
+          url: "https://340realestate.com/properties",
+          address: {
             "@type": "PostalAddress",
-            "addressLocality": "St. John",
-            "addressRegion": "VI",
-            "addressCountry": "US"
+            addressLocality: "St. John",
+            addressRegion: "VI",
+            addressCountry: "US",
           },
-          "areaServed": {
+          areaServed: {
             "@type": "State",
-            "name": "U.S. Virgin Islands"
-          }
+            name: "U.S. Virgin Islands",
+          },
         }}
       />
-      
+
       {/* Hero Section */}
       <PropertiesHero />
 
       {/* Professional Tab Container */}
       <div className="relative bg-gradient-to-b from-white via-slate-50/30 to-white">
         <div className="container mx-auto px-4 py-8">
-       
-
-                     {/* Main Tabs - 50-50 Screen Width with Individual Centering */}
-           <div className="flex mb-8 relative">
-             <div className="w-1/2 flex justify-center">
-               <button
-                 onClick={handleSaleTabClick}
-                 className={`relative flex items-center justify-center gap-3 px-8 py-6 text-lg font-semibold transition-all duration-300 ${
-                   mainTab === "sale"
-                     ? "text-slate-800 border-b-2 border-slate-800"
-                     : "text-slate-500 hover:text-slate-700 hover:border-b-2 hover:border-slate-300"
-                 }`}
-               >
-                 <DollarSign className="w-6 h-6" />
-                 FOR SALE
-               </button>
-             </div>
-             {/* Vertical Border in Middle */}
-             <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-slate-300 to-transparent shadow-sm"></div>
-             <div className="w-1/2 flex justify-center">
-               <button
-                 onClick={handleSoldTabClick}
-                 className={`relative flex items-center justify-center gap-3 px-8 py-6 text-lg font-semibold transition-all duration-300 ${
-                   mainTab === "sold"
-                     ? "text-slate-800 border-b-2 border-slate-800"
-                     : "text-slate-500 hover:text-slate-700 hover:border-b-2 hover:border-slate-300"
-                 }`}
-               >
-                 <CheckCircle className="w-6 h-6" />
-                 RECENT SALES
-               </button>
-             </div>
-           </div>
+          {/* Main Tabs - 50-50 Screen Width with Individual Centering */}
+          <div className="flex mb-8 relative">
+            <div className="w-1/2 flex justify-center">
+              <button
+                onClick={handleSaleTabClick}
+                className={`relative flex items-center justify-center gap-3 px-8 py-6 text-lg font-semibold transition-all duration-300 ${
+                  mainTab === "sale"
+                    ? "text-slate-800 border-b-2 border-slate-800"
+                    : "text-slate-500 hover:text-slate-700 hover:border-b-2 hover:border-slate-300"
+                }`}
+              >
+                <DollarSign className="w-6 h-6" />
+                FOR SALE
+              </button>
+            </div>
+            {/* Vertical Border in Middle */}
+            <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-slate-300 to-transparent shadow-sm"></div>
+            <div className="w-1/2 flex justify-center">
+              <button
+                onClick={handleSoldTabClick}
+                className={`relative flex items-center justify-center gap-3 px-8 py-6 text-lg font-semibold transition-all duration-300 ${
+                  mainTab === "sold"
+                    ? "text-slate-800 border-b-2 border-slate-800"
+                    : "text-slate-500 hover:text-slate-700 hover:border-b-2 hover:border-slate-300"
+                }`}
+              >
+                <CheckCircle className="w-6 h-6" />
+                RECENT SALES
+              </button>
+            </div>
+          </div>
 
           {/* Top Border */}
           <div className="w-full h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent shadow-sm mb-8"></div>
 
-                     {/* Sub Header */}
-           {/* <div className="text-center mb-6">
+          {/* Sub Header */}
+          {/* <div className="text-center mb-6">
              <h2 className="text-2xl md:text-3xl font-semibold text-slate-700 mb-2">
                {mainTab === "sale"
                  ? "Available for Sale"
@@ -317,8 +338,14 @@ const Properties = () => {
                           : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
                       }`}
                     >
-                      <tab.icon className={`w-6 h-6 ${subTab === tab.id ? "text-blue-600" : "text-slate-500"}`} />
-                      <span className="text-sm font-medium text-center leading-tight">{tab.label}</span>
+                      <tab.icon
+                        className={`w-6 h-6 ${
+                          subTab === tab.id ? "text-blue-600" : "text-slate-500"
+                        }`}
+                      />
+                      <span className="text-sm font-medium text-center leading-tight">
+                        {tab.label}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -335,14 +362,12 @@ const Properties = () => {
             <div className="w-1/2 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent shadow-sm"></div>
           </div>
 
-                     {/* Content Area */}
-           <div className="relative max-w-7xl mx-auto">
-             <div className="bg-white rounded-xl overflow-hidden shadow-lg">
-               <div className="p-6">
-                 {renderContent()}
-               </div>
-             </div>
-           </div>
+          {/* Content Area */}
+          <div className="relative max-w-7xl mx-auto">
+            <div className="bg-white rounded-xl overflow-hidden shadow-lg">
+              <div className="p-6">{renderContent()}</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -372,7 +397,7 @@ export const tabConfig = {
 export const contentMapping = {
   sale: {
     villa: "Villa Properties",
-    combo: "Combo Properties", 
+    combo: "Combo Properties",
     cottage: "Cottage Properties",
     house: "House Properties",
     condo: "Condo Properties",

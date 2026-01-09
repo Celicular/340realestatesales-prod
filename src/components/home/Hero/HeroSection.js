@@ -1,40 +1,72 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
 const HeroSection = () => {
+  const navigate = useNavigate();
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const videoRef = useRef(null);
 
+  // Direct video URLs from public/videos folder
   const videoUrls = [
-    "https://www.youtube.com/embed/uMP_psJAYP8?autoplay=1&mute=1&loop=1&playlist=uMP_psJAYP8&controls=0&showinfo=0&modestbranding=1",
-    "https://www.youtube.com/embed/D-ql9hNFn0o?autoplay=1&mute=1&loop=1&playlist=D-ql9hNFn0o&controls=0&showinfo=0&modestbranding=1",
-    "https://www.youtube.com/embed/J5fjkkgWfYw?autoplay=1&mute=1&loop=1&playlist=J5fjkkgWfYw&controls=0&showinfo=0&modestbranding=1",
+    "/videos/vid1.mp4",
+    "/videos/vid2.mp4",
+    "/videos/vid3.mp4",
   ];
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentVideoIndex((prev) => (prev + 1) % videoUrls.length);
-    }, 10000);
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setCurrentVideoIndex((prev) => (prev + 1) % videoUrls.length);
+        setIsTransitioning(false);
+      }, 500); // Fade duration
+    }, 15000); // Change video every 15 seconds
     return () => clearInterval(interval);
-  }, []);
+  }, [videoUrls.length]);
+
+  // Auto-play video when index changes
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.currentTime = 0;
+      videoRef.current.play().catch((error) => {
+        console.log("Autoplay prevented:", error);
+      });
+    }
+  }, [currentVideoIndex]);
+
+  // Handle video end - transition to next video smoothly
+  const handleVideoEnd = () => {
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentVideoIndex((prev) => (prev + 1) % videoUrls.length);
+      setIsTransitioning(false);
+    }, 500);
+  };
 
   return (
     <section className="relative min-h-screen mt-3 mx-3 flex items-center justify-center overflow-hidden">
-      {/* YouTube background */}
+      {/* Video Background */}
       <div className="absolute inset-0 w-full h-full overflow-hidden">
-        <iframe
+        <video
           key={currentVideoIndex}
-          src={videoUrls[currentVideoIndex]}
-          title="Background Video"
-          allow="autoplay; fullscreen"
-          className="absolute top-1/2 left-1/2 pointer-events-none"
+          ref={videoRef}
+          autoPlay
+          muted
+          loop={false}
+          onEnded={handleVideoEnd}
+          className="absolute top-1/2 left-1/2 w-full h-full object-cover pointer-events-none transition-opacity duration-500"
           style={{
-            width: "100vw",
-            height: "100vh",
-            minWidth: "177.78vh", // 16:9 ratio to cover height
-            minHeight: "100%",
             transform: "translate(-50%, -50%)",
+            minWidth: "100%",
+            minHeight: "100%",
             zIndex: -1,
+            opacity: isTransitioning ? 0 : 1,
           }}
-        ></iframe>
+        >
+          <source src={videoUrls[currentVideoIndex]} type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
       </div>
 
       {/* Overlay */}
@@ -51,6 +83,7 @@ const HeroSection = () => {
                 ? "bg-white scale-125"
                 : "bg-white/50 hover:bg-white/75"
             }`}
+            aria-label={`Go to video ${index + 1}`}
           />
         ))}
       </div>
@@ -63,7 +96,10 @@ const HeroSection = () => {
         <p className="text-lg sm:text-xl mb-12">
           VIRGIN ISLANDS REAL ESTATE SPECIALISTS
         </p>
-        <button className="border-2 border-white text-white font-alumni font-medium text-base px-8 py-4 hover:bg-white hover:text-black transition-all duration-300 rounded-none uppercase">
+        <button
+          onClick={() => navigate("/browse-properties")}
+          className="border-2 border-white text-white font-alumni font-medium text-base px-8 py-4 hover:bg-white hover:text-black transition-all duration-300 rounded-none uppercase"
+        >
           SEARCH PROPERTIES
         </button>
       </div>

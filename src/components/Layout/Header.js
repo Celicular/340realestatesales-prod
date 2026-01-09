@@ -82,7 +82,9 @@ const Header = () => {
   return (
     <header
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-        isScrolled ? "bg-white shadow-lg py-4" : "bg-transparent py-6"
+        isScrolled || location.pathname !== "/"
+          ? "bg-white shadow-lg py-4"
+          : "bg-transparent py-6"
       }`}
     >
       <div className="w-full px-4 sm:px-6 lg:px-8">
@@ -92,7 +94,7 @@ const Header = () => {
             <div className="relative group">
               <button
                 className={`flex items-center space-x-1 font-alumni font-medium text-xl transition-colors duration-300 ${
-                  isScrolled
+                  isScrolled || location.pathname !== "/"
                     ? "text-gray-700 hover:text-cruzbay-teal"
                     : "text-white hover:text-cruzbay-coral"
                 }`}
@@ -125,7 +127,7 @@ const Header = () => {
             <Link
               to="/about"
               className={`font-alumni font-medium text-xl transition-colors duration-300 ${
-                isScrolled
+                isScrolled || location.pathname !== "/"
                   ? "text-gray-700 hover:text-cruzbay-teal"
                   : "text-white hover:text-cruzbay-coral"
               }`}
@@ -135,7 +137,7 @@ const Header = () => {
             <Link
               to="/about-340-realestate-team"
               className={`font-alumni font-medium text-xl transition-colors duration-300 ${
-                isScrolled
+                isScrolled || location.pathname !== "/"
                   ? "text-gray-700 hover:text-cruzbay-teal"
                   : "text-white hover:text-cruzbay-coral"
               }`}
@@ -166,7 +168,7 @@ const Header = () => {
             <Link
               to="/saleshistory"
               className={`hidden lg:block font-alumni font-medium text-xl transition-colors duration-300 ${
-                isScrolled
+                isScrolled || location.pathname !== "/"
                   ? "text-gray-700 hover:text-cruzbay-teal"
                   : "text-white hover:text-cruzbay-coral"
               }`}
@@ -176,7 +178,7 @@ const Header = () => {
             <Link
               to="/contact"
               className={`hidden lg:block font-alumni font-medium text-xl transition-colors duration-300 ${
-                isScrolled
+                isScrolled || location.pathname !== "/"
                   ? "text-gray-700 hover:text-cruzbay-teal"
                   : "text-white hover:text-cruzbay-coral"
               }`}
@@ -186,7 +188,7 @@ const Header = () => {
             <a
               href="tel:+13406436068"
               className={`hidden lg:block font-alumni font-medium text-xl transition-colors duration-300 ${
-                isScrolled
+                isScrolled || location.pathname !== "/"
                   ? "text-cruzbay-teal hover:text-cruzbay-teal-dark"
                   : "text-white hover:text-cruzbay-coral"
               }`}
@@ -198,7 +200,7 @@ const Header = () => {
             <button
               onClick={toggleMenu}
               className={`p-2 rounded-lg transition-colors duration-300 ${
-                isScrolled
+                isScrolled || location.pathname !== "/"
                   ? "text-gray-700 hover:bg-gray-100"
                   : "text-white hover:bg-white/10"
               }`}

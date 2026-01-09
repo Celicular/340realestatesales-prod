@@ -57,6 +57,7 @@ const RegistrationTest = lazy(() =>
   import("./components/debug/RegistrationTest")
 );
 const DebugPage = lazy(() => import("./pages/DebugPage"));
+const BrowseProperties = lazy(() => import("./pages/BrowseProperties"));
 
 // Loading component
 const LoadingSpinner = () => (
@@ -100,7 +101,7 @@ function App() {
               path="/about-340-realestate-team"
               element={<AboutRealEstate />}
             />
-            <Route path="/meetourteam" element={<AgentsSection/>}/>
+            <Route path="/meetourteam" element={<AgentsSection />} />
             <Route path="/agent/:id" element={<AgentDetail />} />
             <Route path="/property/:id" element={<PropertyDetail />} />
             <Route path="/soldproperty/:id" element={<SoldPropertyDetail />} />
@@ -108,6 +109,7 @@ function App() {
             <Route path="/landsold/:id" element={<LandSoldDetail />} />
             <Route path="/properties" element={<Properties />} />
             <Route path="/landproperties" element={<LandProperties />} />
+            <Route path="/browse-properties" element={<BrowseProperties />} />
 
             {/* Auth Routes */}
             <Route path="/login" element={<Login />} />

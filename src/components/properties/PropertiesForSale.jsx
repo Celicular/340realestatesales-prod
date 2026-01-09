@@ -1,266 +1,542 @@
-import React, { useState, useMemo, useCallback, memo, useEffect } from "react";
-import { FaBed, FaBath, FaSwimmingPool } from "react-icons/fa";
-import { BsHouseDoorFill } from "react-icons/bs";
+import React, { useState, useEffect, memo, useMemo } from "react";
+import {
+  FaBed,
+  FaBath,
+  FaSwimmingPool,
+  FaFilter,
+  FaTimes,
+} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { getAllPortfolioItems } from "../../firebase/firestore";
 
-// Transform Portfolio data to match the expected format - memoized
-const useProperties = (selectedCategory, propertiesToShow, filteredProperties) => {
-  const [portfolioProperties, setPortfolioProperties] = useState([]);
+const PropertyCard = memo(
+  ({ id, title, price, images, description, features }) => {
+    const navigate = useNavigate();
+
+    return (
+      <div
+        onClick={() => navigate(`/property/${id}`)}
+        className="bg-white rounded-3xl mt-10 shadow-xl overflow-hidden flex flex-col transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] cursor-pointer"
+      >
+        <div className="relative w-full h-72 bg-gray-100">
+          {images?.[0] ? (
+            <img
+              src={images[0]}
+              alt={title}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-gray-400">
+              No Image
+            </div>
+          )}
+        </div>
+
+        <div className="p-6 md:p-8 space-y-4">
+          <h2 className="text-2xl font-semibold text-gray-800">{title}</h2>
+          <p className="text-2xl text-emerald-600 font-bold">{price}</p>
+          <p className="text-gray-600 text-sm line-clamp-3">{description}</p>
+
+          <div className="flex flex-wrap gap-4 text-sm text-gray-700">
+            {features.totalBeds > 0 && (
+              <span className="flex items-center gap-2">
+                <FaBed /> {features.totalBeds} Beds
+              </span>
+            )}
+            {features.totalBaths > 0 && (
+              <span className="flex items-center gap-2">
+                <FaBath /> {features.totalBaths} Baths
+              </span>
+            )}
+            {features.pool && (
+              <span className="flex items-center gap-2">
+                <FaSwimmingPool /> Pool
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+);
+
+// Filter Modal Component
+const FilterModal = memo(
+  ({
+    isOpen,
+    onClose,
+    filters,
+    onFilterChange,
+    priceRange,
+    onApplyFilters,
+  }) => {
+    if (!isOpen) return null;
+
+    const { min: minGlobal, max: maxGlobal } = priceRange;
+
+    return (
+      <>
+        {/* Backdrop */}
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300"
+          onClick={onClose}
+        />
+
+        {/* Modal */}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="sticky top-0 bg-gradient-to-r from-emerald-50 to-blue-50 px-6 py-5 border-b border-gray-200 flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                <FaFilter className="text-emerald-600" /> Filters
+              </h2>
+              <button
+                onClick={onClose}
+                className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+              >
+                <FaTimes className="text-gray-600" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 space-y-6">
+              {/* Price Range */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-800 mb-4">
+                  Price Range
+                </label>
+
+                {/* Min Price Slider */}
+                <div className="mb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-gray-600">Minimum</span>
+                    <span className="text-sm font-semibold text-emerald-600">
+                      ${filters.minPrice?.toLocaleString()}
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min={minGlobal}
+                    max={maxGlobal}
+                    step={50000}
+                    value={filters.minPrice}
+                    onChange={(e) =>
+                      onFilterChange({
+                        ...filters,
+                        minPrice: parseInt(e.target.value),
+                      })
+                    }
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
+                  />
+                </div>
+
+                {/* Max Price Slider */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-gray-600">Maximum</span>
+                    <span className="text-sm font-semibold text-emerald-600">
+                      ${filters.maxPrice?.toLocaleString()}
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min={minGlobal}
+                    max={maxGlobal}
+                    step={50000}
+                    value={filters.maxPrice}
+                    onChange={(e) =>
+                      onFilterChange({
+                        ...filters,
+                        maxPrice: parseInt(e.target.value),
+                      })
+                    }
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
+                  />
+                </div>
+              </div>
+
+              {/* Bedrooms */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-800 mb-4">
+                  Minimum Bedrooms
+                </label>
+                <div className="flex gap-2 flex-wrap">
+                  {[0, 1, 2, 3, 4, 5, 6].map((bed) => (
+                    <button
+                      key={bed}
+                      onClick={() =>
+                        onFilterChange({
+                          ...filters,
+                          minBedrooms: filters.minBedrooms === bed ? 0 : bed,
+                        })
+                      }
+                      className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                        filters.minBedrooms === bed
+                          ? "bg-emerald-600 text-white shadow-lg"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                      }`}
+                    >
+                      {bed === 0 ? "Any" : `${bed}+`}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Sort Option */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-800 mb-4">
+                  Sort By
+                </label>
+                <select
+                  value={filters.sortBy || "newest"}
+                  onChange={(e) =>
+                    onFilterChange({ ...filters, sortBy: e.target.value })
+                  }
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg font-medium text-gray-700 focus:outline-none focus:border-emerald-600 transition-colors"
+                >
+                  <option value="newest">Newest First</option>
+                  <option value="priceLow">Price: Low to High</option>
+                  <option value="priceHigh">Price: High to Low</option>
+                  <option value="titleAZ">Title: A to Z</option>
+                  <option value="titleZA">Title: Z to A</option>
+                </select>
+              </div>
+
+              {/* Buttons Container */}
+              <div className="space-y-3 pt-4 border-t border-gray-200">
+                {/* Apply Button */}
+                <button
+                  onClick={() => {
+                    onApplyFilters(filters);
+                    onClose();
+                  }}
+                  className="w-full py-3 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition-colors shadow-lg"
+                >
+                  Apply Filters
+                </button>
+
+                {/* Reset Button */}
+                <button
+                  onClick={() => {
+                    onFilterChange({
+                      minPrice: minGlobal,
+                      maxPrice: maxGlobal,
+                      minBedrooms: 0,
+                      sortBy: "newest",
+                    });
+                  }}
+                  className="w-full py-3 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition-colors"
+                >
+                  Reset Filters
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
+);
+
+const PropertiesForSale = memo(({ selectedCategory }) => {
+  const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
+  const [globalPriceRange, setGlobalPriceRange] = useState({
+    min: 0,
+    max: 10000000,
+  });
+  const [filters, setFilters] = useState({
+    minPrice: 0,
+    maxPrice: 10000000,
+    minBedrooms: 0,
+    sortBy: "newest",
+  });
+  const [tempFilters, setTempFilters] = useState({
+    minPrice: 0,
+    maxPrice: 10000000,
+    minBedrooms: 0,
+    sortBy: "newest",
+  });
 
   useEffect(() => {
     const fetchProperties = async () => {
       try {
         setLoading(true);
-        console.log('🔄 Fetching Portfolio properties for sale...');
-        
-        // Fetch portfolio items with for-sale status
-        const result = await getAllPortfolioItems({ status: 'for-sale' });
-        console.log('📦 Portfolio fetch result:', result);
-        
-        if (result.success) {
-          console.log('✅ Setting Portfolio properties:', result.data);
-          setPortfolioProperties(result.data);
-        } else {
-          console.log('❌ Portfolio fetch failed:', result.error);
-          setPortfolioProperties([]);
+
+        const result = await getAllPortfolioItems({ status: "for-sale" });
+
+        if (!result.success || !result.data || result.data.length === 0) {
+          setProperties([]);
+          return;
+        }
+
+        // Deduplicate by title (case-insensitive) and filter by images
+        const seenTitles = new Set();
+        const unique = [];
+
+        result.data.forEach((item) => {
+          // Filter out properties without images
+          if (!item.images || item.images.length === 0) {
+            return;
+          }
+
+          const title = item.title?.trim();
+          if (!title) return;
+
+          const key = title.toLowerCase();
+          if (seenTitles.has(key)) return;
+
+          seenTitles.add(key);
+
+          // Extract price - handle both numbers and strings
+          let priceValue = null;
+          if (typeof item.price === "number") {
+            priceValue = item.price;
+          } else if (
+            typeof item.price === "string" &&
+            item.price !== "Price on request"
+          ) {
+            // Try to parse string like "$1,500,000" or "1500000"
+            const cleaned = item.price.replace(/[$,]/g, "").trim();
+            const parsed = parseInt(cleaned);
+            if (!isNaN(parsed)) {
+              priceValue = parsed;
+            }
+          }
+
+          unique.push({
+            id: item.id,
+            title: item.title || "Untitled Property",
+            price:
+              typeof item.price === "number"
+                ? `$${item.price.toLocaleString()}`
+                : item.price || "Price on request",
+            priceValue,
+            images: item.images || [],
+            description: item.description || "Beautiful property in St. John",
+            features: {
+              totalBeds: item.features?.beds || item.beds || 0,
+              totalBaths: item.features?.baths || item.baths || 0,
+              pool: !!item.features?.pool,
+            },
+            category: item.category,
+            subcategory: item.subcategory,
+          });
+        });
+
+        // Filter by selectedCategory
+        let filtered = unique;
+        if (selectedCategory) {
+          filtered = unique.filter((p) => {
+            const cat = (p.category || "").toLowerCase();
+            const sub = (p.subcategory || "").toLowerCase();
+            const match = selectedCategory.toLowerCase();
+            return cat === match || sub === match;
+          });
+        }
+
+        setProperties(filtered);
+
+        // Calculate GLOBAL price range from properties with prices
+        const pricesWithValues = filtered
+          .filter((p) => p.priceValue !== null)
+          .map((p) => p.priceValue);
+
+        if (pricesWithValues.length > 0) {
+          const minPrice = Math.min(...pricesWithValues);
+          const maxPrice = Math.max(...pricesWithValues);
+
+          // Set the GLOBAL range (slider bounds)
+          setGlobalPriceRange({ min: minPrice, max: maxPrice });
+
+          // Initialize both actual and temp filters to full range
+          const initialFilters = {
+            minPrice: minPrice,
+            maxPrice: maxPrice,
+            minBedrooms: 0,
+            sortBy: "newest",
+          };
+          setFilters(initialFilters);
+          setTempFilters(initialFilters);
         }
       } catch (error) {
-        console.error('💥 Error fetching portfolio properties:', error);
-        setPortfolioProperties([]);
+        console.error("Error fetching properties:", error);
+        setProperties([]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchProperties();
-  }, []);
+  }, [selectedCategory]);
 
-  return useMemo(() => {
-    console.log('🏠 useProperties - portfolioProperties:', portfolioProperties);
-    console.log('🏷️ useProperties - selectedCategory:', selectedCategory);
-    
-    // Transform Portfolio data to match the expected format
-    const portfolioFormatted = portfolioProperties.map((property) => {
-      console.log('🔄 Processing Portfolio property:', property);
-      
-      return {
-        id: property.id,
-        title: property.title,
-        price: typeof property.price === 'string' ? property.price : `$${property.price?.toLocaleString() || 'Price on request'}`,
-        images: property.images || [],
-        description: property.description || 'Beautiful property in St. John',
-        features: {
-          totalBeds: property.features?.beds || property.beds,
-          totalBaths: property.features?.baths || property.baths,
-          pool: property.features?.pool || false,
-          type: property.subcategory || property.category,
-          properties: 1,
-        },
-        category: property.category,
-        subcategory: property.subcategory,
-      };
+  // Apply filters and sorting
+  const filteredAndSorted = useMemo(() => {
+    let result = properties.filter((p) => {
+      const priceValue = p.priceValue;
+      const beds = p.features.totalBeds || 0;
+
+      // Check bedroom filter
+      if (filters.minBedrooms > 0 && beds < filters.minBedrooms) {
+        return false;
+      }
+
+      // If no price, exclude it
+      if (priceValue === null) {
+        return false;
+      }
+
+      // Check price is in range
+      return priceValue >= filters.minPrice && priceValue <= filters.maxPrice;
     });
 
-    console.log('✨ useProperties - portfolioFormatted:', portfolioFormatted);
-
-    // Filter Portfolio properties by category if selected
-    let filteredPortfolio = portfolioFormatted;
-    if (selectedCategory) {
-      console.log('🔍 Filtering by category:', selectedCategory);
-      console.log('📋 Available Portfolio categories:', portfolioFormatted.map(p => `${p.category}/${p.subcategory}`));
-      
-      filteredPortfolio = portfolioFormatted.filter(property => {
-        // Check both category and subcategory for matches
-        const categoryMatch = property.category?.toLowerCase() === selectedCategory.toLowerCase();
-        const subcategoryMatch = property.subcategory?.toLowerCase() === selectedCategory.toLowerCase();
-        const matches = categoryMatch || subcategoryMatch;
-        
-        console.log(`🏠 Property "${property.title}" (${property.category}/${property.subcategory}) matches "${selectedCategory}": ${matches}`);
-        return matches;
-      });
+    // Apply sorting
+    switch (filters.sortBy) {
+      case "priceLow":
+        result.sort((a, b) => {
+          const aPrice = a.priceValue ?? Infinity;
+          const bPrice = b.priceValue ?? Infinity;
+          return aPrice - bPrice;
+        });
+        break;
+      case "priceHigh":
+        result.sort((a, b) => {
+          const aPrice = a.priceValue ?? -Infinity;
+          const bPrice = b.priceValue ?? -Infinity;
+          return bPrice - aPrice;
+        });
+        break;
+      case "titleAZ":
+        result.sort((a, b) => a.title.localeCompare(b.title));
+        break;
+      case "titleZA":
+        result.sort((a, b) => b.title.localeCompare(a.title));
+        break;
+      case "newest":
+      default:
+        break;
     }
 
-    console.log('🎯 useProperties - filteredPortfolio:', filteredPortfolio);
+    return result;
+  }, [properties, filters, globalPriceRange]);
 
-    // If no category is selected and we have properties, limit the display
-    if (!selectedCategory && filteredPortfolio.length > propertiesToShow) {
-      const limitedProperties = filteredPortfolio.slice(0, propertiesToShow);
-      console.log('📊 useProperties - limitedProperties:', limitedProperties);
-      return limitedProperties;
-    }
+  if (loading) {
+    return (
+      <div className="py-20 text-center">
+        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-emerald-600"></div>
+        <p className="mt-4 text-gray-600">Loading properties...</p>
+      </div>
+    );
+  }
 
-    // Return filtered portfolio properties
-    return filteredPortfolio;
-  }, [portfolioProperties, selectedCategory, propertiesToShow, filteredProperties]);
-};
-
-const PropertyCard = memo(({
-  id,
-  title,
-  price,
-  originalPrice,
-  images,
-  description,
-  features,
-  propertyDetails,
-}) => {
-  const [current, setCurrent] = useState(0);
-  const navigate = useNavigate();
-
-  const nextSlide = useCallback(() => setCurrent((prev) => (prev + 1) % images.length), [images.length]);
-  const prevSlide = useCallback(() =>
-    setCurrent((prev) => (prev - 1 + images.length) % images.length), [images.length]);
-
-  const handleCardClick = useCallback(() => {
-    navigate(`/property/${id}`);
-  }, [navigate, id]);
+  if (properties.length === 0) {
+    return (
+      <div className="py-20 text-center">
+        <p className="text-xl text-gray-500">
+          {selectedCategory
+            ? `No ${selectedCategory} properties found.`
+            : "No properties for sale at this time."}
+        </p>
+      </div>
+    );
+  }
 
   return (
-    <div
-      className="bg-white rounded-3xl mt-10 shadow-xl overflow-hidden flex flex-col transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] cursor-pointer"
-      onClick={handleCardClick}
-    >
-              {/* 🖼 Image Carousel */}
-        <div className="relative w-full h-72 overflow-hidden ">
-          {images && images.length > 0 ? (
-            images.map((img, i) => (
-              <img
-                key={i}
-                src={img}
-                alt={`${title} Image ${i + 1}`}
-                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
-                  i === current ? "opacity-100" : "opacity-0"
-                }`}
-              />
-            ))
-          ) : (
-            <div className="absolute inset-0 w-full h-full bg-gray-200 flex items-center justify-center">
-              <span className="text-gray-500">No images available</span>
-            </div>
-          )}
-        {/* <button
-          onClick={prevSlide}
-          className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white p-1 px-2 rounded-full text-lg z-10"
-        >
-          ‹
-        </button>
-        <button
-          onClick={nextSlide}
-          className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white p-1 px-2 rounded-full text-lg z-10"
-        >
-          ›
-        </button> */}
+    <section className="pb-20 pt-5 px-4 bg-gradient-to-br from-gray-50 to-white">
+      <div className="text-center mb-16">
+        <h1 className="text-4xl md:text-5xl font-bold text-gray-800">
+          Featured Properties For Sale
+        </h1>
+        <div className="w-24 h-1 bg-gradient-to-r from-green-400 to-blue-500 mx-auto mt-4 rounded-full" />
+        <p className="text-gray-500 mt-4 max-w-2xl mx-auto">
+          Discover elegant villas with modern upgrades, breathtaking views, and
+          exceptional amenities in St. John.
+        </p>
       </div>
 
-      {/* 📄 Property Info */}
-      <div className="p-6 md:p-8 flex flex-col gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-           
-          </div>
-          <h2 className="text-2xl font-alumni font-semibold text-gray-800">{title}</h2>
-          <div className="flex items-center gap-2 mt-1">
-            <p className="text-2xl text-emerald-600 font-alumni font-bold">{price}</p>
-         
-          </div>
-        </div>
-        <p className="text-gray-600 text-sm leading-relaxed line-clamp-4 font-noto">{description}</p>
-
-        {/* Combined Features */}
-        <div className="flex flex-wrap gap-4 mt-2 text-gray-700 text-sm font-noto">
-          {features.totalBeds && (
-            <span className="flex items-center gap-2">
-              <FaBed /> {features.totalBeds} Total Beds
-            </span>
-          )}
-          {features.totalBaths && (
-            <span className="flex items-center gap-2">
-              <FaBath /> {features.totalBaths} Total Baths
-            </span>
-          )}
-          {features.pool && (
-            <span className="flex items-center gap-2">
-              <FaSwimmingPool /> Pool Included
-            </span>
-          )}
-          {/* {features.properties && (
-            <span className="flex items-center gap-2">
-              <BsHouseDoorFill /> {features.properties} Properties
-            </span>
-          )} */}
-        </div>
-
-        {/* Individual Property Details */}
-        {propertyDetails && (
-          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-            <h4 className="font-alumni font-semibold text-gray-800 mb-3">
-              Package Includes:
-            </h4>
-            <div className="space-y-3">
-              {propertyDetails.map((property, index) => (
-                <div key={index} className="border-l-4 border-blue-500 pl-3">
-                  <h5 className="font-alumni font-medium text-gray-800">{property.name}</h5>
-                  <p className="text-xs text-gray-600 mt-1 font-noto">
-                    {property.description}
-                  </p>
-                  <div className="flex gap-3 mt-2 text-xs text-gray-500 font-noto">
-                    <span>{property.beds} beds</span>
-                    <span>{property.baths} baths</span>
-                    <span>{property.type}</span>
-                    {property.pool && <span>Pool</span>}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-});
-
-const PropertiesForSale = memo(({ selectedCategory, propertiesToShow, filteredProperties }) => {
-  // Use all properties from Portfolio backend system
-  const properties = useProperties(selectedCategory, propertiesToShow, filteredProperties);
-  
-  console.log('🏠 PropertiesForSale - properties from backend:', properties);
-  console.log('🏷️ PropertiesForSale - selectedCategory:', selectedCategory);
-  console.log('🔍 PropertiesForSale - filteredProperties:', filteredProperties);
-  
-  // Debug: Show if we have any properties at all
-  console.log('📊 PropertiesForSale - Total properties to display:', properties.length);
-
-  return (
-    <div>
-      <section className="pb-20 pt-5 px-4 w-full lg:px-2 bg-gradient-to-br from-gray-50 to-white">
-        {/* 🏠 Header */}
-        <div className="text-center mb-16">
-          <h1
-            className="text-4xl md:text-5xl font-alumni font-bold text-gray-800"
+      {/* Filter Bar */}
+      <div className="max-w-7xl mx-auto mb-8">
+        <div className="flex items-center justify-between flex-wrap gap-4 bg-white px-4 sm:px-6 py-4 rounded-xl shadow-md">
+          {/* Filter Button */}
+          <button
+            onClick={() => {
+              setTempFilters(filters);
+              setShowFilters(true);
+            }}
+            className="flex items-center gap-2 px-4 sm:px-6 py-2 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition-colors shadow-lg"
           >
-            Featured Properties For Sale
-          </h1>
-          <div className="w-24 h-1 bg-gradient-to-r from-green-400 to-blue-500 mx-auto mt-4 rounded-full" />
-          <p className="text-gray-500 mt-4 max-w-2xl mx-auto font-noto">
-            Discover elegant villas with modern upgrades, breathtaking views,
-            and exceptional amenities — located in the heart of St. John.
-            <br />
+            <FaFilter /> Filters
+          </button>
+
+          {/* Showing Results Text */}
+          <div className="text-center flex-grow sm:flex-grow-0">
+            <p className="text-gray-700 font-semibold">
+              Showing{" "}
+              <span className="text-emerald-600">
+                {filteredAndSorted.length}
+              </span>{" "}
+              out of{" "}
+              <span className="text-emerald-600">{properties.length}</span>{" "}
+              properties
+            </p>
+          </div>
+
+          {/* Active Filters Indicator */}
+          {(filters.minPrice > globalPriceRange.min ||
+            filters.maxPrice < globalPriceRange.max ||
+            filters.minBedrooms > 0) && (
+            <div className="flex items-center gap-3">
+              <div className="text-sm text-gray-600 bg-yellow-50 px-3 py-1 rounded-full border border-yellow-200">
+                Filters Applied
+              </div>
+              <button
+                onClick={() => {
+                  setFilters({
+                    minPrice: globalPriceRange.min,
+                    maxPrice: globalPriceRange.max,
+                    minBedrooms: 0,
+                    sortBy: "newest",
+                  });
+                }}
+                className="px-4 py-2 text-sm bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                Clear Filters
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Results */}
+      {filteredAndSorted.length === 0 ? (
+        <div className="max-w-7xl mx-auto py-12 text-center">
+          <p className="text-lg text-gray-500">
+            No properties match your filter criteria. Try adjusting your
+            filters.
           </p>
         </div>
-
-        {/* 🧱 Grid */}
-        <div className="w-full py-7">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {properties.map((property, index) => (
-              <PropertyCard key={property.id || index} {...property} />
-            ))}
-          </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
+          {filteredAndSorted.map((property) => (
+            <PropertyCard key={property.id} {...property} />
+          ))}
         </div>
-      </section>
-    </div>
+      )}
+
+      {/* Filter Modal */}
+      <FilterModal
+        isOpen={showFilters}
+        onClose={() => setShowFilters(false)}
+        filters={tempFilters}
+        onFilterChange={setTempFilters}
+        priceRange={globalPriceRange}
+        onApplyFilters={setFilters}
+      />
+    </section>
   );
 });
+
+PropertiesForSale.displayName = "PropertiesForSale";
 
 export default PropertiesForSale;
