@@ -30,22 +30,24 @@ function BrowseProperties({ bgColor = "bg-slate-50" }) {
               homes, commercial properties, and land opportunities across the
               beautiful island of St. John.
             </p>
-            <div className="flex flex-wrap gap-4">
-              <div className="bg-white/10 backdrop-blur px-6 py-3 rounded-lg">
-                <p className="text-sm font-semibold text-slate-200">
+            <div className="flex flex-wrap gap-8 items-baseline">
+              <div>
+                <p className="text-sm font-semibold text-slate-300">
                   Search Type
                 </p>
-                <p className="text-xl font-alumni font-bold">
+                <p className="text-lg font-alumni font-bold text-white mt-1">
                   Complete MLS Database
                 </p>
               </div>
-              <div className="bg-white/10 backdrop-blur px-6 py-3 rounded-lg">
-                <p className="text-sm font-semibold text-slate-200">Coverage</p>
-                <p className="text-xl font-alumni font-bold">St. John & USVI</p>
+              <div className="hidden sm:block text-slate-400">•</div>
+              <div>
+                <p className="text-sm font-semibold text-slate-300">Coverage</p>
+                <p className="text-lg font-alumni font-bold text-white mt-1">St. John & USVI</p>
               </div>
-              <div className="bg-white/10 backdrop-blur px-6 py-3 rounded-lg">
-                <p className="text-sm font-semibold text-slate-200">Updated</p>
-                <p className="text-xl font-alumni font-bold">Real-Time Data</p>
+              <div className="hidden sm:block text-slate-400">•</div>
+              <div>
+                <p className="text-sm font-semibold text-slate-300">Updated</p>
+                <p className="text-lg font-alumni font-bold text-white mt-1">Real-Time Data</p>
               </div>
             </div>
           </div>
