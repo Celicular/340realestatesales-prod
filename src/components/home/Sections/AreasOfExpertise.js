@@ -1,4 +1,5 @@
 import React from 'react';
+import slh1 from '../../../assets/slh1.jpeg';
 
 const AreasOfExpertise = () => {
   return (
@@ -8,7 +9,7 @@ const AreasOfExpertise = () => {
         {/* Image Section */}
         <div className="relative mb-8">
           <img 
-            src="https://www.340realestate.com/static/media/about2.2a3945f5a8fe9c273b6d.JPG" 
+            src={slh1} 
             alt="Aerial view of tropical island with lush greenery and turquoise waters"
             className="w-full h-[50vh] sm:h-[60vh] object-cover rounded-lg"
           />
@@ -47,7 +48,7 @@ const AreasOfExpertise = () => {
           {/* Right Side - 3/4 Image Coverage */}
           <div className="col-span-3 relative">
             <img 
-              src="https://www.340realestate.com/static/media/about2.2a3945f5a8fe9c273b6d.JPG" 
+              src={slh1} 
               alt="Aerial view of tropical island with lush greenery and turquoise waters"
               className="w-full h-[80vh] object-cover"
             />
