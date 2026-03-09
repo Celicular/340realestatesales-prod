@@ -1,4 +1,5 @@
 import React from "react";
+import logo from "../../../assets/logo.png";
 
 export default function ServicesSection() {
   return (
@@ -6,7 +7,7 @@ export default function ServicesSection() {
       {/* Top Icon */}
       <div className="mb-4">
         <img
-          src="https://www.340realestate.com/static/media/logo.30e5c243447a0ebd96ec.png"
+          src={logo}
           alt="logo"
           className="w-20 h-full object-cover transform group-hover:scale-105 transition duration-500"
         />
