@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import SEOHead from "../components/SEO/SEOHead";
 
 function BrowseProperties({ bgColor = "bg-slate-50" }) {
@@ -19,6 +20,7 @@ function BrowseProperties({ bgColor = "bg-slate-50" }) {
       />
 
       <div className={`min-h-screen ${bgColor}`}>
+        {/* ... existing code ... */}
         {/* Hero Section */}
         <div className="bg-gradient-to-r from-slate-800 to-slate-700 text-white py-16 px-4 sm:px-8 mt-20">
           <div className="max-w-6xl mx-auto">
@@ -167,12 +169,12 @@ function BrowseProperties({ bgColor = "bg-slate-50" }) {
               Our expert agents are ready to assist you with personalized
               property searches and consultations.
             </p>
-            <a
-              href="/contact"
+            <Link
+              to="/contact"
               className="inline-block bg-cruzbay-teal hover:bg-cruzbay-teal-dark text-white font-alumni font-medium text-lg px-8 py-3 rounded transition-colors duration-300"
             >
               Contact Our Agents
-            </a>
+            </Link>
           </div>
         </div>
       </div>

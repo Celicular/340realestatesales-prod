@@ -1,5 +1,5 @@
 import React from "react";
-import aboutstHero from "../../assets/abouthero.jpg";
+import aboutstHero from "../../assets/team.jpeg";
 
 const AboutStJohnTeam = () => {
   return (
@@ -8,7 +8,7 @@ const AboutStJohnTeam = () => {
       <div className="relative w-full h-[60vh] sm:h-[70vh] overflow-hidden">
         <img
           src={aboutstHero}
-          alt="Search MLS Hero"
+          alt="Our Team"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center text-center text-white px-4">

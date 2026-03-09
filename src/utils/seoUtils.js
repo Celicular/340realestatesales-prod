@@ -20,7 +20,7 @@ export const generatePropertyJsonLd = (property) => {
       "priceCurrency": "USD",
       "availability": "https://schema.org/InStock",
       "validFrom": new Date().toISOString(),
-      "url": `${baseUrl}${window.location.pathname}`
+      "url": window.location.href
     },
     "aggregateRating": {
       "@type": "AggregateRating",
@@ -64,7 +64,7 @@ export const generateRentalJsonLd = (rental) => {
       "longitude": "-64.8963"
     },
     "telephone": "+1-340-555-0123",
-    "url": `${baseUrl}${window.location.pathname}`,
+    "url": window.location.href,
     "priceRange": "$$-$$$",
     "amenityFeature": rental.amenities ? (
       Array.isArray(rental.amenities) 
@@ -113,7 +113,7 @@ export const generateBlogJsonLd = (blog) => {
     "dateModified": blog.updatedAt || blog.publishedAt || blog.createdAt,
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": `${baseUrl}${window.location.pathname}`
+      "@id": window.location.href
     }
   };
 };
@@ -199,7 +199,7 @@ export const generateBreadcrumbJsonLd = (breadcrumbs) => {
       "@type": "ListItem",
       "position": index + 1,
       "name": breadcrumb.name,
-      "item": baseUrl + breadcrumb.path
+      "item": baseUrl + "/#" + breadcrumb.path
     }))
   };
 };
