@@ -1,4 +1,4 @@
-import React from "react";
+import team from "../../../assets/team.jpeg"
 import { Link } from "react-router-dom"
 
 export default function AboutSection() {
@@ -10,7 +10,7 @@ export default function AboutSection() {
             {/* Left: Image */}
             <div className="flex justify-center order-1 md:order-1">
               <img
-                src="https://www.340realestate.com/static/media/team.9b5bbec2ccab6d8c134c.jpeg"
+                src={team}
                 alt="Our Team"
                 className="w-full max-w-sm sm:max-w-md md:max-w-lg h-64 sm:h-72 md:h-80 lg:h-96 object-cover rounded-sm shadow-lg"
               />

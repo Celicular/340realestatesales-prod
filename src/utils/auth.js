@@ -18,7 +18,7 @@ export const logout = async () => {
   localStorage.removeItem('userId');
   
   // Redirect to login page
-  window.location.href = '/login';
+  window.location.hash = '/login';
 };
 
 export const getCurrentUser = () => {

@@ -6,7 +6,7 @@ import { FaWhatsapp } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { getAgents } from "../firebase/firestore";
 
-import teamhero from "../assets/teamcrop.jpg";
+import teamhero from "../assets/team.jpeg";
 
 // Tammy's images
 import tammy1 from "../assets/agent/tammy/tammy1.jpg";
@@ -427,7 +427,7 @@ Whether you are looking to buy or sell, John would love to put his over 20 years
       <section className="relative h-[65vh] md:h-[80vh] w-full overflow-hidden">
         <img
           src={teamhero}
-          alt="St. John"
+          alt="Our Team"
           className="absolute inset-0 w-full h-full object-cover object-center  scale-105 transition-transform duration-700 ease-in-out"
           loading="eager"
         />

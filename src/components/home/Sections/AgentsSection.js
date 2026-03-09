@@ -2,7 +2,7 @@ import React from "react";
 import { Mail, Phone } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import tina10 from "../../../assets/agent/tina/tina10.png";
-import aboutstHero from "../../../assets/abouthero.jpg";
+import aboutstHero from "../../../assets/team.jpeg";
 
 const AgentsSection = () => {
   const agents = [

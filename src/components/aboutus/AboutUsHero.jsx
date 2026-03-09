@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import abouthero from "../../assets/teamabout.jpg";
+import abouthero from "../../assets/team.jpeg";
 
 const AboutUsHero = () => {
   return (
@@ -9,7 +9,7 @@ const AboutUsHero = () => {
       <section className="relative h-[160vh] w-full overflow-hidden">
         <img
           src={abouthero}
-          alt="Aerial view of St. John Island"
+          alt="Our Team"
           loading="lazy"
           className="absolute inset-0 w-full h-full object-cover object-center scale-105 transition-transform duration-700 ease-in-out"
         />
